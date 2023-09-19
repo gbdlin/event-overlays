@@ -1,0 +1,101 @@
+@use "sass:color";
+
+@font-face {
+  font-family: 'Roboto Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(roboto-monospace.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+:root {
+  --ok-color-rgb: 0, 127, 0;
+  --warn-color-rgb: 219, 157, 32;
+  --danger-color-rgb: 219, 13, 32;
+
+  --ok-color: rgb(var(--ok-color-rgb));
+  --warn-color: rgb(var(--warn-color-rgb));
+  --danger-color: rgb(var(--danger-color-rgb));
+}
+
+@keyframes blinker {
+  50% { visibility: hidden; opacity: 0 }
+}
+
+@keyframes flash {
+  50% { background: #ffffff; color: #000000}
+}
+
+body {
+  font-size: 3em;
+  background: #000000;
+  color: #dddddd;
+}
+
+.timer-container {
+  overflow: hidden;
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  &.timer-flash {
+    animation: flash 0.5s steps(1, end) 3;
+  }
+}
+
+progress.progress-bar {
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(
+                  270deg,
+                  rgba(var(--ok-color-rgb), 0.2) 0%,
+                  rgba(var(--ok-color-rgb), 0.2) 70%,
+                  rgba(var(--warn-color-rgb), 0.2) 70%,
+                  rgba(var(--warn-color-rgb), 0.2) 90%,
+                  rgba(var(--danger-color-rgb), 0.2) 90%,
+                  rgba(var(--danger-color-rgb), 0.2) 100%
+  );
+  border: none;
+  width: 95vw;
+  margin: 2vh auto 8vh;
+  display: block;
+  height: 5vh;
+
+  &::-moz-progress-bar, &::-webkit-progress-bar {
+    background: linear-gradient(
+                    270deg,
+                    var(--ok-color) 0%,
+                    var(--ok-color) 70%,
+                    var(--warn-color) 70%,
+                    var(--warn-color) 90%,
+                    var(--danger-color) 90%,
+                    var(--danger-color) 100%
+    ) center left / 95vw 100%;
+  }
+}
+
+div.timer {
+  text-align: center;
+  font-size: 15vw;
+  margin: 8vh 0;
+  color: var(--ok-color);
+  font-family: "Roboto Mono", monospace;
+
+  &.warn {
+    color: var(--warn-color);
+  }
+
+  &.danger {
+    color: var(--danger-color);
+  }
+
+  &.outaTime {
+    animation: blinker 1s steps(1, end) infinite;
+  }
+}
+
+.message {
+  font-size: 8vw;
+  text-align: center;
+  margin: 8vh 0;
+}

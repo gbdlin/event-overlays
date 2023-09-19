@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "obs-overlays"
+version = "0.1.0"
+description = ""
+authors = ["GwynBleidD <gbd.lin@gmail.com>"]
+readme = "README.md"
+packages = [{include = "obs_overlays"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.101.0"
+uvicorn = { version = "^0.23.2", extras = ["standard"] }
+jinja2 = "^3.1.2"
+pydantic = "^2.1.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

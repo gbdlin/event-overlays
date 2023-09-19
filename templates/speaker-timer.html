@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Timer</title>
+    <link type="text/css" rel="stylesheet" href="/static/fontawesome/regular.css">
+    <link type="text/css" rel="stylesheet" href="/static/timer.css">
+  </head>
+  <body
+      data-title="{{ meeting.full_title }}"
+      data-ws="/{{ group }}/{{ slug }}/ws/timer"
+  >
+    {% raw %}
+      <div class="timer-layout" id="app">
+        <div v-if="state !== null" id="cp" :class="['timer-container', {'timer-flash': timerFlashing}]">
+          <progress class="progress-bar" :value="timerValue" :max="state.timer.target"></progress>
+
+          <div :class="['timer', {warn: timerValue < state.timer.target * 0.3, danger: timerValue < state.timer.target * 0.1, outaTime: timerValue < 0}]">
+            {{ timerFormatMsec(timerValue) }}
+          </div>
+
+          <div class="message">{{ state.timer.message }}</div>
+          <div class="clock"></div>
+        </div>
+      </div>
+    {% endraw %}
+
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+        }
+      }
+    </script>
+
+    <script type="module" src="/static/ws.js"></script>
+  </body>
+</html>

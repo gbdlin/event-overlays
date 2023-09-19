@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>{{ meeting.full_title }}</title>
+    <link type="text/css" rel="stylesheet" href="/static/control.css">
+
+  </head>
+  <body
+      data-title="{{ meeting.full_title }}"
+      data-ws="/{{ group }}/{{ slug }}/ws/control?control_password={{ control_password }}"
+  >
+    <div id="app">
+      {% raw %}
+        <template v-if="state !== null" id="cp">
+          <div class="row">
+            <button id="untick" @click="handleAction('meeting.untick')" :disabled="state.previous_state[0] === null"><i
+                class="fa-solid fa-backward-step fa-xl"></i></button>
+            <p id="state">{{ meeting_name }} - {{ getStateDisplay(state.current_state) }}</p>
+            <button id="tick" @click="handleAction('meeting.tick')" :disabled="state.next_state[0] === null"><i
+                class="fa-solid fa-forward-step fa-xl"></i></button>
+          </div>
+          <div id="stream-message" class="row">
+            <input type="text" id="stream-message-text" placeholder="Intermission message..." v-model="state.message" @keyup.enter="handleAction('stream.set-message')">
+            <button id="set-stream-message" @click="handleAction('stream.set-message')"><i class="fa-solid fa-paper-plane fa-xl"></i></button>
+          </div>
+          <hr>
+          <div class="row timer-status-controls">
+            <button id="timer-start" @click="handleAction('timer.start')" v-if="!state.timer.started_at"><i class="fa-solid fa-play fa-xl"></i></button>
+            <button id="timer-stop" @click="handleAction('timer.stop')" v-if="state.timer.started_at"><i class="fa-solid fa-pause fa-xl"></i></button>
+            <div class="cell3 timer-status">
+              <span class="timer-current">{{ timerFormatMsec(timerValue) }}</span>
+              <span class="timer-set">{{ timerFormat(state.timer.target) }}</span>
+            </div>
+            <button id="timer-reset" @click="handleAction('timer.reset')"><i class="fa-solid fa-clock-rotate-left fa-xl"></i>
+            </button>
+            <button id="timer-flash" @click="handleAction('timer.flash')"><i class="fa-solid fa-sun fa-xl"></i></button>
+          </div>
+          <div class="row row4 row-wrap timer-set-controls">
+            <button :class="{active: state.timer.target == 5 * 60 * 1000}" id="timer-5" @click="setTimer(5 * 60 * 1000)">5:00</button>
+            <button :class="{active: state.timer.target == 10 * 60 * 1000}" id="timer-10" @click="setTimer(10 * 60 * 1000)">10:00</button>
+            <button :class="{active: state.timer.target == 15 * 60 * 1000}" id="timer-15" @click="setTimer(15 * 60 * 1000)">15:00</button>
+            <button :class="{active: state.timer.target == 20 * 60 * 1000}" id="timer-20" @click="setTimer(20 * 60 * 1000)">20:00</button>
+            <button :class="{active: state.timer.target == 30 * 60 * 1000}" id="timer-30" @click="setTimer(30 * 60 * 1000)">30:00</button>
+            <button :class="{active: state.timer.target == 45 * 60 * 1000}" id="timer-45" @click="setTimer(45 * 60 * 1000)">45:00</button>
+            <button :class="{active: state.timer.target == 60 * 60 * 1000}" id="timer-60" @click="setTimer(60 * 60 * 1000)">60:00</button>
+            <button class="other-active" id="timer-custom" @click="showCustomTimeDialog">Custom</button>
+          </div>
+          <div id="timer-message" class="row">
+            <input type="text" id="timer-message-text" placeholder="Timer message..." v-model="state.timer.message" @keyup.enter="handleAction('timer.set-message')">
+            <button id="set-timer-message" @click="handleAction('timer.set-message')"><i class="fa-solid fa-paper-plane fa-xl"></i></button>
+          </div>
+          <dialog id="timer-custom-dialog">
+            <form method="dialog">
+              <div class="spinner" id="time-custom-minutes">
+                <div class="spinner-row">
+                  <button id="time-custom-minutes-up-10" @click.prevent="adjustTimer(10 * 60 * 1000)">↑</button>
+                  <button id="time-custom-minutes-up-1" @click.prevent="adjustTimer(60 * 1000)">↑</button>
+                </div>
+                <span id="time-custom-minutes-value">{{ timerMinutes(state.timer.target).padStart(2, "0") }}</span>
+                <div class="spinner-row">
+                  <button id="time-custom-minutes-down-10" @click.prevent="adjustTimer(-10 * 60 * 1000)">↓</button>
+                  <button id="time-custom-minutes-down-1" @click.prevent="adjustTimer(-60 * 1000)">↓</button>
+                </div>
+              </div>
+              <span class="spinner-colon">:</span>
+              <div class="spinner" id="time-custom-seconds">
+                <div class="spinner-row">
+                  <button id="time-custom-seconds-up-10" @click.prevent="adjustTimer(10 * 1000)">↑</button>
+                  <button id="time-custom-seconds-up-1" @click.prevent="adjustTimer(1000)">↑</button>
+                </div>
+                <span id="time-custom-seconds-value">{{ timerSeconds(state.timer.target) }}</span>
+                <div class="spinner-row">
+                  <button id="time-custom-seconds-down-10" @click.prevent="adjustTimer(-10 * 1000)">↓</button>
+                  <button id="time-custom-seconds-down-1" @click.prevent="adjustTimer(-1000)">↓</button>
+                </div>
+              </div>
+              <button id="timer-custom-close">x</button>
+            </form>
+          </dialog>
+        </template>
+        <template v-else>
+          <p>Loading...</p>
+        </template>
+      {% endraw %}
+    </div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+        }
+      }
+    </script>
+    <script type="module" src="/static/ws.js"></script>
+  </body>
+</html>
