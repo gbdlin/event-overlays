@@ -1,9 +1,9 @@
-import json
 from time import time_ns
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from pydantic_core import to_json
 
 from models import Meeting, State, StateException
 
@@ -29,13 +29,13 @@ class ConnectionManager:
 
     async def broadcast_targeted_json(self, data, target_roles):
         await self.broadcast(
-            json.dumps(
+            to_json(
                 {
                     "status": "update",
                     "target_roles": list(target_roles),
                     **data
                 }
-            ),
+            ).decode(),
             target_roles,
         )
 
@@ -109,7 +109,7 @@ async def ws_view(websocket: WebSocket, group: str, slug: str, role: str, contro
     manager = managers.setdefault((group, state.meeting.slug), ConnectionManager())
 
     await manager.connect(websocket, role)
-    await websocket.send_text(json.dumps({"status": "init", **get_state_update_for(state, role, "init")}))
+    await websocket.send_text(to_json({"status": "init", **get_state_update_for(state, role, "init")}).decode())
 
     try:
         async for command in websocket.iter_json():
@@ -199,7 +199,7 @@ async def ws_view(websocket: WebSocket, group: str, slug: str, role: str, contro
 
 
 @app.get("/{group:str}/{slug:str}/scene-{scene:str}.html")
-async def scene_view(request: Request, group: str, slug: str, scene: str):
+async def scene_view(request: Request, group: str, slug: str, scene: str, display: str = "scene"):
     return templates.TemplateResponse(
         "scene.html",
         {
@@ -208,6 +208,7 @@ async def scene_view(request: Request, group: str, slug: str, scene: str):
             "group": group,
             "slug": slug,
             "scene": scene,
+            "display_type": display,
         },
     )
 

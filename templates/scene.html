@@ -8,10 +8,11 @@
   </head>
   <body
       data-title="{{ meeting.full_title }}"
+      data-display="{{ display_type }}"
       data-ws="/{{ group }}/{{ slug }}/ws/scene-{{ scene }}"
       class="{% block body_class %}obs-body-default{% endblock %}"
   >
-    <div class="obs-meeting-logo">
+    <div class="obs-meeting-logo {% if display_type != "scene" %}obs-meeting-logo-thumbnail{% endif %}">
       <img src="{{ meeting.logo_url }}" alt="{{ meeting.name }} logo">
       <div class="obs-meeting-title">{{ meeting.full_title }}</div>
     </div>
@@ -20,10 +21,11 @@
       <div class="obs-intermission-content" id="app">
         <template v-if="state">
           <div class="obs-intermission-agenda" v-if="state.template === 'agenda'">
-            <div class="obs-intermission-agenda-title">{{ state.previous_state ? "Next" : "Today" }} in the schedule:
+            <div class="obs-intermission-agenda-title" v-if="display != 'thumbnail'">
+              {{ state.previous_state[0] ? "Next" : "Today" }} in the schedule:
             </div>
 
-            <div v-for="entry in state.context.schedule"
+            <div v-for="entry in state.context.schedule.slice(0, 3)"
                  :class="['obs-intermission-agenda-entry', `obs-intermission-agenda-${entry.type}`, {'no-picture': (entry.type != 'talk' || !entry.author.picture_url)}]">
               <template v-if="entry.type === 'talk'">
                 <div class="obs-intermission-agenda-talk-picture" v-if="entry.author.picture_url">
@@ -41,7 +43,7 @@
               </template>
             </div>
 
-            <div class="obs-intermission-agenda-entry obs-intermission-agenda-aaa" v-if="false">
+            <div class="obs-intermission-agenda-entry obs-intermission-agenda-overflow" v-if="state.context.schedule.length > 3">
               <div class="obs-intermission-agenda-entry-content">
                 <span class="obs-intermission-agenda-misc-title">And more...</span>
               </div>
@@ -67,7 +69,7 @@
             </div>
           </div>
 
-          <template v-if="displayMessages">
+          <template v-if="displayMessages && display == 'scene'">
             <div :class="['obs-intermission-brb-info', messagesPositionCls]">{{ state.context.info }}</div>
             <div :class="['obs-intermission-message', messagesPositionCls]">{{ state.context.message }}</div>
           </template>

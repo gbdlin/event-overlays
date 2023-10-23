@@ -93,6 +93,7 @@ createApp({
   data() {
     return {
       meeting_name: body.dataset.title,
+      display: body.dataset.display,
       state: m_state,
       timerFlashing: m_timerFlashing,
       displayMessages: computed(() => (
