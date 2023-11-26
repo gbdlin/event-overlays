@@ -27,10 +27,15 @@
   50% { background: #ffffff; color: #000000}
 }
 
+html {
+  overflow: hidden;
+}
+
 body {
   font-size: 3em;
   background: #000000;
   color: #dddddd;
+  overflow: hidden;
 }
 
 .timer-container {

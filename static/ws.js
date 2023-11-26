@@ -6,7 +6,10 @@ const m_customTimeDialog = ref(false);
 const m_timerFlashing = ref(false);
 const m_now = ref(Date.now());
 setInterval(() => m_now.value = Date.now(), 69);
+const m_ticker = ref(0);
+setInterval(() => m_ticker.value += 100, 100);
 const body = document.getElementsByTagName("body")[0];
+const initSettings = JSON.parse(document.getElementById("initSettings").textContent)
 
 function sendMessage(data) {
   ws.send(JSON.stringify(data));
@@ -71,7 +74,7 @@ const openSocket = (wsURL, waitTimer, waitSeed, multiplier) => {
   }
 }
 
-openSocket(`${location.origin.replace("http", "ws")}${body.dataset.ws}`, 1000, 1000, 2)
+openSocket(`${location.origin.replace("http", "ws")}${initSettings.ws}`, 1000, 1000, 2)
 
 function timerPieces(value) {
   const round_fn = value > 0 ? Math.floor : Math.ceil;
@@ -92,13 +95,16 @@ function timerPieces(value) {
 createApp({
   data() {
     return {
-      meeting_name: body.dataset.title,
-      display: body.dataset.display,
+      meeting_name: initSettings.title,
+      display: initSettings.display,
+      presentationBottomBar: initSettings.presentationBottomBar,
+      presentationSponsors: initSettings.presentationSponsors,
       state: m_state,
       timerFlashing: m_timerFlashing,
       displayMessages: computed(() => (
         m_state.value.template === "agenda"
         || m_state.value.template === "brb"
+        || m_state.value.template === "message"
       )),
       messagesPositionCls: computed(() => ({
         "alt-position": m_state.value.template === "agenda",
@@ -148,6 +154,11 @@ createApp({
       showCustomTimeDialog(e) {
         document.getElementById("timer-custom-dialog").showModal();
       },
+      ticker: m_ticker,
+      slideActive(ticker, time, index, total) {
+        const current = ticker % (time * total)
+        return (current >= time * index && current < time * (index + 1));
+      }
     }
   }
 }).mount('#app');

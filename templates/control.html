@@ -10,6 +10,12 @@
       data-title="{{ meeting.full_title }}"
       data-ws="/{{ group }}/{{ slug }}/ws/control?control_password={{ control_password }}"
   >
+    <script type="application/json" id="initSettings">
+      {
+        "title": {{ meeting.full_title | tojson }},
+        "ws": "/{{ group }}/{{ slug }}/ws/control?control_password={{ control_password }}"
+      }
+    </script>
     <div id="app">
       {% raw %}
         <template v-if="state !== null" id="cp">

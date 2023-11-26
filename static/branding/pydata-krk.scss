@@ -1,0 +1,75 @@
+:root {
+  --pydata-bg: #20252b;
+  --pydata-orange: #ec9041;
+  --pydata-blue: #489bb7;
+  --pydata-blue-alt: #667b83;
+  --pydata-blue-alt2: #537375;
+}
+
+
+body, html {
+
+  &.obs-body-default {
+    background: url("/static/bg/pydata.png") no-repeat, var(--pydata-bg);
+  }
+}
+
+.obs-meeting-logo {
+  img {
+
+    width: 1036px;
+    height: 448px;
+  }
+}
+
+.obs-meeting-title {
+  color: var(--pydata-blue);
+  font-weight: 400;
+  font-size: 3rem;
+  top: -110px;
+  right: 25px;
+  left: auto;
+  text-align: right;
+  text-shadow: none;
+
+  .obs-meeting-title-number {
+    display: none;
+  }
+}
+
+.obs-intermission-agenda-talk-author-name {
+  color: var(--pydata-orange);
+}
+
+.obs-intermission-agenda-talk-title {
+  color: var(--pydata-blue);
+}
+
+.obs-intermission-agenda-misc-title:before,  .obs-intermission-agenda-talk.no-picture .obs-intermission-agenda-entry-content:before {
+  color: var(--pydata-blue)
+}
+
+.obs-intermission-agenda-title {
+  text-shadow: none;
+}
+
+.obs-intermission-next-entry-author-name {
+  color: var(--pydata-orange);
+}
+
+.obs-presentation-author, .obs-presentation-title, .obs-presentation-misc-title {
+  text-shadow: none;
+}
+
+.obs-presentation-author {
+  color: var(--pydata-orange)
+}
+
+.obs-body-scene-presentation {
+  .obs-meeting-logo {
+    img {
+      width: 222px;
+      height: 96px;
+    }
+  }
+}

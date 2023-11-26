@@ -1,4 +1,5 @@
 from time import time_ns
+from typing import Literal
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
@@ -83,7 +84,12 @@ def get_state_update_for(state: State, target: str, command: str | None = None) 
                 **global_scene_context,
             }
         case "scene-presentation":
-            return {**global_scene_context}  # TODO
+            presentation_template, presentation_context = state.presentation_screen_content
+            return {
+                "template": presentation_template,
+                "context": presentation_context,
+                **global_scene_context
+            }
         case "timer":
             return {
                 **global_scene_context,
@@ -199,7 +205,15 @@ async def ws_view(websocket: WebSocket, group: str, slug: str, role: str, contro
 
 
 @app.get("/{group:str}/{slug:str}/scene-{scene:str}.html")
-async def scene_view(request: Request, group: str, slug: str, scene: str, display: str = "scene"):
+async def scene_view(
+    request: Request,
+    group: str,
+    slug: str,
+    scene: str,
+    display: str = "scene",
+    presentation_bottom_bar: bool = True,
+    presentation_sponsors: Literal["left", "right"] | None = None,
+):
     return templates.TemplateResponse(
         "scene.html",
         {
@@ -209,6 +223,8 @@ async def scene_view(request: Request, group: str, slug: str, scene: str, displa
             "slug": slug,
             "scene": scene,
             "display_type": display,
+            "presentation_bottom_bar": presentation_bottom_bar,
+            "presentation_sponsors": presentation_sponsors,
         },
     )
 

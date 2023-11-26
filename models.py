@@ -1,11 +1,11 @@
 import re
 import tomllib
 from datetime import datetime
-from pathlib import Path, PurePath
+from pathlib import Path
 from typing import Literal
 from urllib.parse import urljoin
 
-from pydantic import AnyHttpUrl, BaseModel, computed_field
+from pydantic import AnyHttpUrl, AnyUrl, BaseModel, computed_field, FileUrl, HttpUrl
 
 MEETING_CONGFIGS_ROOT = Path("meetings")
 
@@ -42,6 +42,7 @@ class MeetingLightningTalks(BaseModel):
 
 
 class MeetingSocial(BaseModel):
+    type: Literal["discord", "youtube", "meetup", "website"]
     url: AnyHttpUrl
 
 
@@ -50,6 +51,7 @@ class MeetingSponsor(BaseModel):
     logo: Path
     url: AnyHttpUrl | None = None
 
+    @computed_field
     @property
     def logo_url(self) -> str:
         return urljoin("/static/", str(self.logo))
@@ -58,13 +60,14 @@ class MeetingSponsor(BaseModel):
 class Meeting(BaseModel):
     slug: str  # this is injected by config loader
     name: str
-    logo_url: AnyHttpUrl
+    logo_url: HttpUrl | Path
     type: str
     number: int
     starts: datetime
-    sponsors: list[MeetingSponsor]
-    schedule: list[MeetingTalk | MeetingLightningTalks]
-    discord: MeetingSocial | None = None
+    branding: str | None = None
+    sponsors: list[MeetingSponsor] = []
+    schedule: list[MeetingTalk | MeetingLightningTalks] = []
+    socials: list[MeetingSocial] = []
 
     control_password: str | None = None
 
@@ -172,7 +175,7 @@ class State(BaseModel):
 
     @property
     def global_context(self) -> dict:
-        return {"message": self.message}
+        return {"message": self.message, "socials": self.meeting.socials, "sponsors": self.meeting.sponsors}
 
     @computed_field
     @property
@@ -193,6 +196,11 @@ class State(BaseModel):
         else:
             message = "Will be back soon..."
         return "agenda", {**self.global_context, "schedule": schedule, "info": message}
+
+    @computed_field
+    @property
+    def presentation_screen_content(self) -> tuple[str, dict]:
+        return "presentation", {**self.global_context, "entry": self.current_schedule_item}
 
     @classmethod
     def get_meeting_state(cls, meeting: str, slug: str) -> "State":

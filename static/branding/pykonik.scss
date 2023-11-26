@@ -1,0 +1,17 @@
+body, html {
+
+  &.obs-body-default {
+    background: url("/static/bg/yellow.png") no-repeat 539px 0,
+    url("/static/bg/gray.png") no-repeat -180px 564px,
+    url("/static/bg/blue.png") no-repeat 592px 439px,
+    white;
+  }
+}
+
+.obs-meeting-logo {
+  img {
+
+    width: 1008px;
+    height: 297px;
+  }
+}

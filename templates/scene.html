@@ -3,18 +3,27 @@
   <head>
     <meta charset="UTF-8">
     <title>Web Source</title>
-    <link type="text/css" rel="stylesheet" href="/static/fontawesome/regular.css">
     <link type="text/css" rel="stylesheet" href="/static/global.css">
+    {% if meeting.branding -%}
+      <link type="text/css" rel="stylesheet" href="/static/branding/{{ meeting.branding }}.css">
+    {%- endif %}
   </head>
-  <body
-      data-title="{{ meeting.full_title }}"
-      data-display="{{ display_type }}"
-      data-ws="/{{ group }}/{{ slug }}/ws/scene-{{ scene }}"
-      class="{% block body_class %}obs-body-default{% endblock %}"
-  >
+  <body class="{% block body_class %}obs-body-default{% endblock %} obs-body-scene-{{ scene }}">
+    <script type="application/json" id="initSettings">
+      {
+        "title": {{ meeting.full_title | tojson }},
+        "display": {{ display_type | tojson }},
+        "ws": "/{{ group }}/{{ slug }}/ws/scene-{{ scene }}",
+        "presentationBottomBar": {{ presentation_bottom_bar | default(None) | tojson }},
+        "presentationSponsors": {{ presentation_sponsors | default(None) | tojson }}
+      }
+    </script>
     <div class="obs-meeting-logo {% if display_type != "scene" %}obs-meeting-logo-thumbnail{% endif %}">
       <img src="{{ meeting.logo_url }}" alt="{{ meeting.name }} logo">
-      <div class="obs-meeting-title">{{ meeting.full_title }}</div>
+      <div class="obs-meeting-title">
+        <span class="obs-meeting-title-type">{{ meeting.type }}</span>
+        <span class="obs-meeting-title-number">#{{ meeting.number }}</span>
+      </div>
     </div>
 
     {% raw %}
@@ -22,7 +31,7 @@
         <template v-if="state">
           <div class="obs-intermission-agenda" v-if="state.template === 'agenda'">
             <div class="obs-intermission-agenda-title" v-if="display != 'thumbnail'">
-              {{ state.previous_state[0] ? "Next" : "Today" }} in the schedule:
+              {{ state.previous_state[0] !== null ? "Next" : "Today" }} in the schedule:
             </div>
 
             <div v-for="entry in state.context.schedule.slice(0, 3)"
@@ -36,7 +45,7 @@
                   <span class="obs-intermission-agenda-talk-title">{{ entry.title }}</span>
                 </div>
               </template>
-              <template v-else-if="entry-type === 'lightning-talks'">
+              <template v-else-if="entry.type === 'lightning-talks'">
                 <div class="obs-intermission-agenda-entry-content">
                   <span class="obs-intermission-agenda-misc-title">Lightning talks</span>
                 </div>
@@ -72,6 +81,34 @@
           <template v-if="displayMessages && display == 'scene'">
             <div :class="['obs-intermission-brb-info', messagesPositionCls]">{{ state.context.info }}</div>
             <div :class="['obs-intermission-message', messagesPositionCls]">{{ state.context.message }}</div>
+          </template>
+
+          <template v-if="state.template == 'presentation'">
+            <div class="obs-presentation-top-bar">
+              <template v-if="current.type == 'talk'">
+                <span class="obs-presentation-author">{{ current.author.name }}</span>
+                <span class="obs-presentation-title">{{ current.title }}</span>
+              </template>
+              <template v-else-if="current.type == 'lightning-talks'">
+                <span class="obs-presentation-misc-title">Lightning talks</span>
+              </template>
+            </div>
+            <div :class="['obs-presentation-sponsors', 'slideshow', `obs-presentation-sponsors-${presentationSponsors}`]" v-if="presentationSponsors !== null && state.context.sponsors.length > 0">
+              <div  :class="['slide', {'active': slideActive(ticker, 5000, index, state.context.sponsors.length)}]"  v-for="(sponsor, index) in state.context.sponsors">
+                <img :src="sponsor.logo_url" :alt="sponsor.name">
+              </div>
+            </div>
+            <div class="obs-presentation-bottom-bar" v-if="presentationBottomBar">
+              <div class="obs-presentation-bottom-bar-slider slideshow">
+                <div :class="['slide', {'active': slideActive(ticker, 5000, index, state.context.socials.length)}]" v-for="(social, index) in state.context.socials">
+                  <span class="obs-presentation-bottom-bar-social-icon">
+                    <i v-if="social.type === 'website'" class="fa-solid fa-globe"></i>
+                    <i v-else :class="['fa-brands', `fa-${social.type}`]"></i>
+                  </span>
+                  <span class="obs-presentation-bottom-bar-social-url">{{ social.url.replace(/^https?:\/\//, "").replace(/\/$/, "") }}</span>
+                </div>
+              </div>
+            </div>
           </template>
         </template>
       </div>
