@@ -7,7 +7,10 @@ from urllib.parse import urljoin
 
 from pydantic import AnyHttpUrl, AnyUrl, BaseModel, computed_field, FileUrl, HttpUrl
 
-MEETING_CONGFIGS_ROOT = Path("meetings")
+CONFIG_ROOT = Path("config")
+
+MEETING_CONFIGS_ROOT = Path("meetings")
+TIMER_CONFIGS_ROOT = CONFIG_ROOT / "timers"
 
 states: dict[tuple[str, str], "State"] = {}
 
@@ -83,8 +86,8 @@ class Meeting(BaseModel):
     @classmethod
     def get_meeting_config(cls, group: str, slug: str) -> "Meeting":
         if slug == "__latest__":
-            slug = get_latest_meeting_slug(MEETING_CONGFIGS_ROOT, group)
-        path = MEETING_CONGFIGS_ROOT / group / f"{slug}.toml"
+            slug = get_latest_meeting_slug(MEETING_CONFIGS_ROOT, group)
+        path = MEETING_CONFIGS_ROOT / group / f"{slug}.toml"
 
         return cls.parse_obj(cls.get_meeting_dict(path))
 
@@ -205,7 +208,7 @@ class State(BaseModel):
     @classmethod
     def get_meeting_state(cls, meeting: str, slug: str) -> "State":
         if slug == "__latest__":
-            slug = get_latest_meeting_slug(MEETING_CONGFIGS_ROOT, meeting)
+            slug = get_latest_meeting_slug(MEETING_CONFIGS_ROOT, meeting)
 
         if (meeting, slug) not in states:
             states[meeting, slug] = cls(
@@ -214,3 +217,21 @@ class State(BaseModel):
             )
 
         return states[meeting, slug]
+
+
+class TimerConfig(BaseModel):
+    slug: str
+
+    event: str | None = None
+    station: str | None = None
+
+    @staticmethod
+    def get_timer_dict(path: Path) -> "dict":
+        with path.open("rb") as timer_fd:
+            return {**tomllib.load(timer_fd)["timer"], "slug": path.stem}
+
+    @classmethod
+    def get_timer_config(cls, slug: str) -> "TimerConfig":
+        path = TIMER_CONFIGS_ROOT / f"{slug}.toml"
+
+        return cls.model_validate(cls.get_timer_dict(path))

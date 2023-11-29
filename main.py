@@ -5,8 +5,9 @@ from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic_core import to_json
+from starlette.responses import RedirectResponse
 
-from models import Meeting, State, StateException
+from models import Meeting, State, StateException, TimerConfig
 
 app = FastAPI()
 
@@ -104,6 +105,12 @@ def get_state_update_for(state: State, target: str, command: str | None = None) 
                 **global_scene_context,
             }
     return global_scene_context
+
+
+@app.get("/t/{timer_slug:str}/speaker.html")
+async def redirect(timer_slug: str):
+    timer_config = TimerConfig.get_timer_config(timer_slug)
+    return RedirectResponse(f"/{timer_config.event}/speaker-timer.html")
 
 
 @app.websocket("/{group:str}/{slug:str}/ws/{role:str}")
