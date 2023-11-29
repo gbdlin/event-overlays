@@ -1,3 +1,13 @@
+# SCSS builder
+FROM michalklempa/dart-sass:latest as scss-builder
+
+RUN mkdir -p /code/static
+WORKDIR /code
+COPY ./static /code/static
+
+RUN ["/opt/dart-sass/sass", "/code/static/"]
+
+# Python app
 FROM python:3.12-slim-bookworm
 
 ENV POETRY_VERSION=1.7.1
@@ -30,6 +40,9 @@ ENV BUILD_COMMIT_SHA ${BUILD_COMMIT_SHA:-}
 
 # All directories are unpacked. Due to it, each file must be specified separately!
 COPY . /code
+COPY --from=scss-builder /code/static/*.css static/
+COPY --from=scss-builder /code/static/*.css.map static/
+
 ENV PYTHONUNBUFFERED=0
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
