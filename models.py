@@ -51,7 +51,7 @@ class MeetingSocial(BaseModel):
 
 class MeetingSponsor(BaseModel):
     name: str
-    logo: Path
+    logo: AnyHttpUrl | Path
     url: AnyHttpUrl | None = None
 
     @computed_field
