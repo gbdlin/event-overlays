@@ -22,7 +22,7 @@
           <div class="row">
             <button id="untick" @click="handleAction('meeting.untick')" :disabled="state.previous_state[0] === null"><i
                 class="fa-solid fa-backward-step fa-xl"></i></button>
-            <p id="state">{{ meeting_name }} - {{ getStateDisplay(state.current_state) }}</p>
+            <p id="state">{{ meeting.name }} - {{ getStateDisplay(state.current_state) }}</p>
             <button id="tick" @click="handleAction('meeting.tick')" :disabled="state.next_state[0] === null"><i
                 class="fa-solid fa-forward-step fa-xl"></i></button>
           </div>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>{{ meeting.full_title }}</title>
+    <link type="text/css" rel="stylesheet" href="/static/control.css">
+
+  </head>
+  <body
+      data-title="{{ meeting.full_title }}"
+      data-ws="/{{ group }}/{{ slug }}/ws/schedule"
+  >
+    <script type="application/json" id="initSettings">
+      {
+        "title": {{ meeting.full_title | tojson }},
+        "ws": "/{{ group }}/{{ slug }}/ws/schedule"
+      }
+    </script>
+    <div id="app">
+      {% raw %}
+        <table v-if="state !== null" id="cp" class="schedule-table">
+          <thead>
+            <tr>
+              <th>Speaker</th>
+              <th>Title</th>
+              <th v-for="column in state.extra_columns">{{ column }}</th>
+            </tr>
+          </thead>
+          <tr v-for="entry in state.schedule" :class=[`schedule-entry-${entry.state}`]>
+            <template v-if="entry.state != 'past'">
+              <td>{{ entry.author.name }}</td>
+              <td>{{ entry.title }}</td>
+              <td v-for="column in state.extra_columns">{{ entry[column] }}</td>
+            </template>
+          </tr>
+        </table>
+        <template v-else>
+          <p>Loading...</p>
+        </template>
+      {% endraw %}
+    </div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+        }
+      }
+    </script>
+    <script type="module" src="/static/ws.js"></script>
+  </body>
+</html>

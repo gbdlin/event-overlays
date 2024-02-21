@@ -5,11 +5,11 @@ from pathlib import Path
 from typing import Literal
 from urllib.parse import urljoin
 
-from pydantic import AnyHttpUrl, AnyUrl, BaseModel, computed_field, FileUrl, HttpUrl
+from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, HttpUrl
 
 CONFIG_ROOT = Path("config")
 
-MEETING_CONFIGS_ROOT = Path("meetings")
+MEETING_CONFIGS_ROOT = Path("config/events")
 TIMER_CONFIGS_ROOT = CONFIG_ROOT / "timers"
 
 states: dict[tuple[str, str], "State"] = {}
@@ -34,6 +34,8 @@ class MeetingScheduleAuthor(BaseModel):
 
 
 class MeetingTalk(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     type: Literal["talk"]
     title: str
     language: str
@@ -60,6 +62,15 @@ class MeetingSponsor(BaseModel):
         return urljoin("/static/", str(self.logo))
 
 
+class MeetingTheme(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    name: str = ""
+
+    # TODO: figure out theme-specific settings
+    sponsors_on_intermission: bool = False
+
+
 class Meeting(BaseModel):
     slug: str  # this is injected by config loader
     name: str
@@ -71,6 +82,8 @@ class Meeting(BaseModel):
     sponsors: list[MeetingSponsor] = []
     schedule: list[MeetingTalk | MeetingLightningTalks] = []
     socials: list[MeetingSocial] = []
+
+    theme: MeetingTheme = MeetingTheme()
 
     control_password: str | None = None
 
@@ -197,13 +210,34 @@ class State(BaseModel):
         elif self._schedule_ticker == 0:
             message = "Starting soon..."
         else:
-            message = "Will be back soon..."
+            message = "Be right back..."
         return "agenda", {**self.global_context, "schedule": schedule, "info": message}
 
     @computed_field
     @property
     def presentation_screen_content(self) -> tuple[str, dict]:
         return "presentation", {**self.global_context, "entry": self.current_schedule_item}
+
+    @computed_field
+    @property
+    def schedule(self) -> list[dict]:
+        def get_state_for(item):
+            if self._is_mid_talk(self._ticker) and item == self.current_schedule_item:
+                return "current"
+            if self.remaining_schedule and item == self.remaining_schedule[0]:
+                return "next"
+            if item in self.remaining_schedule:
+                return "future"
+            return "past"
+        return [{**item.model_dump(), "state": get_state_for(item)} for index, item in enumerate(self.meeting.schedule)]
+
+    @computed_field
+    @property
+    def schedule_extra_columns(self) -> list[str]:
+        columns = set()
+        for item in self.meeting.schedule:
+            columns |= set(item.model_extra.keys())
+        return list(columns)
 
     @classmethod
     def get_meeting_state(cls, meeting: str, slug: str) -> "State":

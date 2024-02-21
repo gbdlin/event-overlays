@@ -4,38 +4,50 @@
     <meta charset="UTF-8">
     <title>Web Source</title>
     <link type="text/css" rel="stylesheet" href="/static/global.css">
-    {% if meeting.branding -%}
-      <link type="text/css" rel="stylesheet" href="/static/branding/{{ meeting.branding }}.css">
-    {%- endif %}
-  </head>
-  <body class="{% block body_class %}obs-body-default{% endblock %} obs-body-scene-{{ scene }}">
+
     <script type="application/json" id="initSettings">
       {
-        "title": {{ meeting.full_title | tojson }},
         "display": {{ display_type | tojson }},
-        "ws": "/{{ group }}/{{ slug }}/ws/scene-{{ scene }}",
+        "ws": "/{{ group }}/{{ slug }}/ws/scene-{{ scene }}?display={{ display_type }}",
         "presentationBottomBar": {{ presentation_bottom_bar | default(None) | tojson }},
         "presentationSponsors": {{ presentation_sponsors | default(None) | tojson }}
       }
     </script>
-    <div class="obs-meeting-logo {% if display_type != "scene" %}obs-meeting-logo-thumbnail{% endif %}">
-      <img src="{{ meeting.logo_url }}" alt="{{ meeting.name }} logo">
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+        }
+      }
+    </script>
+    <script type="module" src="/static/ws.js"></script>
+  </head>
+  <body class="obs-body-default obs-body-scene-{{ scene }}" id="app">
+    {% raw %}
+    <div v-if="meeting" :class="['obs-meeting-logo', {'obs-meeting-logo-thumbnail': display !== 'scene'}]">
+      <img :src="meeting.logo_url" :alt="`$(meeting.name) logo`">
       <div class="obs-meeting-title">
         <span class="obs-meeting-title-type">{{ meeting.type }}</span>
         <span class="obs-meeting-title-number">#{{ meeting.number }}</span>
       </div>
     </div>
 
-    {% raw %}
-      <div class="obs-intermission-content" id="app">
+      <div class="obs-intermission-content">
+        <template v-if="state.template != 'presentation' && meeting.theme.sponsors_on_intermission && state.context.sponsors.length > 0">
+          <div class="obs-intermission-sponsors">
+            <div class="obs-intermission-sponsors-entry" v-for="(sponsor, index) in state.context.sponsors">
+              <img :src="sponsor.logo_url" :alt="sponsor.name">
+            </div>
+          </div>
+        </template>
         <template v-if="state">
           <div class="obs-intermission-agenda" v-if="state.template === 'agenda'">
-            <div class="obs-intermission-agenda-title" v-if="display != 'thumbnail'">
+            <div class="obs-intermission-agenda-title" v-if="display !== 'thumbnail'">
               {{ state.previous_state[0] !== null ? "Next" : "Today" }} in the schedule:
             </div>
 
             <div v-for="entry in state.context.schedule.slice(0, 3)"
-                 :class="['obs-intermission-agenda-entry', `obs-intermission-agenda-${entry.type}`, {'no-picture': (entry.type != 'talk' || !entry.author.picture_url)}]">
+                 :class="['obs-intermission-agenda-entry', `obs-intermission-agenda-${entry.type}`, {'no-picture': (entry.type !== 'talk' || !entry.author.picture_url)}]">
               <template v-if="entry.type === 'talk'">
                 <div class="obs-intermission-agenda-talk-picture" v-if="entry.author.picture_url">
                   <img :src="entry.author.picture_url" :alt="entry.author.name">
@@ -113,14 +125,5 @@
         </template>
       </div>
     {% endraw %}
-
-    <script type="importmap">
-      {
-        "imports": {
-          "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
-        }
-      }
-    </script>
-    <script type="module" src="/static/ws.js"></script>
   </body>
 </html>

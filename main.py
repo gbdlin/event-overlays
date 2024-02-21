@@ -68,6 +68,7 @@ def get_state_update_for(state: State, target: str, command: str | None = None) 
             "message": state.timer.message,
         },
         "command": command,
+        "meeting": state.meeting,
     }
     match target:
         case "scene-brb":
@@ -89,10 +90,16 @@ def get_state_update_for(state: State, target: str, command: str | None = None) 
             return {
                 "template": presentation_template,
                 "context": presentation_context,
-                **global_scene_context
+                **global_scene_context,
             }
         case "timer":
             return {
+                **global_scene_context,
+            }
+        case "schedule":
+            return {
+                "schedule": state.schedule,
+                "extra_columns": state.schedule_extra_columns,
                 **global_scene_context,
             }
         case ("control" | "debug"):
@@ -122,7 +129,11 @@ async def ws_view(websocket: WebSocket, group: str, slug: str, role: str, contro
     manager = managers.setdefault((group, state.meeting.slug), ConnectionManager())
 
     await manager.connect(websocket, role)
-    await websocket.send_text(to_json({"status": "init", **get_state_update_for(state, role, "init")}).decode())
+    await websocket.send_text(
+        to_json(
+            {"status": "init", "role": role, **get_state_update_for(state, role, "init")},
+        ).decode()
+    )
 
     try:
         async for command in websocket.iter_json():
@@ -139,12 +150,14 @@ async def ws_view(websocket: WebSocket, group: str, slug: str, role: str, contro
                         match command:
                             case {"action": "meeting.tick"}:
                                 notify.add("scene-brb")
+                                notify.add("schedule")
                                 if state.increment()[1]:
                                     notify.add("scene-schedule")
                                 else:
                                     notify.add("scene-presentation")
                             case {"action": "meeting.untick"}:
                                 notify.add("scene-brb")
+                                notify.add("schedule")
                                 if state.decrement()[1]:
                                     notify.add("scene-presentation")
                                 else:
@@ -197,7 +210,14 @@ async def ws_view(websocket: WebSocket, group: str, slug: str, role: str, contro
                                 )
                                 continue
                         await websocket.send_json({"status": "success"})
-                        for target_role in ("scene-brb", "scene-schedule", "scene-presentation", "timer", "control"):
+                        for target_role in (
+                            "scene-brb",
+                            "scene-schedule",
+                            "scene-presentation",
+                            "timer",
+                            "control",
+                            "schedule",
+                        ):
                             if target_role in notify:
                                 await manager.broadcast_targeted_json(
                                     get_state_update_for(state, target_role, command),
@@ -260,4 +280,17 @@ async def speaker_timer_view(request: Request, group: str, slug: str):
             "group": group,
             "slug": slug,
         },
+    )
+
+
+@app.get("/{group:str}/{slug:str}/schedule-table.html")
+async def schedule_table_view(request: Request, group: str, slug: str):
+    return templates.TemplateResponse(
+        "schedule-table.html",
+        {
+            "request": request,
+            "meeting": Meeting.get_meeting_config(group, slug),
+            "group": group,
+            "slug": slug,
+        }
     )

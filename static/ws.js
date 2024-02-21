@@ -1,18 +1,35 @@
 import {createApp, ref, computed} from 'vue'
 
 let ws;
+let branding_style = null;
 const m_state = ref(null);
-const m_customTimeDialog = ref(false);
+const m_meeting = ref(null);
+const m_role = ref(null);
 const m_timerFlashing = ref(false);
 const m_now = ref(Date.now());
 setInterval(() => m_now.value = Date.now(), 69);
 const m_ticker = ref(0);
 setInterval(() => m_ticker.value += 100, 100);
-const body = document.getElementsByTagName("body")[0];
 const initSettings = JSON.parse(document.getElementById("initSettings").textContent)
 
 function sendMessage(data) {
   ws.send(JSON.stringify(data));
+}
+
+function set_branding(name) {
+  if (branding_style && !name) {
+    branding_style.remove();
+    return
+  }
+  if (!name) {
+    return
+  }
+  if (!branding_style) {
+    branding_style = document.createElement('link');
+    branding_style.rel = 'stylesheet';
+    document.head.appendChild(branding_style);
+  }
+  branding_style.href = `/static/branding/${name}.css`;
 }
 
 const openSocket = (wsURL, waitTimer, waitSeed, multiplier) => {
@@ -52,6 +69,10 @@ const openSocket = (wsURL, waitTimer, waitSeed, multiplier) => {
       }
       if (data.status === "init") {
         sendMessage({"action": "ntc.sync", "client_time": Date.now()});
+        m_meeting.value = {}
+        Object.assign(m_meeting.value, data.meeting)
+        m_role.value = data.role;
+        set_branding(data.meeting.branding);
       }
       if (m_state.value === null) {
         m_state.value = {}
@@ -95,7 +116,7 @@ function timerPieces(value) {
 createApp({
   data() {
     return {
-      meeting_name: initSettings.title,
+      meeting: m_meeting,
       display: initSettings.display,
       presentationBottomBar: initSettings.presentationBottomBar,
       presentationSponsors: initSettings.presentationSponsors,

@@ -1,0 +1,221 @@
+@font-face {
+  font-family: "Roboto Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url(roboto-monospace.woff2) format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+body, html {
+  font-family: "Roboto Mono", monospace;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+
+  &.obs-body-default {
+    background: url("/static/branding/python-pizza/prague-bg.jpg") no-repeat center/cover;
+    position: relative;
+    overflow: hidden;
+
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 1920px;
+      height: 1920px;
+      background: #ed4337;
+      mix-blend-mode: hard-light;
+      z-index: -2;
+    }
+
+    &:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 550px;
+      background: url("/static/branding/python-pizza/wave.svg#clip-path");
+      //clip-path: url("/static/branding/python-pizza/wave.svg#clip-path");
+      z-index: -1;
+    }
+  }
+}
+
+.obs-meeting-logo {
+  top: 70px;
+
+  img {
+    width: 320px;
+    height: 320px;
+  }
+
+  .obs-meeting-title {
+    position: absolute;
+    left: 360px;
+    top: 78px;
+    width: 1420px;
+    font-weight: 500;
+    text-shadow: none;
+
+    .obs-meeting-title-number {
+      display: none;
+    }
+  }
+}
+
+.obs-intermission-agenda {
+  bottom: auto;
+  top: 450px;
+  left: 1040px
+}
+
+.obs-intermission-agenda-title {
+  font-weight: 500;
+  text-shadow: none;
+  font-size: 2.3rem;
+  margin-bottom: 70px;
+  text-align: center;
+}
+
+.obs-intermission-agenda-entry {
+  margin-bottom: 0;
+  overflow: initial;
+  margin-top: 30px;
+}
+
+.obs-intermission-agenda-talk {
+  padding: 0 25px;
+  text-align: center;
+  margin-right: 30px;
+
+  &.obs-intermission-agenda-entry {
+    box-shadow: 0 4px 28px -8px #cac9c9;
+    background-color: white;
+    border-radius: 64px;
+    height: 128px;
+
+    &:nth-of-type(2n) {
+      padding-left: 135px;
+    }
+
+    &:nth-of-type(2n + 1) {
+      padding-right: 135px;
+    }
+  }
+}
+
+.obs-intermission-agenda-talk-picture {
+  width: 144px;
+  height: 144px;
+  border-radius: 72px;
+  top: -8px;
+  left: auto;
+  box-shadow: 2px 8px 32px -8px #ed4337;
+
+  .obs-intermission-agenda-talk:nth-of-type(2n) & {
+    left: -8px;
+  }
+
+  .obs-intermission-agenda-talk:nth-of-type(2n + 1) & {
+    right: -8px;
+  }
+
+  img {
+    min-width: 144px;
+    min-height: 144px;
+    left: 72px;
+    object-fit: cover;
+    height: 144px;
+    width: 144px;
+  }
+}
+
+.obs-intermission-agenda-entry-content {
+  overflow: hidden;
+}
+
+.obs-intermission-agenda-talk-author-name {
+  color: #15141A;
+  font-size: 1.5rem;
+  letter-spacing: initial;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+
+
+.obs-intermission-agenda-talk-title {
+  color: #15141A;
+  font-family: inherit;
+  font-size: 1.25rem;
+}
+
+.obs-intermission-brb-info {
+  color: #15141A;
+  text-shadow: none;
+  font-size: 4rem;
+}
+
+.obs-intermission-next-entry {
+  top: 305px;
+}
+
+.obs-intermission-next-entry-picture {
+  border-radius: 226.5px;
+  box-shadow: 2px 8px 32px -8px #ed4337;
+  left: 182px;
+
+  img {
+    min-width: 453px;
+    min-height: 453px;
+    object-fit: cover;
+  }
+}
+
+.obs-intermission-next-entry-author-name {
+  color: #15141A;
+  margin-bottom: 45px;
+}
+
+.obs-intermission-next-entry-title {
+  color: #15141A;
+}
+
+.obs-intermission-brb-info, .obs-intermission-message {
+  left: 25px;
+}
+
+.obs-body-scene-presentation .obs-meeting-logo img {
+  width: 93px;
+  height: 93px;
+}
+
+.obs-intermission-sponsors {
+  position: absolute;
+  top: 400px;
+  left: 20px;
+}
+
+.obs-intermission-sponsors-entry {
+  width: 300px;
+  height: 112px;
+  margin-left: 35px;
+  margin-bottom: 35px;
+  line-height: 115px;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    vertical-align: middle;
+  }
+}
+
+.obs-presentation-sponsors .slide {
+  box-sizing: border-box;
+  padding: 15px;
+}

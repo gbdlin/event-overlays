@@ -23,6 +23,9 @@ $fa-font-path           : "./fontawesome/webfonts";
   --lowlight-fg-color: #5b5e68;
 
   --accent-color: #284cb8;
+
+  --accent-pos-color: #008800;
+  --accent-neg-color: #880000;
 }
 
 #app:not([data-v-app]) #cp {
@@ -268,4 +271,22 @@ dialog {
   box-sizing: border-box;
   text-align: center;
   line-height: 30px;
+}
+
+.schedule-table {
+  border-spacing: 5px;
+  border: none;
+  td {
+    background: var(--secondary-bg-color);
+    padding: 5px;
+    border-radius: 3px;
+
+  }
+  .schedule-entry-next td {
+    background: var(--accent-pos-color);
+  }
+
+  .schedule-entry-current td {
+    background: var(--accent-neg-color);
+  }
 }
