@@ -145,6 +145,10 @@ class State(BaseModel):
     def get_state_for(cls, ticker) -> tuple[int, bool]:
         return cls._brb_ticker(ticker), cls._is_mid_talk(ticker)
 
+    def fix_ticker(self):
+        if self._ticker >= len(self.meeting.schedule) * 2:
+            self._ticker = len(self.meeting.schedule) * 2 - 1
+
     def increment(self) -> tuple[int, bool]:
         if self._ticker + 1 >= len(self.meeting.schedule) * 2:
             raise StateIncrementOverflow()

@@ -199,6 +199,14 @@ async def ws_view(websocket: WebSocket, group: str, slug: str, role: str, contro
                                     {"timer", "control", "debug"},
                                 )
                                 continue
+                            case {"action": "config.refresh"}:
+                                notify.add("scene-brb")
+                                notify.add("scene-schedule")
+                                notify.add("scene-presentation")
+                                notify.add("schedule")
+                                notify.add("control")
+                                state.meeting = Meeting.get_meeting_config(group, state.meeting.slug)
+                                state.fix_ticker()
                             case {"action": other}:
                                 print(f"action {other} unknown")
                                 await websocket.send_json({"status": "error", "error": f"Unknown action {other}"})
