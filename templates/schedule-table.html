@@ -28,7 +28,7 @@
           </thead>
           <tr v-for="entry in state.schedule" :class=[`schedule-entry-${entry.state}`]>
             <template v-if="entry.state != 'past'">
-              <td>{{ entry.author.name }}</td>
+              <td>{{ entry.author?entry.author.name:'---' }}</td>
               <td>{{ entry.title }}</td>
               <td v-for="column in state.extra_columns">{{ entry[column] }}</td>
             </template>

@@ -240,7 +240,8 @@ class State(BaseModel):
     def schedule_extra_columns(self) -> list[str]:
         columns = set()
         for item in self.meeting.schedule:
-            columns |= set(item.model_extra.keys())
+            if item.model_extra:
+                columns |= set(item.model_extra.keys())
         return list(columns)
 
     @classmethod
