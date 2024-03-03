@@ -5,14 +5,14 @@
     <title>Timer</title>
     <link type="text/css" rel="stylesheet" href="/static/fontawesome/regular.css">
     <link type="text/css" rel="stylesheet" href="/static/timer.css">
-  </head>
-  <body>
+
     <script type="application/json" id="initSettings">
       {
-        "title": {{ meeting.full_title | tojson }},
-        "ws": "/{{ group }}/{{ slug }}/ws/timer"
+        "ws": "/{{ rig }}/ws/timer"
       }
     </script>
+  </head>
+  <body>
     {% raw %}
       <div class="timer-layout" id="app">
         <div v-if="state !== null" id="cp" :class="['timer-container', {'timer-flash': timerFlashing}]">

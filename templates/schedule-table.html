@@ -5,17 +5,13 @@
     <title>{{ meeting.full_title }}</title>
     <link type="text/css" rel="stylesheet" href="/static/control.css">
 
-  </head>
-  <body
-      data-title="{{ meeting.full_title }}"
-      data-ws="/{{ group }}/{{ slug }}/ws/schedule"
-  >
     <script type="application/json" id="initSettings">
       {
-        "title": {{ meeting.full_title | tojson }},
-        "ws": "/{{ group }}/{{ slug }}/ws/schedule"
+        "ws": "/{{ rig }}/ws/schedule"
       }
     </script>
+  </head>
+  <body>
     <div id="app">
       {% raw %}
         <table v-if="state !== null" id="cp" class="schedule-table">

@@ -11,6 +11,7 @@ CONFIG_ROOT = Path("config")
 
 MEETING_CONFIGS_ROOT = Path("config/events")
 TIMER_CONFIGS_ROOT = CONFIG_ROOT / "timers"
+RIG_CONFIGS_ROOT = CONFIG_ROOT / "rigs"
 
 states: dict[tuple[str, str], "State"] = {}
 
@@ -73,6 +74,7 @@ class MeetingTheme(BaseModel):
 
 class Meeting(BaseModel):
     slug: str  # this is injected by config loader
+    group: str  # this is injected by config loader
     name: str
     logo_url: HttpUrl | Path
     type: str
@@ -102,7 +104,7 @@ class Meeting(BaseModel):
             slug = get_latest_meeting_slug(MEETING_CONFIGS_ROOT, group)
         path = MEETING_CONFIGS_ROOT / group / f"{slug}.toml"
 
-        return cls.parse_obj(cls.get_meeting_dict(path))
+        return cls.model_validate({**cls.get_meeting_dict(path), "group": group})
 
 
 class StateException(Exception):
@@ -245,17 +247,44 @@ class State(BaseModel):
         return list(columns)
 
     @classmethod
-    def get_meeting_state(cls, meeting: str, slug: str) -> "State":
+    def get_meeting_state(cls, group: str, slug: str) -> "State":
         if slug == "__latest__":
-            slug = get_latest_meeting_slug(MEETING_CONFIGS_ROOT, meeting)
+            slug = get_latest_meeting_slug(MEETING_CONFIGS_ROOT, group)
 
-        if (meeting, slug) not in states:
-            states[meeting, slug] = cls(
-                meeting=Meeting.get_meeting_config(meeting, slug),
+        if (group, slug) not in states:
+            states[group, slug] = cls(
+                meeting=Meeting.get_meeting_config(group, slug),
                 timer=TimerState(target=15 * 60 * 1000),  # 15 minutes default, will be read at some point from config.
             )
 
-        return states[meeting, slug]
+        return states[group, slug]
+
+
+class RigConfig(BaseModel):
+    slug: str
+
+    control_password: str
+    meeting_group: str | None
+    meeting_slug: str | None
+
+    @staticmethod
+    def get_rig_dict(path: Path) -> dict | None:
+        try:
+            with path.open("rb") as rig_fd:
+                return {**tomllib.load(rig_fd)["rig"], "slug": path.stem}
+        except FileNotFoundError:
+            return None
+
+    @classmethod
+    def get_rig_config(cls, slug: str) -> "RigConfig | None":
+        path = RIG_CONFIGS_ROOT / f"{slug}.toml"
+
+        rig_dict = cls.get_rig_dict(path)
+
+        if rig_dict is None:
+            return None
+
+        return cls.model_validate(rig_dict)
 
 
 class TimerConfig(BaseModel):

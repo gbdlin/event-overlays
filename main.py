@@ -1,13 +1,13 @@
 from time import time_ns
-from typing import Literal
+from typing import Annotated, Literal
 
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic_core import to_json
 from starlette.responses import RedirectResponse
 
-from models import Meeting, State, StateException, TimerConfig
+from models import Meeting, RigConfig, State, StateException, TimerConfig
 
 app = FastAPI()
 
@@ -22,7 +22,6 @@ class ConnectionManager:
         self.connection_roles: dict[WebSocket, str] = {}
 
     async def connect(self, websocket: WebSocket, role: str):
-        await websocket.accept()
         self.active_connections.append(websocket)
         self.connection_roles[websocket] = role
 
@@ -117,16 +116,39 @@ def get_state_update_for(state: State, target: str, command: str | None = None) 
 @app.get("/t/{timer_slug:str}/speaker.html")
 async def redirect(timer_slug: str):
     timer_config = TimerConfig.get_timer_config(timer_slug)
-    return RedirectResponse(f"/{timer_config.event}/speaker-timer.html")
+    return RedirectResponse(f"/{timer_config.rig}/speaker-timer.html")
 
 
-@app.websocket("/{group:str}/{slug:str}/ws/{role:str}")
-async def ws_view(websocket: WebSocket, group: str, slug: str, role: str, control_password: str = None):
-    state = State.get_meeting_state(group, slug)
-    if role == "control" and control_password != state.meeting.control_password:
+async def get_ws_state(
+    websocket: WebSocket,
+    role: str,
+    rig_slug: str | None = None,
+    control_password: str | None = None,
+) -> tuple[State, ConnectionManager, RigConfig] | None:
+    rig = RigConfig.get_rig_config(rig_slug)
+    if rig is None:
+        await websocket.close(code=4404, reason="NotFound")
+        return None
+    if role == "control" and control_password != rig.control_password:
         await websocket.close(code=4401, reason="Unauthorized")
-        return
+        return None
+    await websocket.accept()
+
+    group, slug = rig.meeting_group, rig.meeting_slug
+    state = State.get_meeting_state(group, slug)
     manager = managers.setdefault((group, state.meeting.slug), ConnectionManager())
+    return state, manager, rig
+
+
+@app.websocket("/{rig_slug:str}/ws/{role:str}")
+async def ws_view(
+    websocket: WebSocket,
+    role: str,
+    state_and_manager: Annotated[tuple[State, ConnectionManager, RigConfig] | None, Depends(get_ws_state)],
+):
+    if state_and_manager is None:
+        return
+    state, manager, rig = state_and_manager
 
     await manager.connect(websocket, role)
     await websocket.send_text(
@@ -205,7 +227,7 @@ async def ws_view(websocket: WebSocket, group: str, slug: str, role: str, contro
                                 notify.add("scene-presentation")
                                 notify.add("schedule")
                                 notify.add("control")
-                                state.meeting = Meeting.get_meeting_config(group, state.meeting.slug)
+                                state.meeting = Meeting.get_meeting_config(state.meeting.group, state.meeting.slug)
                                 state.fix_ticker()
                             case {"action": other}:
                                 print(f"action {other} unknown")
@@ -239,11 +261,10 @@ async def ws_view(websocket: WebSocket, group: str, slug: str, role: str, contro
         manager.disconnect(websocket)
 
 
-@app.get("/{group:str}/{slug:str}/scene-{scene:str}.html")
+@app.get("/{rig:str}/scene-{scene:str}.html")
 async def scene_view(
     request: Request,
-    group: str,
-    slug: str,
+    rig: str,
     scene: str,
     display: str = "scene",
     presentation_bottom_bar: bool = True,
@@ -253,9 +274,7 @@ async def scene_view(
         "scene.html",
         {
             "request": request,
-            "meeting": Meeting.get_meeting_config(group, slug),
-            "group": group,
-            "slug": slug,
+            "rig": rig,
             "scene": scene,
             "display_type": display,
             "presentation_bottom_bar": presentation_bottom_bar,
@@ -264,41 +283,36 @@ async def scene_view(
     )
 
 
-@app.get("/{group:str}/{slug:str}/control.html")
-async def control_view(request: Request, group: str, slug: str, control_password: str):
+@app.get("/{rig:str}/control.html")
+async def control_view(request: Request, rig: str, control_password: str):
     return templates.TemplateResponse(
         "control.html",
         {
             "request": request,
-            "meeting": Meeting.get_meeting_config(group, slug),
-            "group": group,
-            "slug": slug,
+            "rig": rig,
             "control_password": control_password,
         },
     )
 
 
-@app.get("/{group:str}/{slug:str}/speaker-timer.html")
-async def speaker_timer_view(request: Request, group: str, slug: str):
+@app.get("/{rig:str}/speaker-timer.html")
+async def speaker_timer_view(request: Request, rig: str, name: str | None = None):
     return templates.TemplateResponse(
         "speaker-timer.html",
         {
             "request": request,
-            "meeting": Meeting.get_meeting_config(group, slug),
-            "group": group,
-            "slug": slug,
+            "rig": rig,
+            "name": name,
         },
     )
 
 
-@app.get("/{group:str}/{slug:str}/schedule-table.html")
-async def schedule_table_view(request: Request, group: str, slug: str):
+@app.get("/{rig:str}/schedule-table.html")
+async def schedule_table_view(request: Request, rig: str):
     return templates.TemplateResponse(
         "schedule-table.html",
         {
             "request": request,
-            "meeting": Meeting.get_meeting_config(group, slug),
-            "group": group,
-            "slug": slug,
+            "rig": rig,
         }
     )

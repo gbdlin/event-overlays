@@ -8,7 +8,7 @@
     <script type="application/json" id="initSettings">
       {
         "display": {{ display_type | tojson }},
-        "ws": "/{{ group }}/{{ slug }}/ws/scene-{{ scene }}?display={{ display_type }}",
+        "ws": "/{{ rig }}/ws/scene-{{ scene }}?display={{ display_type }}",
         "presentationBottomBar": {{ presentation_bottom_bar | default(None) | tojson }},
         "presentationSponsors": {{ presentation_sponsors | default(None) | tojson }}
       }
