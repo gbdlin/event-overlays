@@ -1,8 +1,8 @@
 import re
 import tomllib
 from datetime import datetime
-from pathlib import Path
-from typing import Literal
+from pathlib import Path, PurePath
+from typing import Literal, overload
 from urllib.parse import urljoin
 
 from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, HttpUrl
@@ -98,11 +98,26 @@ class Meeting(BaseModel):
         with path.open("rb") as meeting_fd:
             return {**tomllib.load(meeting_fd)["meeting"], "slug": path.stem}
 
+    @overload
     @classmethod
-    def get_meeting_config(cls, group: str, slug: str) -> "Meeting":
-        if slug == "__latest__":
-            slug = get_latest_meeting_slug(MEETING_CONFIGS_ROOT, group)
-        path = MEETING_CONFIGS_ROOT / group / f"{slug}.toml"
+    def get_meeting_config(cls, *, group: str, slug: str) -> "Meeting":
+        pass
+
+    @overload
+    @classmethod
+    def get_meeting_config(cls, *, path: str) -> "Meeting":
+        pass
+
+    @classmethod
+    def get_meeting_config(cls, *, group: str = None, slug: str = None, path: str = None) -> "Meeting":
+        if group and slug:
+            if slug == "__latest__":
+                slug = get_latest_meeting_slug(MEETING_CONFIGS_ROOT, group)
+            path = MEETING_CONFIGS_ROOT / group / f"{slug}.toml"
+        elif path:
+            path = PurePath(path)
+            group = str(path.parent)
+            path = MEETING_CONFIGS_ROOT / f"{path}.toml"
 
         return cls.model_validate({**cls.get_meeting_dict(path), "group": group})
 
@@ -165,6 +180,13 @@ class State(BaseModel):
 
         return self.current_state
 
+    def move_to(self, new_state: str | tuple[int, bool]) -> None:
+        if isinstance(new_state, str):
+            new_state = new_state.split("-")
+            new_state = int(new_state[0]), new_state[1] == "mid"
+
+        self._ticker = new_state[0] * 2 + int(new_state[1])
+
     @property
     def _schedule_ticker(self) -> int:
         return self._brb_ticker(self._ticker) + self._is_mid_talk(self._ticker)
@@ -201,11 +223,16 @@ class State(BaseModel):
 
     @computed_field
     @property
+    def title_screen_content(self) -> tuple[str, dict]:
+        return "next", {**self.global_context, "entry": self.current_schedule_item.model_dump()}
+
+    @computed_field
+    @property
     def brb_screen_content(self) -> tuple[str, dict]:
         if self._is_mid_talk(self._ticker):  # we're mid talk
             return "brb", {**self.global_context, "info": "Back in a moment..."}
         else:  # we're between talks
-            return "next", {**self.global_context, "entry": self.current_schedule_item.model_dump()}
+            return self.title_screen_content
 
     @computed_field
     @property
@@ -253,7 +280,7 @@ class State(BaseModel):
 
         if (group, slug) not in states:
             states[group, slug] = cls(
-                meeting=Meeting.get_meeting_config(group, slug),
+                meeting=Meeting.get_meeting_config(group=group, slug=slug),
                 timer=TimerState(target=15 * 60 * 1000),  # 15 minutes default, will be read at some point from config.
             )
 

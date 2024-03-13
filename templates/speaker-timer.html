@@ -8,7 +8,7 @@
 
     <script type="application/json" id="initSettings">
       {
-        "ws": "/{{ rig }}/ws/timer"
+        "ws": "/{{ rig }}/ws/timer{{ '?view_name=' + name if name is not none else '' }}"
       }
     </script>
   </head>
@@ -24,6 +24,9 @@
 
           <div class="message">{{ state.timer.message }}</div>
           <div class="clock"></div>
+        </div>
+        <div v-else-if="viewName !== null">
+          <div>Select {{ viewName }} in control to assign</div>
         </div>
       </div>
     {% endraw %}

@@ -7,6 +7,8 @@ const m_meeting = ref(null);
 const m_role = ref(null);
 const m_timerFlashing = ref(false);
 const m_now = ref(Date.now());
+const m_assignTarget = ref(null);
+const m_viewName = ref(null);
 setInterval(() => m_now.value = Date.now(), 69);
 const m_ticker = ref(0);
 setInterval(() => m_ticker.value += 100, 100);
@@ -32,6 +34,48 @@ function set_branding(name) {
   branding_style.href = `/static/branding/${name}.css`;
 }
 
+const parseEventData = (data) => {
+  if (data.status === "unassigned") {
+    m_viewName.value = data.name;
+    m_state.value = null;
+    return;
+  }
+  if (data.status === "success")
+    return;
+  if (data.status === "timer.flash") {
+    m_timerFlashing.value = true;
+    setTimeout(() => m_timerFlashing.value = false, 3000);
+  }
+  if (data.status === "error") {
+    console.log("ws error")
+    console.log(data);
+    return;
+  }
+  if (data.status === "ntc.sync") {
+    let client_time = Date.now();
+    let client_offset = data.server_time - client_time;
+    let avg_offset = (client_offset + data.offset) / 2;
+    console.log(data);
+    console.log(client_offset);
+    console.log(avg_offset);
+    return
+  }
+  if (data.status === "init") {
+    if (ws !== undefined)
+      sendMessage({"action": "ntc.sync", "client_time": Date.now()});
+    m_meeting.value = {};
+    Object.assign(m_meeting.value, data.meeting)
+    m_role.value = data.role;
+    set_branding(data.meeting.branding);
+  }
+  if (m_state.value === null) {
+    m_state.value = {};
+  }
+  delete data.status;
+  Object.assign(m_state.value, data);
+  console.log(data);
+}
+
 const openSocket = (wsURL, waitTimer, waitSeed, multiplier) => {
   ws = new WebSocket(wsURL);
   console.log(`trying to connect to: ${ws.url}`);
@@ -46,42 +90,8 @@ const openSocket = (wsURL, waitTimer, waitSeed, multiplier) => {
     };
 
     ws.onmessage = (event) => {
-      let data = JSON.parse(event.data);
-      if (data.status === "success")
-        return;
-      if (data.status === "timer.flash") {
-        m_timerFlashing.value = true;
-        setTimeout(() => m_timerFlashing.value = false, 3000);
-      }
-      if (data.status === "error") {
-        console.log("ws error")
-        console.log(data);
-        return;
-      }
-      if (data.status === "ntc.sync") {
-        let client_time = Date.now();
-        let client_offset = data.server_time - client_time;
-        let avg_offset = (client_offset + data.offset) / 2;
-        console.log(data);
-        console.log(client_offset);
-        console.log(avg_offset);
-        return
-      }
-      if (data.status === "init") {
-        sendMessage({"action": "ntc.sync", "client_time": Date.now()});
-        m_meeting.value = {}
-        Object.assign(m_meeting.value, data.meeting)
-        m_role.value = data.role;
-        set_branding(data.meeting.branding);
-      }
-      if (m_state.value === null) {
-        m_state.value = {}
-      }
-      delete data.status;
-      Object.assign(m_state.value, data);
-      console.log(data);
+      parseEventData(JSON.parse(event.data));
     };
-
   };
 
   ws.onerror = () => {
@@ -95,7 +105,11 @@ const openSocket = (wsURL, waitTimer, waitSeed, multiplier) => {
   }
 }
 
-openSocket(`${location.origin.replace("http", "ws")}${initSettings.ws}`, 1000, 1000, 2)
+if (initSettings.ws !== undefined) {
+  openSocket(`${location.origin.replace("http", "ws")}${initSettings.ws}`, 1000, 1000, 2)
+} else {
+  parseEventData(initSettings.data)
+}
 
 function timerPieces(value) {
   const round_fn = value > 0 ? Math.floor : Math.ceil;
@@ -121,6 +135,8 @@ createApp({
       presentationBottomBar: initSettings.presentationBottomBar,
       presentationSponsors: initSettings.presentationSponsors,
       state: m_state,
+      assignTarget: m_assignTarget,
+      viewName: m_viewName,
       timerFlashing: m_timerFlashing,
       displayMessages: computed(() => (
         m_state.value.template === "agenda"
@@ -138,6 +154,8 @@ createApp({
           sendMessage({"action": action_name, "message": m_state.value.message});
         else if (action_name === "timer.set-message")
           sendMessage({"action": action_name, "message": m_state.value.timer.message});
+        else if (action_name === "view.assign")
+          sendMessage({"action": action_name, "view_name": m_assignTarget.value})
         else
           sendMessage({"action": action_name});
       },

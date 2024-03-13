@@ -1,3 +1,4 @@
+import json
 from time import time_ns
 from typing import Annotated, Literal
 
@@ -7,7 +8,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic_core import to_json
 from starlette.responses import RedirectResponse
 
-from models import Meeting, RigConfig, State, StateException, TimerConfig
+from models import Meeting, RigConfig, State, StateException, TimerConfig, TimerState
 
 app = FastAPI()
 
@@ -70,6 +71,13 @@ def get_state_update_for(state: State, target: str, command: str | None = None) 
         "meeting": state.meeting,
     }
     match target:
+        case "scene-title":
+            next_template, next_context = state.title_screen_content
+            return {
+                "template": next_template,
+                "context": next_context,
+                **global_scene_context,
+            }
         case "scene-brb":
             brb_template, brb_context = state.brb_screen_content
             return {
@@ -262,20 +270,37 @@ async def ws_view(
 
 
 @app.get("/{rig:str}/scene-{scene:str}.html")
+@app.get("/--/s/{path:path}/{state:str}/scene-{scene:str}.html")
 async def scene_view(
     request: Request,
-    rig: str,
     scene: str,
+    rig: str | None = None,
+    path: str | None = None,
+    state: str | None = None,
     display: str = "scene",
     presentation_bottom_bar: bool = True,
     presentation_sponsors: Literal["left", "right"] | None = None,
 ):
+    if path is not None:
+        state_obj = State(
+            meeting=Meeting.get_meeting_config(path=path),
+            timer=TimerState(target=15 * 60 * 1000),  # 15 minutes default, will be read at some point from config.
+        )
+        state_obj.move_to(state)
+        scene_data = json.loads(
+            to_json(
+                {"status": "init", "role": f"scene-{scene}", **get_state_update_for(state_obj, f"scene-{scene}", "init")},
+            ),
+        )
+    else:
+        scene_data = None
     return templates.TemplateResponse(
         "scene.html",
         {
             "request": request,
             "rig": rig,
             "scene": scene,
+            "data": scene_data,
             "display_type": display,
             "presentation_bottom_bar": presentation_bottom_bar,
             "presentation_sponsors": presentation_sponsors,
