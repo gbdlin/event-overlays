@@ -151,7 +151,7 @@ class State(BaseModel):
     timer: TimerState
 
     @staticmethod
-    def _brb_ticker(ticker: int) -> int:
+    def _schedule_ticker(ticker: int) -> int:
         return ticker // 2
 
     @staticmethod
@@ -160,7 +160,7 @@ class State(BaseModel):
 
     @classmethod
     def get_state_for(cls, ticker) -> tuple[int, bool]:
-        return cls._brb_ticker(ticker), cls._is_mid_talk(ticker)
+        return cls._schedule_ticker(ticker), cls._is_mid_talk(ticker)
 
     def fix_ticker(self):
         if self._ticker >= len(self.meeting.schedule) * 2:
@@ -188,8 +188,8 @@ class State(BaseModel):
         self._ticker = new_state[0] * 2 + int(new_state[1])
 
     @property
-    def _schedule_ticker(self) -> int:
-        return self._brb_ticker(self._ticker) + self._is_mid_talk(self._ticker)
+    def _schedule_screen_ticker(self) -> int:
+        return self._schedule_ticker(self._ticker) + self._is_mid_talk(self._ticker)
 
     @property
     def current_state(self) -> tuple[int, bool]:
@@ -211,11 +211,11 @@ class State(BaseModel):
 
     @property
     def current_schedule_item(self) -> MeetingTalk | MeetingLightningTalks:
-        return self.meeting.schedule[self._brb_ticker(self._ticker)]
+        return self.meeting.schedule[self._schedule_ticker(self._ticker)]
 
     @property
     def remaining_schedule(self) -> list[MeetingTalk | MeetingLightningTalks]:
-        return self.meeting.schedule[self._schedule_ticker:]
+        return self.meeting.schedule[self._schedule_screen_ticker:]
 
     @property
     def global_context(self) -> dict:
@@ -229,8 +229,13 @@ class State(BaseModel):
     @computed_field
     @property
     def brb_screen_content(self) -> tuple[str, dict]:
+        return "message", {**self.global_context, "info": "Back in a moment..."}
+
+    @computed_field
+    @property
+    def hybrid_screen_content(self) -> tuple[str, dict]:
         if self._is_mid_talk(self._ticker):  # we're mid talk
-            return "brb", {**self.global_context, "info": "Back in a moment..."}
+            return self.brb_screen_content
         else:  # we're between talks
             return self.title_screen_content
 
@@ -238,12 +243,12 @@ class State(BaseModel):
     @property
     def schedule_screen_content(self) -> tuple[str, dict]:
         schedule = [item.model_dump() for item in self.remaining_schedule]
-        if not len(schedule):  # we're at the end, there is no next talk
-            return "message", {**self.global_context, "info": "See you next time"}
-        elif self._schedule_ticker == 0:
+        if self._schedule_screen_ticker == 0:
             message = "Starting soon..."
-        else:
+        elif len(schedule):
             message = "Be right back..."
+        else:  # we're at the end, there is no next talk
+            return "message", {**self.global_context, "info": "See you next time"}
         return "agenda", {**self.global_context, "schedule": schedule, "info": message}
 
     @computed_field

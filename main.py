@@ -85,6 +85,13 @@ def get_state_update_for(state: State, target: str, command: str | None = None) 
                 "context": brb_context,
                 **global_scene_context,
             }
+        case "scene-hybrid":
+            hybrid_template, hybrid_context = state.hybrid_screen_content
+            return {
+                "template": hybrid_template,
+                "context": hybrid_context,
+                **global_scene_context,
+            }
         case "scene-schedule":
             schedule_template, schedule_context = state.schedule_screen_content
             return {
@@ -112,6 +119,8 @@ def get_state_update_for(state: State, target: str, command: str | None = None) 
         case ("control" | "debug"):
             return {
                 "scene-brb": get_state_update_for(state, "scene-brb", "d"),
+                "scene-title": get_state_update_for(state, "scene-title", "d"),
+                "scene-hybrid": get_state_update_for(state, "scene-hybrid", "d"),
                 "scene-schedule": get_state_update_for(state, "scene-schedule", "c"),
                 "scene-presentation": get_state_update_for(state, "scene-presentation", "b"),
                 "speaker-timer": get_state_update_for(state, "timer", "a"),
@@ -179,21 +188,24 @@ async def ws_view(
                     case _ if role == "control":
                         match command:
                             case {"action": "meeting.tick"}:
-                                notify.add("scene-brb")
+                                notify.add("scene-hybrid")
                                 notify.add("schedule")
                                 if state.increment()[1]:
                                     notify.add("scene-schedule")
                                 else:
                                     notify.add("scene-presentation")
+                                    notify.add("scene-title")
                             case {"action": "meeting.untick"}:
-                                notify.add("scene-brb")
+                                notify.add("scene-hybrid")
                                 notify.add("schedule")
                                 if state.decrement()[1]:
                                     notify.add("scene-presentation")
+                                    notify.add("scene-title")
                                 else:
                                     notify.add("scene-schedule")
                             case {"action": "stream.set-message", "message": message}:
                                 notify.add("scene-brb")
+                                notify.add("scene-hybrid")
                                 notify.add("scene-schedule")
                                 notify.add("scene-presentation")
                                 state.message = message
@@ -231,11 +243,16 @@ async def ws_view(
                                 continue
                             case {"action": "config.refresh"}:
                                 notify.add("scene-brb")
+                                notify.add("scene-hybrid")
+                                notify.add("scene-title")
                                 notify.add("scene-schedule")
                                 notify.add("scene-presentation")
                                 notify.add("schedule")
                                 notify.add("control")
-                                state.meeting = Meeting.get_meeting_config(state.meeting.group, state.meeting.slug)
+                                state.meeting = Meeting.get_meeting_config(
+                                    group=state.meeting.group,
+                                    slug=state.meeting.slug,
+                                )
                                 state.fix_ticker()
                             case {"action": other}:
                                 print(f"action {other} unknown")
@@ -250,6 +267,8 @@ async def ws_view(
                         await websocket.send_json({"status": "success"})
                         for target_role in (
                             "scene-brb",
+                            "scene-title",
+                            "scene-hybrid",
                             "scene-schedule",
                             "scene-presentation",
                             "timer",

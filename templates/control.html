@@ -42,13 +42,13 @@
             <button id="timer-flash" @click="handleAction('timer.flash')"><i class="fa-solid fa-sun fa-xl"></i></button>
           </div>
           <div class="row row4 row-wrap timer-set-controls">
-            <button :class="{active: state.timer.target == 5 * 60 * 1000}" id="timer-5" @click="setTimer(5 * 60 * 1000)">5:00</button>
-            <button :class="{active: state.timer.target == 10 * 60 * 1000}" id="timer-10" @click="setTimer(10 * 60 * 1000)">10:00</button>
-            <button :class="{active: state.timer.target == 15 * 60 * 1000}" id="timer-15" @click="setTimer(15 * 60 * 1000)">15:00</button>
-            <button :class="{active: state.timer.target == 20 * 60 * 1000}" id="timer-20" @click="setTimer(20 * 60 * 1000)">20:00</button>
-            <button :class="{active: state.timer.target == 30 * 60 * 1000}" id="timer-30" @click="setTimer(30 * 60 * 1000)">30:00</button>
-            <button :class="{active: state.timer.target == 45 * 60 * 1000}" id="timer-45" @click="setTimer(45 * 60 * 1000)">45:00</button>
-            <button :class="{active: state.timer.target == 60 * 60 * 1000}" id="timer-60" @click="setTimer(60 * 60 * 1000)">60:00</button>
+            <button :class="{active: state.timer.target === 5 * 60 * 1000}" id="timer-5" @click="setTimer(5 * 60 * 1000)">5:00</button>
+            <button :class="{active: state.timer.target === 10 * 60 * 1000}" id="timer-10" @click="setTimer(10 * 60 * 1000)">10:00</button>
+            <button :class="{active: state.timer.target === 15 * 60 * 1000}" id="timer-15" @click="setTimer(15 * 60 * 1000)">15:00</button>
+            <button :class="{active: state.timer.target === 20 * 60 * 1000}" id="timer-20" @click="setTimer(20 * 60 * 1000)">20:00</button>
+            <button :class="{active: state.timer.target === 30 * 60 * 1000}" id="timer-30" @click="setTimer(30 * 60 * 1000)">30:00</button>
+            <button :class="{active: state.timer.target === 45 * 60 * 1000}" id="timer-45" @click="setTimer(45 * 60 * 1000)">45:00</button>
+            <button :class="{active: state.timer.target === 60 * 60 * 1000}" id="timer-60" @click="setTimer(60 * 60 * 1000)">60:00</button>
             <button class="other-active" id="timer-custom" @click="showCustomTimeDialog">Custom</button>
           </div>
           <div id="timer-message" class="row">

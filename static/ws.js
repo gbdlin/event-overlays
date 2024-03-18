@@ -140,7 +140,6 @@ createApp({
       timerFlashing: m_timerFlashing,
       displayMessages: computed(() => (
         m_state.value.template === "agenda"
-        || m_state.value.template === "brb"
         || m_state.value.template === "message"
       )),
       messagesPositionCls: computed(() => ({
