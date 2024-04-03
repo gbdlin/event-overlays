@@ -197,14 +197,14 @@ body, html {
   margin-left: 30px;
 }
 
-.obs-intermission-agenda {
+.obs-intermission-schedule {
   position: absolute;
   left: 1125px;
   bottom: 18px;
   padding-bottom: 20px;
 }
 
-.obs-intermission-agenda-title {
+.obs-intermission-schedule-title {
   color: white;
   font-size: 2.5rem;
   font-weight: 700;
@@ -226,7 +226,7 @@ body, html {
   margin-bottom: 40px;
 }
 
-.obs-intermission-agenda-entry {
+.obs-intermission-schedule-entry {
   overflow: hidden;
   position: relative;
   padding-left: 100px;
@@ -234,7 +234,7 @@ body, html {
   height: 140px;
 }
 
-.obs-intermission-agenda-talk-picture {
+.obs-intermission-schedule-talk-picture {
   width: 80px;
   height: 80px;
   overflow: hidden;
@@ -252,7 +252,7 @@ body, html {
   }
 }
 
-.obs-intermission-agenda-talk-author-name {
+.obs-intermission-schedule-talk-author-name {
   display: block;
   color: var(--pykonik-yellow);
   font-size: 1.75rem;
@@ -261,7 +261,7 @@ body, html {
   margin-top: -15px;
 }
 
-.obs-intermission-agenda-talk-title {
+.obs-intermission-schedule-talk-title {
   display: block;
   color: white;
   font-size: 1.5rem;
@@ -271,7 +271,7 @@ body, html {
   line-height: 1em;
 }
 
-.obs-intermission-agenda-misc-title {
+.obs-intermission-schedule-misc-title {
   display: block;
   color: white;
   font-size: 1.75rem;
@@ -279,7 +279,7 @@ body, html {
   letter-spacing: 0.015em;
 }
 
-.obs-intermission-agenda-misc-title:before,  .obs-intermission-agenda-talk.no-picture .obs-intermission-agenda-entry-content:before {
+.obs-intermission-schedule-misc-title:before,  .obs-intermission-schedule-talk.no-picture .obs-intermission-schedule-entry-content:before {
   content: "➤";
   position: absolute;
   left: 25px;
@@ -288,12 +288,12 @@ body, html {
   font-size: 1.75rem;
 }
 
-.obs-intermission-agenda-overflow {
+.obs-intermission-schedule-overflow {
   height: 140px;
   margin-bottom: -100px;
   margin-top: -40px;
 
-  .obs-intermission-agenda-misc-title:before {
+  .obs-intermission-schedule-misc-title:before {
     content: "";
   }
 }

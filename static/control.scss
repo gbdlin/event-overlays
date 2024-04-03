@@ -23,6 +23,7 @@ $fa-font-path           : "./fontawesome/webfonts";
   --lowlight-fg-color: #5b5e68;
 
   --accent-color: #284cb8;
+  --accent-alt-color: #4767c0;
 
   --accent-pos-color: #008800;
   --accent-neg-color: #880000;
@@ -45,6 +46,10 @@ hr {
   margin: 10px 5px;
 }
 
+a {
+  cursor: pointer;
+}
+
 button {
   border: none;
   border-radius: 3px;
@@ -52,12 +57,17 @@ button {
   color: var(--fg-color);
   box-sizing: border-box;
   height: 30px;
+  cursor: pointer;
 
   &.active, &.other-active {
     background: var(--accent-color);
+
+    &:hover {
+      background: var(--accent-alt-color)
+    }
   }
 
-  &.active ~ .other-active {
+  &.active ~ .other-active:not(:hover) {
     background: var(--secondary-bg-color);
   }
 }
@@ -216,7 +226,7 @@ dialog {
     background: rgba(0, 0, 0, 0.5);
   }
 
-  #timer-custom-close {
+  .dialog-close {
     position: absolute;
     top: 6px;
     right: 6px;

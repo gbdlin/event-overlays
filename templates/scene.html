@@ -50,38 +50,38 @@
             </div>
           </div>
         </template>
-        <div class="obs-intermission-agenda" v-if="state.template === 'agenda'">
-          <div class="obs-intermission-agenda-title" v-if="display !== 'thumbnail'">
+        <div class="obs-intermission-schedule" v-if="state.template === 'schedule'">
+          <div class="obs-intermission-schedule-title" v-if="display !== 'thumbnail'">
             {{ state.previous_state[0] !== null ? "Next" : "Today" }} in the schedule:
           </div>
 
           <div v-for="entry in state.context.schedule.slice(0, 3)"
-               :class="['obs-intermission-agenda-entry', `obs-intermission-agenda-${entry.type}`, {'no-picture': (entry.type !== 'talk' || !entry.author.picture_url)}]">
+               :class="['obs-intermission-schedule-entry', `obs-intermission-schedule-${entry.type}`, {'no-picture': (entry.type !== 'talk' || !entry.author.picture_url)}]">
             <template v-if="entry.type === 'talk'">
-              <div class="obs-intermission-agenda-talk-picture" v-if="entry.author.picture_url">
+              <div class="obs-intermission-schedule-talk-picture" v-if="entry.author.picture_url">
                 <img :src="entry.author.picture_url" :alt="entry.author.name">
               </div>
-              <div class="obs-intermission-agenda-entry-content">
-                <span class="obs-intermission-agenda-talk-author-name">{{ entry.author.name }}</span>
-                <span class="obs-intermission-agenda-talk-title">{{ entry.title }}</span>
+              <div class="obs-intermission-schedule-entry-content">
+                <span class="obs-intermission-schedule-talk-author-name">{{ entry.author.name }}</span>
+                <span class="obs-intermission-schedule-talk-title">{{ entry.title }}</span>
               </div>
             </template>
             <template v-else-if="entry.type === 'lightning-talks'">
-              <div class="obs-intermission-agenda-entry-content">
-                <span class="obs-intermission-agenda-misc-title">Lightning talks</span>
+              <div class="obs-intermission-schedule-entry-content">
+                <span class="obs-intermission-schedule-misc-title">Lightning talks</span>
               </div>
             </template>
           </div>
 
-          <div class="obs-intermission-agenda-entry obs-intermission-agenda-overflow" v-if="state.context.schedule.length > 3">
-            <div class="obs-intermission-agenda-entry-content">
-              <span class="obs-intermission-agenda-misc-title">And more...</span>
+          <div class="obs-intermission-schedule-entry obs-intermission-schedule-overflow" v-if="state.context.schedule.length > 3">
+            <div class="obs-intermission-schedule-entry-content">
+              <span class="obs-intermission-schedule-misc-title">And more...</span>
             </div>
           </div>
         </div>
 
         <div class="obs-intermission-next" v-if="state.template == 'next'">
-          <div :class="['obs-intermission-next-entry', `obs-intermission-agenda-${current.type}`]">
+          <div :class="['obs-intermission-next-entry', `obs-intermission-schedule-${current.type}`]">
             <template v-if="current.type == 'talk'">
               <div class="obs-intermission-next-entry-picture" v-if="current.author.picture_url">
                 <img :src="current.author.picture_url" :alt="current.author.name">

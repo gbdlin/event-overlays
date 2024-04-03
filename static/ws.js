@@ -139,11 +139,11 @@ createApp({
       viewName: m_viewName,
       timerFlashing: m_timerFlashing,
       displayMessages: computed(() => (
-        m_state.value.template === "agenda"
+        m_state.value.template === "schedule"
         || m_state.value.template === "message"
       )),
       messagesPositionCls: computed(() => ({
-        "alt-position": m_state.value.template === "agenda",
+        "alt-position": m_state.value.template === "schedule",
       })),
       getStateDisplay: function (state) {
         return `${state[1] ? "Mid" : "Pre"} #${state[0] + 1}`
@@ -189,8 +189,8 @@ createApp({
       adjustTimer(value) {
         sendMessage({"action": "timer.set", "time": Math.max(m_state.value.timer.target + value, 0)});
       },
-      showCustomTimeDialog(e) {
-        document.getElementById("timer-custom-dialog").showModal();
+      showDialog(name) {
+        document.getElementById(`${name}-dialog`).showModal();
       },
       ticker: m_ticker,
       slideActive(ticker, time, index, total) {

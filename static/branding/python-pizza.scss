@@ -68,13 +68,13 @@ body, html {
   }
 }
 
-.obs-intermission-agenda {
+.obs-intermission-schedule {
   bottom: auto;
   top: 450px;
   left: 1040px
 }
 
-.obs-intermission-agenda-title {
+.obs-intermission-schedule-title {
   font-weight: 500;
   text-shadow: none;
   font-size: 2.3rem;
@@ -82,18 +82,18 @@ body, html {
   text-align: center;
 }
 
-.obs-intermission-agenda-entry {
+.obs-intermission-schedule-entry {
   margin-bottom: 0;
   overflow: initial;
   margin-top: 30px;
 }
 
-.obs-intermission-agenda-talk {
+.obs-intermission-schedule-talk {
   padding: 0 25px;
   text-align: center;
   margin-right: 30px;
 
-  &.obs-intermission-agenda-entry {
+  &.obs-intermission-schedule-entry {
     box-shadow: 0 4px 28px -8px #cac9c9;
     background-color: white;
     border-radius: 64px;
@@ -109,7 +109,7 @@ body, html {
   }
 }
 
-.obs-intermission-agenda-talk-picture {
+.obs-intermission-schedule-talk-picture {
   width: 144px;
   height: 144px;
   border-radius: 72px;
@@ -117,11 +117,11 @@ body, html {
   left: auto;
   box-shadow: 2px 8px 32px -8px #ed4337;
 
-  .obs-intermission-agenda-talk:nth-of-type(2n) & {
+  .obs-intermission-schedule-talk:nth-of-type(2n) & {
     left: -8px;
   }
 
-  .obs-intermission-agenda-talk:nth-of-type(2n + 1) & {
+  .obs-intermission-schedule-talk:nth-of-type(2n + 1) & {
     right: -8px;
   }
 
@@ -135,11 +135,11 @@ body, html {
   }
 }
 
-.obs-intermission-agenda-entry-content {
+.obs-intermission-schedule-entry-content {
   overflow: hidden;
 }
 
-.obs-intermission-agenda-talk-author-name {
+.obs-intermission-schedule-talk-author-name {
   color: #15141A;
   font-size: 1.5rem;
   letter-spacing: initial;
@@ -148,7 +148,7 @@ body, html {
 }
 
 
-.obs-intermission-agenda-talk-title {
+.obs-intermission-schedule-talk-title {
   color: #15141A;
   font-family: inherit;
   font-size: 1.25rem;

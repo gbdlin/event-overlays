@@ -249,7 +249,7 @@ class State(BaseModel):
             message = "Be right back..."
         else:  # we're at the end, there is no next talk
             return "message", {**self.global_context, "info": "See you next time"}
-        return "agenda", {**self.global_context, "schedule": schedule, "info": message}
+        return "schedule", {**self.global_context, "schedule": schedule, "info": message}
 
     @computed_field
     @property

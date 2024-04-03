@@ -37,19 +37,19 @@ body, html {
   }
 }
 
-.obs-intermission-agenda-talk-author-name {
+.obs-intermission-schedule-talk-author-name {
   color: var(--pydata-orange);
 }
 
-.obs-intermission-agenda-talk-title {
+.obs-intermission-schedule-talk-title {
   color: var(--pydata-blue);
 }
 
-.obs-intermission-agenda-misc-title:before,  .obs-intermission-agenda-talk.no-picture .obs-intermission-agenda-entry-content:before {
+.obs-intermission-schedule-misc-title:before,  .obs-intermission-schedule-talk.no-picture .obs-intermission-schedule-entry-content:before {
   color: var(--pydata-blue)
 }
 
-.obs-intermission-agenda-title {
+.obs-intermission-schedule-title {
   text-shadow: none;
 }
 

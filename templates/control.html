@@ -49,7 +49,7 @@
             <button :class="{active: state.timer.target === 30 * 60 * 1000}" id="timer-30" @click="setTimer(30 * 60 * 1000)">30:00</button>
             <button :class="{active: state.timer.target === 45 * 60 * 1000}" id="timer-45" @click="setTimer(45 * 60 * 1000)">45:00</button>
             <button :class="{active: state.timer.target === 60 * 60 * 1000}" id="timer-60" @click="setTimer(60 * 60 * 1000)">60:00</button>
-            <button class="other-active" id="timer-custom" @click="showCustomTimeDialog">Custom</button>
+            <button class="other-active" id="timer-custom" @click="showDialog('timer-custom')">Custom</button>
           </div>
           <div id="timer-message" class="row">
             <input type="text" id="timer-message-text" placeholder="Timer message..." v-model="state.timer.message" @keyup.enter="handleAction('timer.set-message')">
@@ -80,7 +80,7 @@
                   <button id="time-custom-seconds-down-1" @click.prevent="adjustTimer(-1000)">↓</button>
                 </div>
               </div>
-              <button id="timer-custom-close">x</button>
+              <button class="dialog-close" id="timer-custom-close">x</button>
             </form>
           </dialog>
         </template>
