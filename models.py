@@ -98,6 +98,11 @@ class Meeting(BaseModel):
         with path.open("rb") as meeting_fd:
             return {**tomllib.load(meeting_fd)["meeting"], "slug": path.stem}
 
+    @computed_field
+    @property
+    def path(self) -> str:
+        return f"{self.group}/{self.slug}"
+
     @overload
     @classmethod
     def get_meeting_config(cls, *, group: str, slug: str) -> "Meeting":
