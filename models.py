@@ -328,7 +328,7 @@ class TimerConfig(BaseModel):
     slug: str
 
     event: str | None = None
-    station: str | None = None
+    rig: str | None = None
 
     @staticmethod
     def get_timer_dict(path: Path) -> "dict":
