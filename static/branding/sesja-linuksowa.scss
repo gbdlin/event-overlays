@@ -1,0 +1,217 @@
+/* latin-ext */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(../Montserrat-latin-ext.woff2) format('woff2');
+  unicode-range: U+0100-02AF, U+0304, U+0308, U+0329, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Montserrat';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url(../Montserrat.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+html {
+  background: rgba(0,0,0,.92)
+}
+
+body, html {
+  font-family: "Montserrat", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+
+  &.obs-body-default {
+    background: url("sesja-linuksowa/background.png") no-repeat #141414;
+    position: relative;
+    overflow: hidden;
+  }
+}
+
+.obs-meeting-logo {
+  top: 70px;
+
+  img {
+    width: 1304px;
+    height: 320px;
+  }
+
+  .obs-meeting-title {
+    display: none;
+    position: absolute;
+    left: 360px;
+    top: 78px;
+    width: 1420px;
+    font-weight: 500;
+    text-shadow: none;
+
+    .obs-meeting-title-number {
+      display: none;
+    }
+  }
+}
+
+.obs-intermission-schedule {
+  bottom: auto;
+  top: 450px;
+  left: 1040px
+}
+
+.obs-intermission-schedule-title {
+  font-weight: 500;
+  text-shadow: none;
+  font-size: 2.3rem;
+  margin-bottom: 70px;
+  text-align: center;
+}
+
+.obs-intermission-schedule-entry {
+  margin-bottom: 32px;
+  overflow: initial;
+  background-color: #429096;
+  color: #FFFFFF;
+  font-size: 1.5rem;
+  letter-spacing: initial;
+  padding: 20px 25px 8px;
+  text-align: center;
+  height: 55px;
+  margin-right: 30px;
+}
+
+.obs-intermission-schedule-talk {
+  text-align: center;
+  padding: 0;
+
+  &.obs-intermission-schedule-entry {
+    background-color: #141414;
+    height: 132px;
+
+    padding-left: 120px;
+  }
+}
+
+.obs-intermission-schedule-talk-picture {
+  width: 120px;
+  height: 132px;
+  top: 0;
+  left: 0;
+
+  img {
+    min-width: 120px;
+    min-height: 132px;
+    left: 60px;
+    object-position: center top;
+    object-fit: cover;
+    height: 132px;
+    width: 120px;
+  }
+}
+
+.obs-intermission-schedule-entry-content {
+  overflow: hidden;
+}
+
+.obs-intermission-schedule-talk-author-name {
+  background-color: #429096;
+  color: #FFFFFF;
+  font-size: 1.5rem;
+  letter-spacing: initial;
+  padding: 20px 25px 8px;
+}
+
+
+.obs-intermission-schedule-talk-title {
+  padding: 20px 25px 8px;
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 1.25rem;
+}
+
+.obs-intermission-schedule-misc-title:before,  .obs-intermission-schedule-talk.no-picture .obs-intermission-schedule-entry-content:before {
+  display: none;
+}
+
+.obs-intermission-info {
+  color: #FFFFFF;
+  text-shadow: none;
+  font-size: 4rem;
+}
+
+.obs-intermission-next-entry {
+  top: 305px;
+}
+
+.obs-intermission-next-entry-picture {
+  left: 182px;
+
+  img {
+    top: 95px;
+    width: 300px;
+    height: 330px;
+    min-width: 300px;
+    min-height: 330px;
+    object-fit: cover;
+    object-position: center top;
+  }
+}
+
+.obs-intermission-next-entry-content {
+  top: 455px;
+  left: -55px;
+}
+
+.obs-intermission-next-entry-author-name {
+  color: #FFFFFF;
+  background-color: #429096;
+  padding: 20px 15px;
+}
+
+.obs-intermission-next-entry-title {
+  color: #FFFFFF;
+  background-color: #141414;
+  padding: 20px 15px;
+  font-size: 1.75rem;
+}
+
+.obs-intermission-info, .obs-intermission-message {
+  left: 25px;
+}
+
+.obs-body-scene-presentation .obs-meeting-logo img {
+  width: 93px;
+  height: 93px;
+}
+
+.obs-intermission-sponsors {
+  position: absolute;
+  top: 400px;
+  left: 20px;
+  width: 700px;
+}
+
+.obs-intermission-sponsors-entry {
+  width: 300px;
+  height: 112px;
+  margin-left: 35px;
+  margin-bottom: 35px;
+  line-height: 115px;
+  display: inline-block;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    vertical-align: middle;
+  }
+}
+
+.obs-presentation-sponsors .slide {
+  box-sizing: border-box;
+  padding: 15px;
+}
