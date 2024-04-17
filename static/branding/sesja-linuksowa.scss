@@ -39,7 +39,7 @@ body, html {
 
   img {
     width: 1304px;
-    height: 320px;
+    height: 240px;
   }
 
   .obs-meeting-title {
@@ -59,7 +59,7 @@ body, html {
 
 .obs-intermission-schedule {
   bottom: auto;
-  top: 450px;
+  top: 408px;
   left: 1040px
 }
 
@@ -127,14 +127,22 @@ body, html {
 
 
 .obs-intermission-schedule-talk-title {
-  padding: 20px 25px 8px;
+  padding: 8px 25px 8px;
   color: #FFFFFF;
   font-family: inherit;
   font-size: 1.25rem;
+  display: grid;
+  align-items: center;
+  min-height: 60px;
+  background: #141414;
 }
 
 .obs-intermission-schedule-misc-title:before,  .obs-intermission-schedule-talk.no-picture .obs-intermission-schedule-entry-content:before {
   display: none;
+}
+
+.obs-intermission-schedule-overflow {
+  background: none;
 }
 
 .obs-intermission-info {
@@ -184,31 +192,63 @@ body, html {
 }
 
 .obs-body-scene-presentation .obs-meeting-logo img {
-  width: 93px;
-  height: 93px;
+  width: 353px;
+  height: 128px;
 }
 
 .obs-intermission-sponsors {
   position: absolute;
-  top: 400px;
+  top: 350px;
   left: 20px;
   width: 700px;
 }
 
 .obs-intermission-sponsors-entry {
-  width: 300px;
-  height: 112px;
-  margin-left: 35px;
-  margin-bottom: 35px;
+  width: 250px;
+  height: 90px;
+  margin-left: 20px;
+  margin-bottom: 20px;
   line-height: 115px;
   display: inline-block;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 15px;
+  position: relative;
+
+  &:nth-child(3) {
+    width: 550px;
+    height: 135px;
+  }
 
   img {
-    max-width: 100%;
-    max-height: 100%;
+    width: 90%;
+    height: 90%;
     object-fit: contain;
     vertical-align: middle;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
   }
+
+  &:nth-child(1) {
+    img {
+      width: 120%;
+      height: 120%;
+    }
+  }
+}
+
+.obs-presentation-author, .obs-presentation-title, .obs-presentation-misc-title {
+  text-shadow: none;
+}
+
+.obs-presentation-author {
+  font-size: 1.75rem;
+}
+
+.obs-presentation-title {
+  font-size: 1.5rem;
 }
 
 .obs-presentation-sponsors .slide {

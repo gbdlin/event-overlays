@@ -33,6 +33,8 @@ body, html {
 
   img {
     display: block;
+    object-fit: contain;
+    object-position: top left;
   }
 
   &.thumbnail {
@@ -195,6 +197,37 @@ body, html {
   top: 1010px;
   font-size: 2rem;
   margin-left: 30px;
+}
+
+.obs-intermission-questions-integration {
+  position: absolute;
+  left: 25px;
+  top: 865px;
+  width: 704px;
+  color: white;
+  font-size: 1.5rem;
+  overflow: hidden;
+
+  img {
+    width: 192px;
+    height: 192px;
+    float: left;
+    margin-right: 16px;
+  }
+
+  span {
+    display: block;
+  }
+
+  .obs-intermission-questions-integration-text {
+    margin-top: 32px;
+    margin-bottom: 24px;
+  }
+
+  .obs-intermission-questions-integration-url {
+    white-space: nowrap;
+  }
+
 }
 
 .obs-intermission-schedule {

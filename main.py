@@ -9,12 +9,18 @@ from pydantic_core import to_json
 from starlette.responses import RedirectResponse
 
 from models import Meeting, RigConfig, State, StateException, TimerConfig, TimerState
+from utils.file_sha import get_file_sha
 
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-templates = Jinja2Templates(directory="templates")
+def global_ctx(request):
+    return {
+        "get_file_sha": get_file_sha,
+    }
+
+templates = Jinja2Templates(directory="templates", context_processors=[global_ctx])
 
 
 class ConnectionManager:

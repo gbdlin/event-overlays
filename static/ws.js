@@ -18,7 +18,7 @@ function sendMessage(data) {
   ws.send(JSON.stringify(data));
 }
 
-function set_branding(name) {
+function set_branding(name, version) {
   if (branding_style && !name) {
     branding_style.remove();
     return
@@ -31,7 +31,7 @@ function set_branding(name) {
     branding_style.rel = 'stylesheet';
     document.head.appendChild(branding_style);
   }
-  branding_style.href = `/static/branding/${name}.css`;
+  branding_style.href = `/static/branding/${name}.css?v=${version}`;
 }
 
 const parseEventData = (data) => {
@@ -66,7 +66,7 @@ const parseEventData = (data) => {
     m_meeting.value = {};
     Object.assign(m_meeting.value, data.meeting)
     m_role.value = data.role;
-    set_branding(data.meeting.branding);
+    set_branding(data.meeting.branding, data.meeting.branding_sha);
   }
   if (m_state.value === null) {
     m_state.value = {};

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <title>Web Source</title>
-    <link type="text/css" rel="stylesheet" href="/static/global.css">
+    <link type="text/css" rel="stylesheet" href="/static/global.css?v={{ get_file_sha('static/global.css') }}">
 
     <script type="application/json" id="initSettings">
       {% if data %}
@@ -29,7 +29,7 @@
         }
       }
     </script>
-    <script type="module" src="/static/ws.js"></script>
+    <script type="module" src="/static/ws.js?v={{ get_file_sha('static/ws.js') }}"></script>
   </head>
   <body class="obs-body-default obs-body-scene-{{ scene }}" id="app">
     {% raw %}
@@ -103,6 +103,12 @@
           <div :class="['obs-intermission-info', messagesPositionCls]">{{ state.context.info }}</div>
           <div :class="['obs-intermission-message', messagesPositionCls]">{{ state.context.message }}</div>
         </template>
+
+        <div v-if="displayMessages && display == 'atem' && meeting.questions_integration" class="obs-intermission-questions-integration">
+          <img :src="meeting.questions_integration.qr_code_url" class="obs-intermission-questions-integration-qr">
+          <span class="obs-intermission-questions-integration-text">Ask questions using {{ meeting.questions_integration.name }}</span>
+          <span class="obs-intermission-questions-integration-url" v-if="meeting.questions_integration.url">{{ meeting.questions_integration.url }}</span>
+        </div>
 
         <template v-if="state.template == 'presentation'">
           <div class="obs-presentation-top-bar">

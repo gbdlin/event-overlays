@@ -7,6 +7,8 @@ from urllib.parse import urljoin
 
 from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, HttpUrl
 
+from utils.file_sha import get_file_sha
+
 CONFIG_ROOT = Path("config")
 
 MEETING_CONFIGS_ROOT = Path("config/events")
@@ -72,6 +74,17 @@ class MeetingTheme(BaseModel):
     sponsors_on_intermission: bool = False
 
 
+class MeetingQuestionsIntegration(BaseModel):
+    name: str
+    qr_code: HttpUrl | Path
+    url: str | None = None
+
+    @computed_field
+    @property
+    def qr_code_url(self) -> str:
+        return urljoin("/static/", str(self.qr_code))
+
+
 class Meeting(BaseModel):
     slug: str  # this is injected by config loader
     group: str  # this is injected by config loader
@@ -84,6 +97,7 @@ class Meeting(BaseModel):
     sponsors: list[MeetingSponsor] = []
     schedule: list[MeetingTalk | MeetingLightningTalks] = []
     socials: list[MeetingSocial] = []
+    questions_integration: MeetingQuestionsIntegration | None = None
 
     theme: MeetingTheme = MeetingTheme()
 
@@ -102,6 +116,11 @@ class Meeting(BaseModel):
     @property
     def path(self) -> str:
         return f"{self.group}/{self.slug}"
+
+    @computed_field
+    @property
+    def branding_sha(self) -> str:
+        return get_file_sha(f"static/branding/{self.branding}.css")
 
     @overload
     @classmethod
