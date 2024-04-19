@@ -79,6 +79,12 @@ def upload_progress(store, slot, percent, done, size):
         pbar.close()
 
 
+def disconnected(*args, **kwargs):
+    print("disconnected", args, kwargs)
+    logging.fatal("disconnected")
+    exit(1)
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('ip', help='ATEM IP address')
 parser.add_argument('index', help='Media store slot number', type=int)
@@ -94,6 +100,7 @@ switcher.on(
     'connected',
     partial(connected, connection=switcher, slot=args.index - 1, scene_url=args.scene_url, name=args.name)
 )
+switcher.on('disconnected', disconnected)
 switcher.on('upload-done', uploaded)
 switcher.on('transfer-progress', progress)
 switcher.on('upload-progress', upload_progress)
