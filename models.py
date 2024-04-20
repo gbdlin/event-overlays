@@ -50,8 +50,10 @@ class MeetingLightningTalks(BaseModel):
 
 
 class MeetingSocial(BaseModel):
-    type: Literal["discord", "youtube", "meetup", "website"]
+    type: Literal["discord", "youtube", "meetup", "website", "slido"]
     url: AnyHttpUrl
+    code: str | None = None
+    img: HttpUrl | Path | None = None
 
 
 class MeetingSponsor(BaseModel):

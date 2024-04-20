@@ -128,11 +128,12 @@
           <div class="obs-presentation-bottom-bar" v-if="presentationBottomBar">
             <div class="obs-presentation-bottom-bar-slider slideshow">
               <div :class="['slide', {'active': slideActive(ticker, 5000, index, state.context.socials.length)}]" v-for="(social, index) in state.context.socials">
-                <span class="obs-presentation-bottom-bar-social-icon">
+                <span class="obs-presentation-bottom-bar-social-icon" v-if="!social.img">
                   <i v-if="social.type === 'website'" class="fa-solid fa-globe"></i>
                   <i v-else :class="['fa-brands', `fa-${social.type}`]"></i>
                 </span>
                 <span class="obs-presentation-bottom-bar-social-url">{{ social.url.replace(/^https?:\/\//, "").replace(/\/$/, "") }}</span>
+                <span class="obs-presentation-bottom-bar-social-code" v-if="social.code">{{ social.code }}</span>
               </div>
             </div>
           </div>
