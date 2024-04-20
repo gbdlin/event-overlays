@@ -21,7 +21,7 @@ def prepare_image(scene_url, path, resolution):
     hti = Html2Image(
         size=resolution,
         browser_executable="/home/gwynbleidd/.local/bin/chromium",
-        custom_flags=['--virtual-time-budget=1000', '--hide-scrollbars'],
+        custom_flags=['--virtual-time-budget=5000', '--hide-scrollbars'],
     )
 
     hti.screenshot(url=scene_url, save_as=path)
