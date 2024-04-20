@@ -76,6 +76,10 @@ class MeetingTheme(BaseModel):
     sponsors_on_intermission: bool = False
 
 
+class MeetingFarewell(BaseModel):
+    message: str = "See you next time!"
+
+
 class MeetingQuestionsIntegration(BaseModel):
     name: str
     qr_code: HttpUrl | Path
@@ -99,6 +103,7 @@ class Meeting(BaseModel):
     sponsors: list[MeetingSponsor] = []
     schedule: list[MeetingTalk | MeetingLightningTalks] = []
     socials: list[MeetingSocial] = []
+    farewell: MeetingFarewell = MeetingFarewell()
     questions_integration: MeetingQuestionsIntegration | None = None
 
     theme: MeetingTheme = MeetingTheme()
@@ -274,7 +279,7 @@ class State(BaseModel):
         elif len(schedule):
             message = "Be right back..."
         else:  # we're at the end, there is no next talk
-            return "message", {**self.global_context, "info": "See you next time"}
+            return "message", {**self.global_context, "info": self.meeting.farewell.message}
         return "schedule", {**self.global_context, "schedule": schedule, "info": message}
 
     @computed_field
