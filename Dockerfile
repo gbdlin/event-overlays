@@ -47,4 +47,4 @@ COPY --from=scss-builder /code/static/branding/*.css.map static/branding/
 
 ENV PYTHONUNBUFFERED=0
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]

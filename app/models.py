@@ -7,7 +7,7 @@ from urllib.parse import urljoin
 
 from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, HttpUrl
 
-from utils.file_sha import get_file_sha
+from .utils.file_sha import get_file_sha
 
 CONFIG_ROOT = Path("config")
 
