@@ -5,7 +5,7 @@ from pathlib import Path, PurePath
 from typing import Literal, overload
 from urllib.parse import urljoin
 
-from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, HttpUrl
+from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, Field, HttpUrl
 
 from .utils.file_sha import get_file_sha
 
@@ -18,7 +18,7 @@ RIG_CONFIGS_ROOT = CONFIG_ROOT / "rigs"
 states: dict[tuple[str, str], "State"] = {}
 
 
-def natural_sort_key(s: str, _nsre: re.Pattern = re.compile(r'([0-9]+)')) -> list[int, str]:
+def natural_sort_key(s: str, _nsre: re.Pattern = re.compile(r'([0-9]+)')) -> list[int | str]:
     return [int(text) if text.isdigit() else text.lower()
             for text in _nsre.split(s)]
 
@@ -36,13 +36,33 @@ class MeetingScheduleAuthor(BaseModel):
     picture_url: AnyHttpUrl | None = None
 
 
-class MeetingTalk(BaseModel):
+class MeetingTalkBase(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     type: Literal["talk"]
     title: str
     language: str
+
+
+class MeetingTalkLegacy(MeetingTalkBase):
     author: MeetingScheduleAuthor
+
+    @computed_field()
+    @property
+    def authors(self) -> list[MeetingScheduleAuthor]:
+        return [self.author]
+
+
+class MeetingTalk(MeetingTalkBase):
+    authors: list[MeetingScheduleAuthor]
+
+    @computed_field()
+    @property
+    def author(self) -> MeetingScheduleAuthor:
+        return MeetingScheduleAuthor(
+            name=", ".join(author.name for author in self.authors),
+            picture_url=self.authors[0].picture_url if len(self.authors) == 1 else None,
+        )
 
 
 class MeetingLightningTalks(BaseModel):
@@ -101,7 +121,7 @@ class Meeting(BaseModel):
     starts: datetime
     branding: str | None = None
     sponsors: list[MeetingSponsor] = []
-    schedule: list[MeetingTalk | MeetingLightningTalks] = []
+    schedule: list[MeetingTalk | MeetingTalkLegacy | MeetingLightningTalks] = []
     socials: list[MeetingSocial] = []
     farewell: MeetingFarewell = MeetingFarewell()
     questions_integration: MeetingQuestionsIntegration | None = None
