@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from fastapi.routing import APIRoute
+from fastapi.routing import APIRoute, APIWebSocketRoute
 
 from .control import control_view
 from .scenes import scene_view
@@ -11,7 +11,7 @@ routes = [
     APIRoute("/--/s/{path:path}/{state:str}/scene-{scene:str}.html", scene_view),
     APIRoute("/{rig:str}/scene-{scene:str}.html", scene_view),
 
-    APIRoute("/{rig_slug:str}/ws/{role:str}", ws_view),
+    APIWebSocketRoute("/{rig_slug:str}/ws/{role:str}", ws_view),
 
     APIRoute("/t/{timer_slug:str}/speaker.html", timer_redirect),
     APIRoute("/{rig:str}/speaker-timer.html", speaker_timer_view),
