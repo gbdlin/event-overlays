@@ -5,6 +5,7 @@ from pathlib import Path, PurePath
 from typing import Literal
 from urllib.parse import urljoin
 
+from fastapi.utils import deep_dict_update
 from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, HttpUrl
 
 from .utils.file_sha import get_file_sha
@@ -127,9 +128,18 @@ class Meeting(BaseModel):
 
     @staticmethod
     def get_meeting_dict(path: PurePath) -> "dict":
-        config_path = MEETING_CONFIGS_ROOT / f"{path}.toml"
+        config_dict = {}
+        for node in reversed(path.parents):
+            config_path = (MEETING_CONFIGS_ROOT / node).resolve().with_suffix(".toml")
+            if config_path.exists():
+                with config_path.open("rb") as meeting_fd:
+                    deep_dict_update(config_dict, tomllib.load(meeting_fd)["meeting"])
+
+        config_path = (MEETING_CONFIGS_ROOT / path).resolve().with_suffix(".toml")
         with config_path.open("rb") as meeting_fd:
-            return {**tomllib.load(meeting_fd)["meeting"], "path": path}
+            deep_dict_update(config_dict, tomllib.load(meeting_fd)["meeting"])
+
+        return {**config_dict, "path": path}
 
     @computed_field
     @property
