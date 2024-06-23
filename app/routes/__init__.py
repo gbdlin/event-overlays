@@ -21,4 +21,23 @@ old_routes = [
     APIRoute("/{rig:str}/schedule-table.html", schedule_table_view),
 ]
 
-router = APIRouter(routes=routes)
+old_router = APIRouter(routes=old_routes)
+
+v1_routes = [
+    APIRoute("/events/{path:path}/views/{view:str}/{state:str}", scene_view),
+
+    APIRoute("/rigs/{rig:str}/control", control_view),
+
+    APIRoute("/rigs/{rig:str}/views/speaker-timer", speaker_timer_view),
+    APIRoute("/rigs/{rig:str}/views/schedule-table", schedule_table_view),
+    APIRoute("/rigs/{rig:str}/views/scene-{scene:str}", scene_view),
+
+    APIWebSocketRoute("/rigs/{rig_slug:str}/control/ws", ws_view),
+    APIWebSocketRoute("/rigs/{rig_s:str}/views/{role:str}/ws", ws_view),
+
+    APIRoute("/views/{name:str}/timer", timer_redirect),
+]
+
+v1_router = APIRouter(
+    routes=v1_routes,
+)
