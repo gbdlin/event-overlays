@@ -7,7 +7,7 @@ from .timers import speaker_timer_view, timer_redirect
 from .utils import schedule_table_view
 from .websocket import ws_view
 
-routes = [
+old_routes = [
     APIRoute("/--/s/{path:path}/{state:str}/scene-{scene:str}.html", scene_view),
     APIRoute("/{rig:str}/scene-{scene:str}.html", scene_view),
 

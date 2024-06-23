@@ -43,7 +43,9 @@ class ConnectionManager:
                 self.active_connections.remove(connection)
 
 
-managers: dict[tuple[str, str], ConnectionManager] = {}
+managers: dict[str, ConnectionManager] = {}
+assignable_views: dict[str, tuple[WebSocket, Event]] = {}
+assigned_views: dict[str, RigConfig] = {}
 
 
 def get_state_update_for(state: State, target: str, command: str | None = None) -> dict:
@@ -136,7 +138,6 @@ async def get_ws_state(
         return None
     await websocket.accept()
 
-    group, slug = rig.meeting_group, rig.meeting_slug
-    state = State.get_meeting_state(group, slug)
-    manager = managers.setdefault((group, state.meeting.slug), ConnectionManager())
+    state = State.get_meeting_state(path=rig.meeting_path)
+    manager = managers.setdefault(rig.meeting_path, ConnectionManager())
     return state, manager, rig

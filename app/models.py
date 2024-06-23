@@ -2,10 +2,10 @@ import re
 import tomllib
 from datetime import datetime
 from pathlib import Path, PurePath
-from typing import Literal, overload
+from typing import Literal
 from urllib.parse import urljoin
 
-from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, Field, HttpUrl
+from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, HttpUrl
 
 from .utils.file_sha import get_file_sha
 
@@ -15,20 +15,12 @@ MEETING_CONFIGS_ROOT = Path("config/events")
 TIMER_CONFIGS_ROOT = CONFIG_ROOT / "timers"
 RIG_CONFIGS_ROOT = CONFIG_ROOT / "rigs"
 
-states: dict[tuple[str, str], "State"] = {}
+states: dict[str, "State"] = {}
 
 
 def natural_sort_key(s: str, _nsre: re.Pattern = re.compile(r'([0-9]+)')) -> list[int | str]:
     return [int(text) if text.isdigit() else text.lower()
             for text in _nsre.split(s)]
-
-
-def get_latest_meeting_slug(root_dir: Path, meeting: str) -> str:
-    return sorted(
-        [path.stem for path in (root_dir / meeting).glob("*.toml")],
-        reverse=True,
-        key=natural_sort_key,
-    )[0]
 
 
 class MeetingScheduleAuthor(BaseModel):
@@ -112,8 +104,7 @@ class MeetingQuestionsIntegration(BaseModel):
 
 
 class Meeting(BaseModel):
-    slug: str  # this is injected by config loader
-    group: str  # this is injected by config loader
+    path: PurePath  # this is injected by config loader
     name: str
     logo_url: HttpUrl | Path
     type: str
@@ -135,42 +126,31 @@ class Meeting(BaseModel):
         return f"{self.type} #{self.number}"
 
     @staticmethod
-    def get_meeting_dict(path: Path) -> "dict":
-        with path.open("rb") as meeting_fd:
-            return {**tomllib.load(meeting_fd)["meeting"], "slug": path.stem}
+    def get_meeting_dict(path: PurePath) -> "dict":
+        config_path = MEETING_CONFIGS_ROOT / f"{path}.toml"
+        with config_path.open("rb") as meeting_fd:
+            return {**tomllib.load(meeting_fd)["meeting"], "path": path}
 
     @computed_field
     @property
-    def path(self) -> str:
-        return f"{self.group}/{self.slug}"
+    def group(self) -> str:
+        return str(self.path.parent)
+
+    @computed_field
+    @property
+    def slug(self) -> str:
+        return self.path.stem
 
     @computed_field
     @property
     def branding_sha(self) -> str:
         return get_file_sha(f"static/branding/{self.branding}.css")
 
-    @overload
-    @classmethod
-    def get_meeting_config(cls, *, group: str, slug: str) -> "Meeting":
-        pass
-
-    @overload
     @classmethod
     def get_meeting_config(cls, *, path: str) -> "Meeting":
-        pass
+        path = PurePath(path)
 
-    @classmethod
-    def get_meeting_config(cls, *, group: str = None, slug: str = None, path: str = None) -> "Meeting":
-        if group and slug:
-            if slug == "__latest__":
-                slug = get_latest_meeting_slug(MEETING_CONFIGS_ROOT, group)
-            path = MEETING_CONFIGS_ROOT / group / f"{slug}.toml"
-        elif path:
-            path = PurePath(path)
-            group = str(path.parent)
-            path = MEETING_CONFIGS_ROOT / f"{path}.toml"
-
-        return cls.model_validate({**cls.get_meeting_dict(path), "group": group})
+        return cls.model_validate(cls.get_meeting_dict(path))
 
 
 class StateException(Exception):
@@ -330,25 +310,21 @@ class State(BaseModel):
         return list(columns)
 
     @classmethod
-    def get_meeting_state(cls, group: str, slug: str) -> "State":
-        if slug == "__latest__":
-            slug = get_latest_meeting_slug(MEETING_CONFIGS_ROOT, group)
-
-        if (group, slug) not in states:
-            states[group, slug] = cls(
-                meeting=Meeting.get_meeting_config(group=group, slug=slug),
+    def get_meeting_state(cls, *, path: str) -> "State":
+        if path not in states:
+            states[path] = cls(
+                meeting=Meeting.get_meeting_config(path=path),
                 timer=TimerState(target=15 * 60 * 1000),  # 15 minutes default, will be read at some point from config.
             )
 
-        return states[group, slug]
+        return states[path]
 
 
 class RigConfig(BaseModel):
     slug: str
 
     control_password: str
-    meeting_group: str | None
-    meeting_slug: str | None
+    meeting_path: str | None
 
     @staticmethod
     def get_rig_dict(path: Path) -> dict | None:

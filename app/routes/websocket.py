@@ -100,10 +100,7 @@ async def ws_view(
                                 notify.add("scene-presentation")
                                 notify.add("schedule")
                                 notify.add("control")
-                                state.meeting = Meeting.get_meeting_config(
-                                    group=state.meeting.group,
-                                    slug=state.meeting.slug,
-                                )
+                                state.meeting = Meeting.get_meeting_config(path=str(state.meeting.path))
                                 state.fix_ticker()
                             case {"action": other}:
                                 print(f"action {other} unknown")
