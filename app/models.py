@@ -29,7 +29,11 @@ class MeetingScheduleAuthor(BaseModel):
     picture_url: AnyHttpUrl | None = None
 
 
-class MeetingTalkBase(BaseModel):
+class MeetingScheduleEntryBase(BaseModel):
+    start: datetime | None = None
+
+
+class MeetingTalkBase(MeetingScheduleEntryBase):
     model_config = ConfigDict(extra="allow")
 
     type: Literal["talk"]
@@ -58,7 +62,7 @@ class MeetingTalk(MeetingTalkBase):
         )
 
 
-class MeetingLightningTalks(BaseModel):
+class MeetingLightningTalks(MeetingScheduleEntryBase):
     type: Literal["lightning-talks"]
 
 

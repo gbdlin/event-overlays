@@ -13,6 +13,7 @@ setInterval(() => m_now.value = Date.now(), 69);
 const m_ticker = ref(0);
 setInterval(() => m_ticker.value += 100, 100);
 const initSettings = JSON.parse(document.getElementById("initSettings").textContent)
+const dateFormatter = new Intl.DateTimeFormat('default', {hour12: false, timeZone: "Europe/Warsaw", timeStyle: "short"})
 
 function sendMessage(data) {
   ws.send(JSON.stringify(data));
@@ -196,6 +197,10 @@ createApp({
       slideActive(ticker, time, index, total) {
         const current = ticker % (time * total)
         return (current >= time * index && current < time * (index + 1));
+      },
+      formatTime(datetime) {
+        const date = new Date(datetime);
+        return dateFormatter.format(date);
       }
     }
   }
