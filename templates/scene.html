@@ -35,15 +35,14 @@
     {% raw %}
     <template v-if="state">
       <div v-if="meeting" :class="['obs-meeting-logo', {'obs-meeting-logo-thumbnail': display !== 'scene'}]">
-        <img :src="meeting.logo_url" :alt="`$(meeting.name) logo`">
+        <img :src="meeting.logo_url" :alt="`${meeting.name} logo`">
         <div class="obs-meeting-title">
-          <span class="obs-meeting-title-type">{{ meeting.type }}</span>
-          <span class="obs-meeting-title-number">#{{ meeting.number }}</span>
+          {{ meeting.title }}
         </div>
       </div>
 
       <div class="obs-intermission-content">
-        <template v-if="state.template != 'presentation' && meeting.theme.sponsors_on_intermission && state.context.sponsors.length > 0">
+        <template v-if="state.template != 'presentation' && meeting.template.sponsors_on_intermission && state.context.sponsors.length > 0">
           <div class="obs-intermission-sponsors">
             <div class="obs-intermission-sponsors-entry" v-for="(sponsor, index) in state.context.sponsors">
               <img :src="sponsor.logo_url" :alt="sponsor.name">

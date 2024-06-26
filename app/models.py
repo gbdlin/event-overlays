@@ -80,13 +80,15 @@ class MeetingSponsor(BaseModel):
         return urljoin("/static/", str(self.logo))
 
 
-class MeetingTheme(BaseModel):
+class Template(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     name: str = ""
 
     # TODO: figure out theme-specific settings
     sponsors_on_intermission: bool = False
+
+    title: str = "{meeting.name}"
 
 
 class MeetingFarewell(BaseModel):
@@ -118,13 +120,14 @@ class Meeting(BaseModel):
     farewell: MeetingFarewell = MeetingFarewell()
     questions_integration: MeetingQuestionsIntegration | None = None
 
-    theme: MeetingTheme = MeetingTheme()
+    template: Template = Template()
 
     control_password: str | None = None
 
+    @computed_field
     @property
-    def full_title(self):
-        return f"{self.type} #{self.number}"
+    def title(self) -> str:
+        return self.template.title.format(meeting=self)
 
     @staticmethod
     def get_meeting_dict(path: PurePath) -> "dict":
