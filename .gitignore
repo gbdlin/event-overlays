@@ -468,13 +468,5 @@ static/global.css
 static/global.css.map
 static/timer.css
 static/timer.css.map
-static/branding/pydata-krk.css
-static/branding/pydata-krk.css.map
-static/branding/pykonik.css
-static/branding/pykonik.css.map
-static/branding/python-pizza.css
-static/branding/python-pizza.css.map
-static/branding/sesja-linuksowa.css
-static/branding/sesja-linuksowa.css.map
-static/branding/clug.css
-static/branding/clug.css.map
+static/branding/*.css
+static/branding/*.css.map
