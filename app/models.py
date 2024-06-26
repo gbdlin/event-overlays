@@ -62,6 +62,16 @@ class MeetingTalk(MeetingTalkBase):
         )
 
 
+class MeetingAnnouncement(MeetingScheduleEntryBase):
+    type: Literal["announcement"]
+    title: str
+
+
+class MeetingBreak(MeetingScheduleEntryBase):
+    type: Literal["break"]
+    title: str | None = None
+
+
 class MeetingLightningTalks(MeetingScheduleEntryBase):
     type: Literal["lightning-talks"]
 
@@ -120,7 +130,7 @@ class Meeting(BaseModel):
     starts: datetime
     branding: str | None = None
     sponsors: list[MeetingSponsor] = []
-    schedule: list[MeetingTalk | MeetingTalkLegacy | MeetingLightningTalks] = []
+    schedule: list[MeetingTalk | MeetingTalkLegacy | MeetingBreak | MeetingAnnouncement | MeetingLightningTalks] = []
     socials: list[MeetingSocial] = []
     farewell: MeetingFarewell = MeetingFarewell()
     questions_integration: MeetingQuestionsIntegration | None = None

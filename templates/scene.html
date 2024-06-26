@@ -72,6 +72,18 @@
                 <span class="obs-intermission-schedule-misc-title">Lightning talks</span>
               </div>
             </template>
+            <template v-else-if="entry.type === 'announcement'">
+              <div class="obs-intermission-schedule-entry-content">
+                <span class="obs-intermission-schedule-entry-start-time" v-if="entry.start">{{ formatTime(entry.start) }}</span>
+                <span class="obs-intermission-schedule-misc-title">{{ entry.title }}</span>
+              </div>
+            </template>
+            <template v-else-if="entry.type === 'break'">
+              <div class="obs-intermission-schedule-entry-content">
+                <span class="obs-intermission-schedule-entry-start-time" v-if="entry.start">{{ formatTime(entry.start) }}</span>
+                <span class="obs-intermission-schedule-misc-title">{{ entry.title || 'Break' }}</span>
+              </div>
+            </template>
           </div>
 
           <div class="obs-intermission-schedule-entry obs-intermission-schedule-overflow" v-if="state.context.schedule.length > meeting.template.schedule_length">
