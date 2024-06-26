@@ -66,22 +66,10 @@
                 <span class="obs-intermission-schedule-talk-title">{{ entry.title }}</span>
               </div>
             </template>
-            <template v-else-if="entry.type === 'lightning-talks'">
-              <div class="obs-intermission-schedule-entry-content">
-                <span class="obs-intermission-schedule-entry-start-time" v-if="entry.start">{{ formatTime(entry.start) }}</span>
-                <span class="obs-intermission-schedule-misc-title">Lightning talks</span>
-              </div>
-            </template>
-            <template v-else-if="entry.type === 'announcement'">
+            <template v-else>
               <div class="obs-intermission-schedule-entry-content">
                 <span class="obs-intermission-schedule-entry-start-time" v-if="entry.start">{{ formatTime(entry.start) }}</span>
                 <span class="obs-intermission-schedule-misc-title">{{ entry.title }}</span>
-              </div>
-            </template>
-            <template v-else-if="entry.type === 'break'">
-              <div class="obs-intermission-schedule-entry-content">
-                <span class="obs-intermission-schedule-entry-start-time" v-if="entry.start">{{ formatTime(entry.start) }}</span>
-                <span class="obs-intermission-schedule-misc-title">{{ entry.title || 'Break' }}</span>
               </div>
             </template>
           </div>

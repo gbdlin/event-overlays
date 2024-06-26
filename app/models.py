@@ -69,11 +69,16 @@ class MeetingAnnouncement(MeetingScheduleEntryBase):
 
 class MeetingBreak(MeetingScheduleEntryBase):
     type: Literal["break"]
-    title: str | None = None
+    title: str | None = "Break"
 
 
 class MeetingLightningTalks(MeetingScheduleEntryBase):
     type: Literal["lightning-talks"]
+
+    @computed_field
+    @property
+    def title(self) -> str:
+        return "Lightning talks"
 
 
 class MeetingSocial(BaseModel):
