@@ -104,6 +104,7 @@ class Template(BaseModel):
 
     title: str = "{meeting.name}"
     schedule_length: int = 3
+    default_display: str = "scene"
 
 
 class MeetingFarewell(BaseModel):

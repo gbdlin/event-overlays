@@ -15,7 +15,7 @@ async def scene_view(
     rig: str | None = None,
     path: str | None = None,
     state: str | None = None,
-    display: str = "scene",
+    display: str = None,
     presentation_bottom_bar: bool = True,
     presentation_sponsors: Literal["left", "right"] | None = None,
 ):

@@ -132,7 +132,9 @@ createApp({
   data() {
     return {
       meeting: m_meeting,
-      display: initSettings.display,
+      display: computed(() => (
+        initSettings.display || m_meeting.value.template.default_display
+      )),
       presentationBottomBar: initSettings.presentationBottomBar,
       presentationSponsors: initSettings.presentationSponsors,
       state: m_state,
