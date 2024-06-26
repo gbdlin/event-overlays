@@ -5,7 +5,7 @@ from .control import control_view
 from .scenes import scene_view
 from .timers import speaker_timer_view, timer_redirect
 from .utils import schedule_table_view
-from .websocket import ws_view
+from .websocket import update_schedule_ticker, ws_view
 
 old_routes = [
     APIRoute("/--/s/{path:path}/{state:str}/scene-{scene:str}.html", scene_view),

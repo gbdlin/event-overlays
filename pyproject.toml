@@ -10,6 +10,7 @@ package-mode = false
 [tool.poetry.dependencies]
 python = "^3.11"
 fastapi = "^0.101.0"
+fastapi-utilities = "^0.2.0"
 uvicorn = { version = "^0.23.2", extras = ["standard"] }
 jinja2 = "^3.1.2"
 pydantic = "^2.1.1"

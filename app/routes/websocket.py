@@ -6,7 +6,25 @@ from fastapi.websockets import WebSocket, WebSocketDisconnect
 from pydantic_core import to_json
 
 from ..models import Meeting, RigConfig, State, StateException
-from ..state import ConnectionManager, get_state_update_for, get_ws_state
+from ..state import ConnectionManager, get_state_update_for, get_ws_state, managers
+
+
+async def notify_roles(notify: set[str], manager: ConnectionManager, state: State, command: str):
+    for target_role in (
+        "scene-brb",
+        "scene-title",
+        "scene-hybrid",
+        "scene-schedule",
+        "scene-presentation",
+        "timer",
+        "control",
+        "schedule",
+    ):
+        if target_role in notify:
+            await manager.broadcast_targeted_json(
+                get_state_update_for(state, target_role, command),
+                notify & {target_role, "debug"},
+            )
 
 
 async def ws_view(
@@ -113,24 +131,19 @@ async def ws_view(
                                 )
                                 continue
                         await websocket.send_json({"status": "success"})
-                        for target_role in (
-                            "scene-brb",
-                            "scene-title",
-                            "scene-hybrid",
-                            "scene-schedule",
-                            "scene-presentation",
-                            "timer",
-                            "control",
-                            "schedule",
-                        ):
-                            if target_role in notify:
-                                await manager.broadcast_targeted_json(
-                                    get_state_update_for(state, target_role, command),
-                                    notify & {target_role, "debug"},
-                                )
+                        await notify_roles(notify, manager, state, command)
+                        await update_schedule_ticker()
             except StateException as ex:
                 await websocket.send_json(
                     {"status": "error", "detail": ex.detail},
                 )
     except WebSocketDisconnect:
         manager.disconnect(websocket)
+
+
+async def update_schedule_ticker():
+    notify = {"scene-hybrid", "schedule", "scene-schedule", "scene-presentation", "scene-title"}
+
+    for meeting_path, manager in managers.items():
+        state = State.get_meeting_state(path=meeting_path)
+        await notify_roles(notify, manager, state, "meeting.tick")

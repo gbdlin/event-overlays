@@ -67,7 +67,9 @@ const parseEventData = (data) => {
     m_meeting.value = {};
     Object.assign(m_meeting.value, data.meeting)
     m_role.value = data.role;
-    set_branding(data.meeting.branding, data.meeting.branding_sha);
+    if (data.role !== "control") {
+      set_branding(data.meeting.branding, data.meeting.branding_sha);
+    }
   }
   if (m_state.value === null) {
     m_state.value = {};

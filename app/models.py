@@ -1,6 +1,6 @@
 import re
 import tomllib
-from datetime import datetime
+from datetime import datetime, timedelta, UTC
 from pathlib import Path, PurePath
 from typing import Literal
 from urllib.parse import urljoin
@@ -110,6 +110,8 @@ class Template(BaseModel):
     title: str = "{meeting.name}"
     schedule_length: int = 3
     default_display: str = "scene"
+    ticker_source: Literal["manual", "schedule"] = "manual"
+    schedule_ticker_leeway: int = 10
 
 
 class MeetingFarewell(BaseModel):
@@ -199,6 +201,10 @@ class StateDecrementOverflow(StateException):
     detail = "Cannot untick. Already at the start of meeting."
 
 
+class StateNotManual(StateException):
+    detail = "Cannot modify state, not manually controlled."
+
+
 class TimerState(BaseModel):
     target: int
     started_at: int | None = None
@@ -209,14 +215,30 @@ class TimerState(BaseModel):
 
 class State(BaseModel):
     meeting: Meeting
-    _ticker: int = 0
+    _manual_ticker: int = 0
 
     message: str = ""
 
     timer: TimerState
 
+    @property
+    def _schedule_ticker(self):
+        now = datetime.now(tz=UTC)
+        leeway = timedelta(minutes=self.meeting.template.schedule_ticker_leeway)
+        current = 0
+        for i, entry in enumerate(self.meeting.schedule):
+            if entry.start is not None and entry.start <= now:
+                current = i
+        entry = self.meeting.schedule[current]
+        mid_talk = entry.start is not None and entry.start + leeway <= now
+        return current * 2 + mid_talk
+
+    @property
+    def _ticker(self) -> int:
+        return self._manual_ticker if self.meeting.template.ticker_source == "manual" else self._schedule_ticker
+
     @staticmethod
-    def _schedule_ticker(ticker: int) -> int:
+    def _schedule_position(ticker: int) -> int:
         return ticker // 2
 
     @staticmethod
@@ -225,23 +247,27 @@ class State(BaseModel):
 
     @classmethod
     def get_state_for(cls, ticker) -> tuple[int, bool]:
-        return cls._schedule_ticker(ticker), cls._is_mid_talk(ticker)
+        return cls._schedule_position(ticker), cls._is_mid_talk(ticker)
 
     def fix_ticker(self):
-        if self._ticker >= len(self.meeting.schedule) * 2:
-            self._ticker = len(self.meeting.schedule) * 2 - 1
+        if self._manual_ticker >= len(self.meeting.schedule) * 2:
+            self._manual_ticker = len(self.meeting.schedule) * 2 - 1
 
     def increment(self) -> tuple[int, bool]:
-        if self._ticker + 1 >= len(self.meeting.schedule) * 2:
+        if self.meeting.template.ticker_source != "manual":
+            raise StateNotManual()
+        if self._manual_ticker + 1 >= len(self.meeting.schedule) * 2:
             raise StateIncrementOverflow()
-        self._ticker += 1
+        self._manual_ticker += 1
 
         return self.current_state
 
     def decrement(self) -> tuple[int, bool]:
-        if self._ticker - 1 < 0:
+        if self.meeting.template.ticker_source != "manual":
+            raise StateNotManual()
+        if self._manual_ticker - 1 < 0:
             raise StateDecrementOverflow()
-        self._ticker -= 1
+        self._manual_ticker -= 1
 
         return self.current_state
 
@@ -250,11 +276,11 @@ class State(BaseModel):
             new_state = new_state.split("-")
             new_state = int(new_state[0]), new_state[1] == "mid"
 
-        self._ticker = new_state[0] * 2 + int(new_state[1])
+        self._manual_ticker = new_state[0] * 2 + int(new_state[1])
 
     @property
     def _schedule_screen_ticker(self) -> int:
-        return self._schedule_ticker(self._ticker) + self._is_mid_talk(self._ticker)
+        return self._schedule_position(self._ticker) + self._is_mid_talk(self._ticker)
 
     @property
     def current_state(self) -> tuple[int, bool]:
@@ -276,7 +302,7 @@ class State(BaseModel):
 
     @property
     def current_schedule_item(self) -> MeetingTalk | MeetingLightningTalks:
-        return self.meeting.schedule[self._schedule_ticker(self._ticker)]
+        return self.meeting.schedule[self._schedule_position(self._ticker)]
 
     @property
     def remaining_schedule(self) -> list[MeetingTalk | MeetingLightningTalks]:
