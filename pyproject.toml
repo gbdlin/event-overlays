@@ -5,6 +5,7 @@ description = ""
 authors = ["GwynBleidD <gbd.lin@gmail.com>"]
 readme = "README.md"
 packages = [{include = "obs_overlays"}]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -20,6 +21,10 @@ pyatem = "^0.9.0"
 pyusb = "^1.2.1"
 pillow = "^10.1.0"
 tqdm = "^4.66.1"
+
+[tool.poetry.group.programapi.dependencies]
+httpx = "^0.27.0"
+tomlkit = "^0.12.5"
 
 
 [build-system]

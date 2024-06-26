@@ -10,7 +10,7 @@ RUN ["/opt/dart-sass/sass", "/code/static/"]
 # Python app
 FROM python:3.12-slim-bookworm
 
-ENV POETRY_VERSION=1.7.1
+ENV POETRY_VERSION=1.8.3
 ENV PYTHONBUFFERED=1
 ENV POETRY_INSTALLER_MAX_WORKERS=1
 ENV POETRY_VIRTUALENVS_IN_PROJECT=false
