@@ -93,6 +93,7 @@ class Template(BaseModel):
     sponsors_on_intermission: bool = False
 
     title: str = "{meeting.name}"
+    schedule_length: int = 3
 
 
 class MeetingFarewell(BaseModel):
