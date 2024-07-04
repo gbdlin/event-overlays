@@ -55,8 +55,8 @@
           </div>
 
           <div v-for="entry in state.context.schedule.slice(0, meeting.template.schedule_length)"
-               :class="['obs-intermission-schedule-entry', `obs-intermission-schedule-${entry.type}`, {'no-picture': (entry.type !== 'talk' || !entry.author.picture_url)}]">
-            <template v-if="entry.type === 'talk'">
+               :class="['obs-intermission-schedule-entry', `obs-intermission-schedule-${entry.type}`, {'no-picture': (entry.type !== 'talk' || !entry.author.picture_url), 'no-author': (entry.type !== 'talk' || entry.authors.length === 0), 'with-start-time': entry.start}]">
+            <template v-if="entry.type === 'talk' && entry.authors.length > 0">
               <div class="obs-intermission-schedule-talk-picture" v-if="entry.author.picture_url">
                 <img :src="entry.author.picture_url" :alt="entry.author.name">
               </div>

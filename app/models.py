@@ -51,7 +51,7 @@ class MeetingTalkLegacy(MeetingTalkBase):
 
 
 class MeetingTalk(MeetingTalkBase):
-    authors: list[MeetingScheduleAuthor]
+    authors: list[MeetingScheduleAuthor] = []
 
     @computed_field()
     @property

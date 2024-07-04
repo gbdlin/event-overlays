@@ -87,7 +87,7 @@ body, html {
   margin-right: 30px;
 }
 
-.obs-intermission-schedule-talk {
+.obs-intermission-schedule-talk:not(.no-author) {
   text-align: center;
   padding: 0;
 
@@ -96,6 +96,10 @@ body, html {
     height: 132px;
 
     padding-left: 120px;
+
+    &.no-picture {
+      padding-left: 0;
+    }
   }
 }
 
@@ -132,7 +136,7 @@ body, html {
   letter-spacing: initial;
   padding: 20px 25px 8px;
 
-  .obs-intermission-schedule-talk & {
+  .obs-intermission-schedule-talk:not(.no-author) & {
     bottom: auto;
     font-size: 1.5rem;
     letter-spacing: initial;
@@ -147,6 +151,10 @@ body, html {
   letter-spacing: initial;
   margin-top: 0;
   padding: 5px 25px 8px;
+
+  .obs-intermission-schedule-entry.with-start-time & {
+    padding-right: 90px;
+  }
 }
 
 
@@ -163,6 +171,12 @@ body, html {
 
 .obs-intermission-schedule-misc-title:before,  .obs-intermission-schedule-talk.no-picture .obs-intermission-schedule-entry-content:before {
   display: none;
+}
+
+.obs-intermission-schedule-misc-title {
+  .obs-intermission-schedule-entry.with-start-time & {
+    padding-right: 90px;
+  }
 }
 
 .obs-intermission-schedule-overflow {
