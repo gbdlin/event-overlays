@@ -20,6 +20,11 @@ days = {
     "2024-07-12": {},
 }
 
+avatar_blacklist = {
+    "kuba_NsMw534.png",
+    "Profile_small_qVJUTKd.jpg",
+}
+
 
 def add_to_rooms(day: str, rooms: list[str], event_data):
     for room in rooms:
@@ -39,18 +44,23 @@ def add_speaker_session_to_rooms(day: str, rooms: list[str], event):
         ]
     }
     for author in event_data["authors"]:
-        if author["picture_url"] is None:
+        if author["picture_url"] is None or author["picture_url"].rsplit("/", 1)[1] in avatar_blacklist:
+            print(author["picture_url"].rsplit("/", 1)[1] if author["picture_url"] else None)
             del author["picture_url"]
     add_to_rooms(day, rooms, event_data)
 
 
 def add_non_speaker_session_to_rooms(day: str, rooms: list[str], event):
-    ...
-    # add_to_rooms(day, rooms, event_data)
+    event_data = {
+        "start": event["start"],
+        "type": "talk",
+        "title": event["title"],
+        "language": "en",
+    }
+    add_to_rooms(day, rooms, event_data)
 
 
 def add_special_to_rooms(special_type: str, day: str, rooms: list[str], event):
-    ...
     event_data = {
         "start": event["start"],
         "type": special_type,
@@ -80,7 +90,7 @@ def seed_days():
                         if "lightning" in event["title"].lower():
                             add_special_to_rooms("lightning-talks", day, event["rooms"], event)
                         else:
-                            print(event)
+                            add_non_speaker_session_to_rooms(day, event["rooms"], event)
                     else:
                         add_speaker_session_to_rooms(day, event["rooms"], event)
                 elif session_type == "Panel":
@@ -93,16 +103,17 @@ def seed_days():
                     print(event)
 
 
-def dump_to_toml(room, day, events):
+def dump_to_toml(room, day, events, start_date: bool = True):
     path = Path("config/events/europython/2024") / room / f"{day}.toml"
     data = {
         "meeting": {
-            "name": "EuroPython 2024 Forum Hall day 1",
+            "name": f"EuroPython 2024 {room} day {day}",
             "number": 2024,
-            "starts": f"{day}T09:00:00+02:00",
             "schedule": events,
         }
     }
+    if start_date:
+        data["meeting"]["starts"] = f"{day}T09:00:00+02:00"
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w") as toml_fd:
@@ -110,9 +121,24 @@ def dump_to_toml(room, day, events):
 
 
 def dump_all_to_config():
+    all_events = []
     for day, rooms in days.items():
         for room, events in rooms.items():
             dump_to_toml(room, day, events)
+            all_events.append(
+                {
+                    "type": "break",
+                    "title": f"{room} day {day}",
+                }
+            )
+            all_events += events
+
+    dump_to_toml(
+        "",
+        "test",
+        all_events,
+        start_date=False,
+    )
 
 
 seed_days()
