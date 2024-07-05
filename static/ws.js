@@ -36,6 +36,9 @@ function set_branding(name, version) {
 }
 
 const parseEventData = (data) => {
+  if (data.command && data.command.action === "config.force-reload" && m_role.value !== "control") {
+    window.location.reload();
+  }
   if (data.status === "unassigned") {
     m_viewName.value = data.name;
     m_state.value = null;

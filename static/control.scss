@@ -58,6 +58,15 @@ button {
   box-sizing: border-box;
   height: 30px;
   cursor: pointer;
+  position: relative;
+
+  &.i {
+
+    i {
+      margin-right: 5px;
+      font-size: 16px;
+    }
+  }
 
   &.active, &.other-active {
     background: var(--accent-color);
@@ -113,6 +122,32 @@ input[type=text], input[type=number] {
     height: auto;
   }
 
+  &.row1 > * {
+    &, &.cell2, &.cell3, &.cell4, &.cell5 {
+      width: calc(100% - 5px);
+    }
+  }
+
+  &.row2 > * {
+    width: calc(100% / 2 - 5px);
+
+    &.cell2, &.cell3, &.cell4, &.cell5 {
+      width: calc(100% - 5px);
+    }
+  }
+
+  &.row3 > * {
+    width: calc(100% / 3 - 5px);
+
+    &.cell2 {
+      width: calc(100% / 3 * 2 - 5px)
+    }
+
+    &.cell3, &.cell4, &.cell5 {
+      width: calc(100% - 5px);
+    }
+  }
+
   &.row4 > * {
     width: calc(100% / 4 - 5px);
 
@@ -122,6 +157,10 @@ input[type=text], input[type=number] {
 
     &.cell3 {
       width: calc(100% / 4 * 3 - 5px)
+    }
+
+    &.cell4, &.cell5 {
+      width: calc(100% - 5px);
     }
   }
 
@@ -135,6 +174,14 @@ input[type=text], input[type=number] {
     &.cell3 {
       width: calc(100% / 5 * 3 - 5px)
     }
+
+    &.cell4 {
+      width: calc(100% / 5 * 4 - 5px)
+    }
+
+    &.cell5 {
+      width: calc(100% - 5px);
+    }
   }
 
   > * {
@@ -147,6 +194,14 @@ input[type=text], input[type=number] {
 
     &.cell3 {
       width: calc(100% / 6 * 3 - 5px)
+    }
+
+    &.cell4 {
+      width: calc(100% / 6 * 4 - 5px)
+    }
+
+    &.cell5 {
+      width: calc(100% / 6 * 5 - 5px)
     }
   }
 }
@@ -164,8 +219,6 @@ input[type=text], input[type=number] {
   font-size: 1.5em;
   width: 100%;
 }
-
-.row > #state {width: calc(400% / 6 - 5px)}
 
 .row > #stream-message-text {width: calc(500% / 6 - 5px)}
 
@@ -215,12 +268,14 @@ input[type=text], input[type=number] {
 dialog {
   width: calc(100% - 20px);
   height: calc(100% - 20px);
-  max-width: 216px;
-  max-height: 130px;
+  max-width: 386px;
+  max-height: 202px;
   color: var(--fg-color);
   background: var(--main-bg-color);
   border: none;
   border-radius: 3px;
+  margin: 20px;
+  box-sizing: border-box;
 
   &::backdrop {
     background: rgba(0, 0, 0, 0.5);

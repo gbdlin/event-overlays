@@ -120,6 +120,14 @@ async def ws_view(
                                 notify.add("control")
                                 state.meeting = Meeting.get_meeting_config(path=str(state.meeting.path))
                                 state.fix_ticker()
+                            case {"action": "config.force-reload"}:
+                                notify.add("scene-brb")
+                                notify.add("scene-hybrid")
+                                notify.add("scene-title")
+                                notify.add("scene-schedule")
+                                notify.add("scene-presentation")
+                                notify.add("schedule")
+                                notify.add("control")
                             case {"action": other}:
                                 print(f"action {other} unknown")
                                 await websocket.send_json({"status": "error", "error": f"Unknown action {other}"})
