@@ -1,17 +1,27 @@
 import json
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import tomlkit
 from httpx import get
 
+cache_time = timedelta(minutes=15)
+schedule = None
+
 CACHE = Path("programapi-cache.json")
 if CACHE.exists():
     with CACHE.open() as cache_fd:
-        schedule = json.load(cache_fd)
-else:
+        data = json.load(cache_fd)
+        if datetime.fromisoformat(data["fetch_time"]) <= datetime.now() + cache_time:
+            schedule = data["schedule"]
+            print("Got from cache")
+        else:
+            print("Cache old")
+if not schedule:
     schedule = get("https://programapi24.europython.eu/2024/schedule.json").json()
     with CACHE.open("w") as cache_fd:
-        json.dump(schedule, cache_fd)
+        json.dump({"fetch_time": datetime.now().isoformat(), "schedule": schedule}, cache_fd)
+    print("Fetched")
 
 
 days = {
@@ -45,7 +55,6 @@ def add_speaker_session_to_rooms(day: str, rooms: list[str], event):
     }
     for author in event_data["authors"]:
         if author["picture_url"] is None or author["picture_url"].rsplit("/", 1)[1] in avatar_blacklist:
-            print(author["picture_url"].rsplit("/", 1)[1] if author["picture_url"] else None)
             del author["picture_url"]
     add_to_rooms(day, rooms, event_data)
 
