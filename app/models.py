@@ -113,6 +113,8 @@ class Template(BaseModel):
     ticker_source: Literal["manual", "schedule"] = "manual"
     schedule_ticker_leeway: int = 10
 
+    schedule_header: str = "{next_word} in the schedule:"
+
 
 class MeetingFarewell(BaseModel):
     message: str = "See you next time!"
@@ -130,6 +132,8 @@ class MeetingQuestionsIntegration(BaseModel):
 
 
 class Meeting(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     path: PurePath  # this is injected by config loader
     name: str
     logo_url: HttpUrl | Path
@@ -151,6 +155,17 @@ class Meeting(BaseModel):
     @property
     def title(self) -> str:
         return self.template.title.format(meeting=self)
+
+    @computed_field
+    @property
+    def schedule_header(self) -> str:
+        try:
+            et = self.template.schedule_header.format(meeting=self, next_word="Next", e=self.__pydantic_extra__)
+        except Exception as e:
+            print(repr(e))
+            print(self.name)
+            return 'aaa'
+        return et
 
     @staticmethod
     def get_meeting_dict(path: PurePath) -> "dict":

@@ -51,7 +51,7 @@
         </template>
         <div class="obs-intermission-schedule" v-if="state.template === 'schedule'">
           <div class="obs-intermission-schedule-title" v-if="display !== 'thumbnail'">
-            {{ state.previous_state[0] !== null ? "Next" : "Today" }} in the schedule:
+            {{ meeting.schedule_header }}
           </div>
 
           <div v-for="entry in state.context.schedule.slice(0, meeting.template.schedule_length)"
