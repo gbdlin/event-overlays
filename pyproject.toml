@@ -1,10 +1,9 @@
 [tool.poetry]
-name = "obs-overlays"
+name = "event-overlays"
 version = "0.1.0"
 description = ""
 authors = ["GwynBleidD <gbd.lin@gmail.com>"]
 readme = "README.md"
-packages = [{include = "obs_overlays"}]
 package-mode = false
 
 [tool.poetry.dependencies]

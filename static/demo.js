@@ -9,8 +9,8 @@ const m_state = ref(
   }
 );
 const initSettings = JSON.parse(document.getElementById("initSettings").textContent);
-const meeting = initSettings.meeting;
-const max_tick = (meeting.schedule.length) * 2 - 1;
+const event = initSettings.event;
+const max_tick = (event.schedule.length) * 2 - 1;
 
 function stateSlug() {
   return `${Math.floor(m_state.value.tick / 2)}-${m_state.value.tick % 2? 'mid' : 'pre'}`
@@ -19,7 +19,7 @@ function stateSlug() {
 createApp({
   data() {
     return {
-      meeting: meeting,
+      event: event,
       state: m_state,
       stateSlug: computed(stateSlug),
       stateDisplay: computed(function () {
@@ -41,7 +41,7 @@ createApp({
       }),
 
       scheduleUrl: computed(function () {
-        const url = new URL(`/v1/events/${meeting.path}/views/schedule/${stateSlug()}`, window.location.origin)
+        const url = new URL(`/v1/events/${event.path}/views/schedule/${stateSlug()}`, window.location.origin)
         const searchParams = [];
         if (m_state.value.display) {
           searchParams.push(`display=${m_state.value.display}`)
@@ -50,10 +50,10 @@ createApp({
         return url
       }),
       titleUrl: computed(function () {
-        return new URL(`/v1/events/${meeting.path}/views/title/${stateSlug()}`, window.location.origin)
+        return new URL(`/v1/events/${event.path}/views/title/${stateSlug()}`, window.location.origin)
       }),
       presentationUrl: computed(function () {
-        const url = new URL(`/v1/events/${meeting.path}/views/presentation/${stateSlug()}`, window.location.origin)
+        const url = new URL(`/v1/events/${event.path}/views/presentation/${stateSlug()}`, window.location.origin)
         const searchParams = [];
         if (m_state.value.sponsorsPosition) {
           searchParams.push(`presentation_sponsors=${m_state.value.sponsorsPosition}`)
@@ -65,7 +65,7 @@ createApp({
         return url
       }),
       brbUrl: computed(function () {
-        return new URL(`/v1/events/${meeting.path}/views/brb/${stateSlug()}`, window.location.origin)
+        return new URL(`/v1/events/${event.path}/views/brb/${stateSlug()}`, window.location.origin)
       }),
     }
   }

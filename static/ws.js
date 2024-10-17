@@ -3,7 +3,7 @@ import {createApp, ref, computed} from 'vue'
 let ws;
 let branding_style = null;
 const m_state = ref(null);
-const m_meeting = ref(null);
+const m_event = ref(null);
 const m_role = ref(null);
 const m_timerFlashing = ref(false);
 const m_now = ref(Date.now());
@@ -67,11 +67,11 @@ const parseEventData = (data) => {
   if (data.status === "init") {
     if (ws !== undefined)
       sendMessage({"action": "ntc.sync", "client_time": Date.now()});
-    m_meeting.value = {};
-    Object.assign(m_meeting.value, data.meeting)
+    m_event.value = {};
+    Object.assign(m_event.value, data.event)
     m_role.value = data.role;
     if (data.role !== "control" && data.role !== "timer") {
-      set_branding(data.meeting.branding, data.meeting.branding_sha);
+      set_branding(data.event.branding, data.event.branding_sha);
     }
   }
   if (m_state.value === null) {
@@ -136,9 +136,9 @@ function timerPieces(value) {
 createApp({
   data() {
     return {
-      meeting: m_meeting,
+      event: m_event,
       display: computed(() => (
-        initSettings.display || m_meeting.value.template.default_display
+        initSettings.display || m_event.value.template.default_display
       )),
       presentationBottomBar: initSettings.presentationBottomBar,
       presentationSponsors: initSettings.presentationSponsors,

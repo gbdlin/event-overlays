@@ -7,7 +7,7 @@
 
     <script type="application/json" id="initSettings">
       {
-        "meeting": {{ meeting | tojson }}
+        "event": {{ event | tojson }}
       }
     </script>
   </head>
@@ -17,7 +17,7 @@
         <template v-if="state !== null" id="cp">
           <div class="row">
             <button id="untick" @click="untick()" :disabled="maxUntick"><i class="fa-solid fa-backward-step fa-xl"></i></button>
-            <p id="state">{{ meeting.name }} - {{ stateDisplay }}</p>
+            <p id="state">{{ event.name }} - {{ stateDisplay }}</p>
             <button id="tick" @click="tick()" :disabled="maxTick"><i class="fa-solid fa-forward-step fa-xl"></i></button>
           </div>
           <div class="row">

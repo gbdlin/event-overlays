@@ -12,7 +12,7 @@ CACHE = Path("programapi-cache.json")
 if CACHE.exists():
     with CACHE.open() as cache_fd:
         data = json.load(cache_fd)
-        if datetime.fromisoformat(data["fetch_time"]) <= datetime.now() + cache_time:
+        if datetime.fromisoformat(data["fetch_time"]) >= datetime.now() + cache_time:
             schedule = data["schedule"]
             print("Got from cache")
         else:
@@ -117,7 +117,7 @@ def seed_days():
 def dump_to_toml(room, day, events, start_date: bool = True, **extra):
     path = Path("config/events/europython/2024") / room / f"{day}.toml"
     data = {
-        "meeting": {
+        "event": {
             "name": f"EuroPython 2024 {room} day {day}",
             "number": 2024,
             "schedule": events,
@@ -125,7 +125,7 @@ def dump_to_toml(room, day, events, start_date: bool = True, **extra):
         }
     }
     if start_date:
-        data["meeting"]["starts"] = f"{day}T09:00:00+02:00"
+        data["event"]["starts"] = f"{day}T09:00:00+02:00"
 
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w") as toml_fd:

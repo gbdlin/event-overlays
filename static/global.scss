@@ -10,7 +10,6 @@ $fa-font-path           : "./fontawesome/webfonts";
   --pykonik-blue: #3a77a6;
 }
 
-
 body, html {
   font-family: "Open Sans";
   width: 1920px;
@@ -26,7 +25,7 @@ body, html {
   }
 }
 
-.obs-meeting-logo {
+.obs-event-logo {
   position: absolute;
   top: 186px;
   left: 27px;
@@ -59,7 +58,7 @@ body, html {
   }
 }
 
-.obs-meeting-title {
+.obs-event-title {
   position: relative;
   font-size: 4rem;
   font-weight: 700;
@@ -82,7 +81,7 @@ body, html {
   top: -52px;
   left: 350px;
 
-  .obs-meeting-logo.thumbnail & {
+  .obs-event-logo.thumbnail & {
     font-size: 4.6666666666666666em;
     top: 53px;
     left: 0;
@@ -107,7 +106,7 @@ body, html {
   }
 }
 
-.obs-meeting-subtitle {
+.obs-event-subtitle {
   position: absolute;
   font-size: 2.625em;
   font-weight: bold;
@@ -131,7 +130,7 @@ body, html {
   letter-spacing: 0.004em;
 }
 
-.obs-meeting-social-link {
+.obs-event-social-link {
   position: absolute;
   font-size: 2em;
   font-weight: bold;

@@ -2,17 +2,17 @@ import re
 import tomllib
 from datetime import datetime, timedelta, UTC
 from pathlib import Path, PurePath
-from typing import Literal
+from typing import Annotated, Literal
 from urllib.parse import urljoin
 
 from fastapi.utils import deep_dict_update
-from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, HttpUrl
+from pydantic import AliasChoices, AnyHttpUrl, BaseModel, computed_field, ConfigDict, Field, HttpUrl
 
 from .utils.file_sha import get_file_sha
 
 CONFIG_ROOT = Path("config")
 
-MEETING_CONFIGS_ROOT = Path("config/events")
+EVENT_CONFIGS_ROOT = Path("config/events")
 TIMER_CONFIGS_ROOT = CONFIG_ROOT / "timers"
 RIG_CONFIGS_ROOT = CONFIG_ROOT / "rigs"
 
@@ -24,16 +24,16 @@ def natural_sort_key(s: str, _nsre: re.Pattern = re.compile(r'([0-9]+)')) -> lis
             for text in _nsre.split(s)]
 
 
-class MeetingScheduleAuthor(BaseModel):
+class EventScheduleAuthor(BaseModel):
     name: str
     picture_url: AnyHttpUrl | None = None
 
 
-class MeetingScheduleEntryBase(BaseModel):
+class EventScheduleEntryBase(BaseModel):
     start: datetime | None = None
 
 
-class MeetingTalkBase(MeetingScheduleEntryBase):
+class EventTalkBase(EventScheduleEntryBase):
     model_config = ConfigDict(extra="allow")
 
     type: Literal["talk"]
@@ -41,38 +41,38 @@ class MeetingTalkBase(MeetingScheduleEntryBase):
     language: str
 
 
-class MeetingTalkLegacy(MeetingTalkBase):
-    author: MeetingScheduleAuthor
+class EventTalkLegacy(EventTalkBase):
+    author: EventScheduleAuthor
 
     @computed_field()
     @property
-    def authors(self) -> list[MeetingScheduleAuthor]:
+    def authors(self) -> list[EventScheduleAuthor]:
         return [self.author]
 
 
-class MeetingTalk(MeetingTalkBase):
-    authors: list[MeetingScheduleAuthor] = []
+class EventTalk(EventTalkBase):
+    authors: list[EventScheduleAuthor] = []
 
     @computed_field()
     @property
-    def author(self) -> MeetingScheduleAuthor:
-        return MeetingScheduleAuthor(
+    def author(self) -> EventScheduleAuthor:
+        return EventScheduleAuthor(
             name=", ".join(author.name for author in self.authors),
             picture_url=self.authors[0].picture_url if len(self.authors) == 1 else None,
         )
 
 
-class MeetingAnnouncement(MeetingScheduleEntryBase):
+class EventAnnouncement(EventScheduleEntryBase):
     type: Literal["announcement"]
     title: str
 
 
-class MeetingBreak(MeetingScheduleEntryBase):
+class EventBreak(EventScheduleEntryBase):
     type: Literal["break"]
     title: str | None = "Break"
 
 
-class MeetingLightningTalks(MeetingScheduleEntryBase):
+class EventLightningTalks(EventScheduleEntryBase):
     type: Literal["lightning-talks"]
 
     @computed_field
@@ -81,14 +81,14 @@ class MeetingLightningTalks(MeetingScheduleEntryBase):
         return "Lightning talks"
 
 
-class MeetingSocial(BaseModel):
+class EventSocial(BaseModel):
     type: Literal["discord", "youtube", "meetup", "website", "slido"]
     url: AnyHttpUrl
     code: str | None = None
     img: HttpUrl | Path | None = None
 
 
-class MeetingSponsor(BaseModel):
+class EventSponsor(BaseModel):
     name: str
     logo: AnyHttpUrl | Path
     url: AnyHttpUrl | None = None
@@ -107,7 +107,7 @@ class Template(BaseModel):
     # TODO: figure out theme-specific settings
     sponsors_on_intermission: bool = False
 
-    title: str = "{meeting.name}"
+    title: str = "{event.name}"
     schedule_length: int = 3
     default_display: str = "scene"
     ticker_source: Literal["manual", "schedule"] = "manual"
@@ -116,11 +116,11 @@ class Template(BaseModel):
     schedule_header: str = "{next_word} in the schedule:"
 
 
-class MeetingFarewell(BaseModel):
+class EventFarewell(BaseModel):
     message: str = "See you next time!"
 
 
-class MeetingQuestionsIntegration(BaseModel):
+class EventQuestionsIntegration(BaseModel):
     name: str
     qr_code: HttpUrl | Path
     url: str | None = None
@@ -131,7 +131,7 @@ class MeetingQuestionsIntegration(BaseModel):
         return urljoin("/static/", str(self.qr_code))
 
 
-class Meeting(BaseModel):
+class Event(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     path: PurePath  # this is injected by config loader
@@ -139,11 +139,11 @@ class Meeting(BaseModel):
     logo_url: HttpUrl | Path
     starts: datetime
     branding: str | None = None
-    sponsors: list[MeetingSponsor] = []
-    schedule: list[MeetingTalk | MeetingTalkLegacy | MeetingBreak | MeetingAnnouncement | MeetingLightningTalks] = []
-    socials: list[MeetingSocial] = []
-    farewell: MeetingFarewell = MeetingFarewell()
-    questions_integration: MeetingQuestionsIntegration | None = None
+    sponsors: list[EventSponsor] = []
+    schedule: list[EventTalk | EventTalkLegacy | EventBreak | EventAnnouncement | EventLightningTalks] = []
+    socials: list[EventSocial] = []
+    farewell: EventFarewell = EventFarewell()
+    questions_integration: EventQuestionsIntegration | None = None
 
     template: Template = Template()
 
@@ -152,10 +152,10 @@ class Meeting(BaseModel):
     @computed_field
     @property
     def title(self) -> str:
-        return self.template.title.format(meeting=self)
+        return self.template.title.format(event=self, meeting=self)
 
     def get_schedule_header(self, state, next_word) -> str:
-        return self.template.schedule_header.format(meeting=self, state=state, next_word=next_word)
+        return self.template.schedule_header.format(event=self, meeting=self, state=state, next_word=next_word)
 
     @computed_field
     @property
@@ -173,25 +173,31 @@ class Meeting(BaseModel):
         return get_file_sha(f"static/branding/{self.branding}.css")
 
     @staticmethod
-    def get_meeting_dict(path: PurePath) -> "dict":
+    def get_event_dict(path: PurePath) -> "dict":
+
+        def get_table_from_toml(path_node: PurePath):
+            config_path = (EVENT_CONFIGS_ROOT / path_node).resolve().with_suffix(".toml")
+            with config_path.open("rb") as event_fd:
+                toml_data = tomllib.load(event_fd)
+
+            return toml_data.get("event", toml_data.get("meeting")) or {}
+
         config_dict = {}
         for node in reversed(path.parents):
-            config_path = (MEETING_CONFIGS_ROOT / node).resolve().with_suffix(".toml")
-            if config_path.exists():
-                with config_path.open("rb") as meeting_fd:
-                    deep_dict_update(config_dict, tomllib.load(meeting_fd)["meeting"])
+            try:
+                deep_dict_update(config_dict, get_table_from_toml(node))
+            except IOError:
+                pass
 
-        config_path = (MEETING_CONFIGS_ROOT / path).resolve().with_suffix(".toml")
-        with config_path.open("rb") as meeting_fd:
-            deep_dict_update(config_dict, tomllib.load(meeting_fd)["meeting"])
+        deep_dict_update(config_dict, get_table_from_toml(path))
 
         return {**config_dict, "path": path}
 
     @classmethod
-    def get_meeting_config(cls, *, path: str) -> "Meeting":
+    def get_event_config(cls, *, path: str) -> "Event":
         path = PurePath(path)
 
-        return cls.model_validate(cls.get_meeting_dict(path))
+        return cls.model_validate(cls.get_event_dict(path))
 
 
 class StateException(Exception):
@@ -199,11 +205,11 @@ class StateException(Exception):
 
 
 class StateIncrementOverflow(StateException):
-    detail = "Cannot tick. Already at the end of meeting."
+    detail = "Cannot tick. Already at the end of event."
 
 
 class StateDecrementOverflow(StateException):
-    detail = "Cannot untick. Already at the start of meeting."
+    detail = "Cannot untick. Already at the start of event."
 
 
 class StateNotManual(StateException):
@@ -219,7 +225,7 @@ class TimerState(BaseModel):
 
 
 class State(BaseModel):
-    meeting: Meeting
+    event: Event
     _manual_ticker: int = 0
 
     message: str = ""
@@ -229,18 +235,18 @@ class State(BaseModel):
     @property
     def _schedule_ticker(self):
         now = datetime.now(tz=UTC)
-        leeway = timedelta(minutes=self.meeting.template.schedule_ticker_leeway)
+        leeway = timedelta(minutes=self.event.template.schedule_ticker_leeway)
         current = 0
-        for i, entry in enumerate(self.meeting.schedule):
+        for i, entry in enumerate(self.event.schedule):
             if entry.start is not None and entry.start <= now:
                 current = i
-        entry = self.meeting.schedule[current]
+        entry = self.event.schedule[current]
         mid_talk = entry.start is not None and entry.start + leeway <= now
         return current * 2 + mid_talk
 
     @property
     def _ticker(self) -> int:
-        return self._manual_ticker if self.meeting.template.ticker_source == "manual" else self._schedule_ticker
+        return self._manual_ticker if self.event.template.ticker_source == "manual" else self._schedule_ticker
 
     @staticmethod
     def _schedule_position(ticker: int) -> int:
@@ -255,20 +261,20 @@ class State(BaseModel):
         return cls._schedule_position(ticker), cls._is_mid_talk(ticker)
 
     def fix_ticker(self):
-        if self._manual_ticker >= len(self.meeting.schedule) * 2:
-            self._manual_ticker = len(self.meeting.schedule) * 2 - 1
+        if self._manual_ticker >= len(self.event.schedule) * 2:
+            self._manual_ticker = len(self.event.schedule) * 2 - 1
 
     def increment(self) -> tuple[int, bool]:
-        if self.meeting.template.ticker_source != "manual":
+        if self.event.template.ticker_source != "manual":
             raise StateNotManual()
-        if self._manual_ticker + 1 >= len(self.meeting.schedule) * 2:
+        if self._manual_ticker + 1 >= len(self.event.schedule) * 2:
             raise StateIncrementOverflow()
         self._manual_ticker += 1
 
         return self.current_state
 
     def decrement(self) -> tuple[int, bool]:
-        if self.meeting.template.ticker_source != "manual":
+        if self.event.template.ticker_source != "manual":
             raise StateNotManual()
         if self._manual_ticker - 1 < 0:
             raise StateDecrementOverflow()
@@ -301,21 +307,21 @@ class State(BaseModel):
     @property
     def next_state(self) -> tuple[int, bool] | tuple[None, None]:
         predicted_state = self.get_state_for(self._ticker + 1)
-        if predicted_state[0] >= len(self.meeting.schedule):
+        if predicted_state[0] >= len(self.event.schedule):
             return None, None
         return predicted_state
 
     @property
-    def current_schedule_item(self) -> MeetingTalk | MeetingLightningTalks:
-        return self.meeting.schedule[self._schedule_position(self._ticker)]
+    def current_schedule_item(self) -> EventTalk | EventLightningTalks:
+        return self.event.schedule[self._schedule_position(self._ticker)]
 
     @property
-    def remaining_schedule(self) -> list[MeetingTalk | MeetingLightningTalks]:
-        return self.meeting.schedule[self._schedule_screen_ticker:]
+    def remaining_schedule(self) -> list[EventTalk | EventLightningTalks]:
+        return self.event.schedule[self._schedule_screen_ticker:]
 
     @property
     def global_context(self) -> dict:
-        return {"message": self.message, "socials": self.meeting.socials, "sponsors": self.meeting.sponsors}
+        return {"message": self.message, "socials": self.event.socials, "sponsors": self.event.sponsors}
 
     @computed_field
     @property
@@ -344,7 +350,7 @@ class State(BaseModel):
         elif len(schedule):
             message = "Be right back..."
         else:  # we're at the end, there is no next talk
-            return "message", {**self.global_context, "info": self.meeting.farewell.message}
+            return "message", {**self.global_context, "info": self.event.farewell.message}
         return "schedule", {**self.global_context, "schedule": schedule, "info": message}
 
     @computed_field
@@ -363,12 +369,12 @@ class State(BaseModel):
             if item in self.remaining_schedule:
                 return "future"
             return "past"
-        return [{**item.model_dump(), "state": get_state_for(item)} for index, item in enumerate(self.meeting.schedule)]
+        return [{**item.model_dump(), "state": get_state_for(item)} for index, item in enumerate(self.event.schedule)]
 
     @computed_field
     @property
     def schedule_header(self) -> str:
-        return self.meeting.get_schedule_header(
+        return self.event.get_schedule_header(
             state=self,
             next_word="Today" if self._ticker == 0 else "Next",
         )
@@ -377,16 +383,16 @@ class State(BaseModel):
     @property
     def schedule_extra_columns(self) -> list[str]:
         columns = set()
-        for item in self.meeting.schedule:
+        for item in self.event.schedule:
             if item.model_extra:
                 columns |= set(item.model_extra.keys())
         return list(columns)
 
     @classmethod
-    def get_meeting_state(cls, *, path: str) -> "State":
+    def get_event_state(cls, *, path: str) -> "State":
         if path not in states:
             states[path] = cls(
-                meeting=Meeting.get_meeting_config(path=path),
+                event=Event.get_event_config(path=path),
                 timer=TimerState(target=15 * 60 * 1000),  # 15 minutes default, will be read at some point from config.
             )
 
@@ -397,7 +403,7 @@ class RigConfig(BaseModel):
     slug: str
 
     control_password: str
-    meeting_path: str | None
+    event_path: Annotated[str | None, Field(validation_alias=AliasChoices("event_path", "meeting_path"))]
 
     @staticmethod
     def get_rig_dict(path: Path) -> dict | None:

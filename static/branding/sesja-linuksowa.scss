@@ -34,7 +34,7 @@ body, html {
   }
 }
 
-.obs-meeting-logo {
+.obs-event-logo {
   top: 70px;
 
   img {
@@ -42,7 +42,7 @@ body, html {
     height: 240px;
   }
 
-  .obs-meeting-title {
+  .obs-event-title {
     display: none;
     position: absolute;
     left: 360px;
@@ -189,7 +189,7 @@ body, html {
   left: 25px;
 }
 
-.obs-body-scene-presentation .obs-meeting-logo img {
+.obs-body-scene-presentation .obs-event-logo img {
   width: 353px;
   height: 128px;
 }
