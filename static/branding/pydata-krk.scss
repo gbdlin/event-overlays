@@ -6,7 +6,6 @@
   --pydata-blue-alt2: #537375;
 }
 
-
 body, html {
 
   &.obs-body-default {
@@ -14,7 +13,7 @@ body, html {
   }
 }
 
-.obs-meeting-logo {
+.obs-event-logo {
   img {
 
     width: 1036px;
@@ -22,7 +21,7 @@ body, html {
   }
 }
 
-.obs-meeting-title {
+.obs-event-title {
   color: var(--pydata-blue);
   font-weight: 400;
   font-size: 3rem;
@@ -62,7 +61,7 @@ body, html {
 }
 
 .obs-body-scene-presentation {
-  .obs-meeting-logo {
+  .obs-event-logo {
     img {
       width: 222px;
       height: 96px;

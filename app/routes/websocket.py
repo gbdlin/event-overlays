@@ -5,7 +5,7 @@ from fastapi import Depends
 from fastapi.websockets import WebSocket, WebSocketDisconnect
 from pydantic_core import to_json
 
-from ..models import Meeting, RigConfig, State, StateException
+from ..models import Event, RigConfig, State, StateException
 from ..state import ConnectionManager, get_state_update_for, get_ws_state, managers
 
 
@@ -56,7 +56,7 @@ async def ws_view(
                         continue  # we're not notifying others
                     case _ if role == "control":
                         match command:
-                            case {"action": "meeting.tick"}:
+                            case {"action": "event.tick"}:
                                 notify.add("scene-hybrid")
                                 notify.add("schedule")
                                 if state.increment()[1]:
@@ -64,7 +64,7 @@ async def ws_view(
                                 else:
                                     notify.add("scene-presentation")
                                     notify.add("scene-title")
-                            case {"action": "meeting.untick"}:
+                            case {"action": "event.untick"}:
                                 notify.add("scene-hybrid")
                                 notify.add("schedule")
                                 if state.decrement()[1]:
@@ -118,7 +118,7 @@ async def ws_view(
                                 notify.add("scene-presentation")
                                 notify.add("schedule")
                                 notify.add("control")
-                                state.meeting = Meeting.get_meeting_config(path=str(state.meeting.path))
+                                state.event = Event.get_event_config(path=str(state.event.path))
                                 state.fix_ticker()
                             case {"action": "config.force-reload"}:
                                 notify.add("scene-brb")
@@ -152,6 +152,6 @@ async def ws_view(
 async def update_schedule_ticker():
     notify = {"scene-hybrid", "schedule", "scene-schedule", "scene-presentation", "scene-title"}
 
-    for meeting_path, manager in managers.items():
-        state = State.get_meeting_state(path=meeting_path)
-        await notify_roles(notify, manager, state, "meeting.tick")
+    for event_path, manager in managers.items():
+        state = State.get_event_state(path=event_path)
+        await notify_roles(notify, manager, state, "event.tick")

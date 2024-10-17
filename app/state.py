@@ -62,7 +62,7 @@ def get_state_update_for(state: State, target: str, command: str | None = None) 
         },
         "state": state,
         "command": command,
-        "meeting": state.meeting,
+        "event": state.event,
     }
     match target:
         case "scene-title":
@@ -139,6 +139,6 @@ async def get_ws_state(
         return None
     await websocket.accept()
 
-    state = State.get_meeting_state(path=rig.meeting_path)
-    manager = managers.setdefault(rig.meeting_path, ConnectionManager())
+    manager = managers.setdefault(rig.event_path, ConnectionManager())
+    state = State.get_event_state(path=rig.event_path)
     return state, manager, rig

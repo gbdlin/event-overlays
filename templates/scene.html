@@ -34,15 +34,15 @@
   <body class="obs-body-default obs-body-scene-{{ scene }}" id="app">
     {% raw %}
     <template v-if="state">
-      <div v-if="meeting" :class="['obs-meeting-logo', {'obs-meeting-logo-thumbnail': display !== 'scene'}]">
-        <img :src="meeting.logo_url" :alt="`${meeting.name} logo`">
-        <div class="obs-meeting-title">
-          {{ meeting.title }}
+      <div v-if="event" :class="['obs-event-logo', {'obs-event-logo-thumbnail': display !== 'scene'}]">
+        <img :src="event.logo_url" :alt="`${event.name} logo`">
+        <div class="obs-event-title">
+          {{ event.title }}
         </div>
       </div>
 
       <div class="obs-intermission-content">
-        <template v-if="state.template != 'presentation' && meeting.template.sponsors_on_intermission && state.context.sponsors.length > 0">
+        <template v-if="state.template != 'presentation' && event.template.sponsors_on_intermission && state.context.sponsors.length > 0">
           <div class="obs-intermission-sponsors">
             <div class="obs-intermission-sponsors-entry" v-for="(sponsor, index) in state.context.sponsors">
               <img :src="sponsor.logo_url" :alt="sponsor.name">
@@ -54,7 +54,7 @@
             {{ state.state.schedule_header }}
           </div>
 
-          <div v-for="entry in state.context.schedule.slice(0, meeting.template.schedule_length)"
+          <div v-for="entry in state.context.schedule.slice(0, event.template.schedule_length)"
                :class="['obs-intermission-schedule-entry', `obs-intermission-schedule-${entry.type}`, {'no-picture': (entry.type !== 'talk' || !entry.author.picture_url), 'no-author': (entry.type !== 'talk' || entry.authors.length === 0), 'with-start-time': entry.start}]">
             <template v-if="entry.type === 'talk' && entry.authors.length > 0">
               <div class="obs-intermission-schedule-talk-picture" v-if="entry.author.picture_url">
@@ -74,7 +74,7 @@
             </template>
           </div>
 
-          <div class="obs-intermission-schedule-entry obs-intermission-schedule-overflow" v-if="state.context.schedule.length > meeting.template.schedule_length">
+          <div class="obs-intermission-schedule-entry obs-intermission-schedule-overflow" v-if="state.context.schedule.length > event.template.schedule_length">
             <div class="obs-intermission-schedule-entry-content">
               <span class="obs-intermission-schedule-misc-title">And more...</span>
             </div>
@@ -105,10 +105,10 @@
           <div :class="['obs-intermission-message', messagesPositionCls]">{{ state.context.message }}</div>
         </template>
 
-        <div v-if="displayMessages && display == 'atem' && meeting.questions_integration" class="obs-intermission-questions-integration">
-          <img :src="meeting.questions_integration.qr_code_url" class="obs-intermission-questions-integration-qr">
-          <span class="obs-intermission-questions-integration-text">Ask questions using {{ meeting.questions_integration.name }}</span>
-          <span class="obs-intermission-questions-integration-url" v-if="meeting.questions_integration.url">{{ meeting.questions_integration.url }}</span>
+        <div v-if="displayMessages && display == 'atem' && event.questions_integration" class="obs-intermission-questions-integration">
+          <img :src="event.questions_integration.qr_code_url" class="obs-intermission-questions-integration-qr">
+          <span class="obs-intermission-questions-integration-text">Ask questions using {{ event.questions_integration.name }}</span>
+          <span class="obs-intermission-questions-integration-url" v-if="event.questions_integration.url">{{ event.questions_integration.url }}</span>
         </div>
 
         <template v-if="state.template == 'presentation'">

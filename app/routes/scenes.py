@@ -4,7 +4,7 @@ from typing import Literal
 from fastapi import Request
 from pydantic_core import to_json
 
-from ..models import Meeting, State, TimerState
+from ..models import Event, State, TimerState
 from ..state import get_state_update_for
 from ..template_renderer import renderer
 
@@ -43,7 +43,7 @@ async def scene_view(
 ):
     if path is not None:
         state_obj = State(
-            meeting=Meeting.get_meeting_config(path=path),
+            event=Event.get_event_config(path=path),
             timer=TimerState(target=15 * 60 * 1000),  # 15 minutes default, will be read at some point from config.
         )
         state_obj.move_to(state)

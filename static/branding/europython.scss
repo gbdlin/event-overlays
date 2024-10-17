@@ -38,7 +38,7 @@ body, html {
   }
 }
 
-.obs-meeting-logo {
+.obs-event-logo {
   top: 158.5px;
   left: 136px;
 
@@ -47,7 +47,7 @@ body, html {
     height: 273px;
   }
 
-  .obs-meeting-title {
+  .obs-event-title {
     display: none;
     position: absolute;
     left: 360px;
@@ -157,7 +157,6 @@ body, html {
   }
 }
 
-
 .obs-intermission-schedule-talk-title {
   padding: 8px 25px 8px;
   color: var(--color-accent);
@@ -232,7 +231,7 @@ body, html {
   left: 25px;
 }
 
-.obs-body-scene-presentation .obs-meeting-logo img {
+.obs-body-scene-presentation .obs-event-logo img {
   width: 353px;
   height: 128px;
 }
