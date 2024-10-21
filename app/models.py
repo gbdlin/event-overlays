@@ -137,8 +137,6 @@ class Meeting(BaseModel):
     path: PurePath  # this is injected by config loader
     name: str
     logo_url: HttpUrl | Path
-    type: str
-    number: int
     starts: datetime
     branding: str | None = None
     sponsors: list[MeetingSponsor] = []
@@ -156,31 +154,8 @@ class Meeting(BaseModel):
     def title(self) -> str:
         return self.template.title.format(meeting=self)
 
-    @computed_field
-    @property
-    def schedule_header(self) -> str:
-        try:
-            et = self.template.schedule_header.format(meeting=self, next_word="Next", e=self.__pydantic_extra__)
-        except Exception as e:
-            print(repr(e))
-            print(self.name)
-            return 'aaa'
-        return et
-
-    @staticmethod
-    def get_meeting_dict(path: PurePath) -> "dict":
-        config_dict = {}
-        for node in reversed(path.parents):
-            config_path = (MEETING_CONFIGS_ROOT / node).resolve().with_suffix(".toml")
-            if config_path.exists():
-                with config_path.open("rb") as meeting_fd:
-                    deep_dict_update(config_dict, tomllib.load(meeting_fd)["meeting"])
-
-        config_path = (MEETING_CONFIGS_ROOT / path).resolve().with_suffix(".toml")
-        with config_path.open("rb") as meeting_fd:
-            deep_dict_update(config_dict, tomllib.load(meeting_fd)["meeting"])
-
-        return {**config_dict, "path": path}
+    def get_schedule_header(self, state, next_word) -> str:
+        return self.template.schedule_header.format(meeting=self, state=state, next_word=next_word)
 
     @computed_field
     @property
@@ -196,6 +171,21 @@ class Meeting(BaseModel):
     @property
     def branding_sha(self) -> str:
         return get_file_sha(f"static/branding/{self.branding}.css")
+
+    @staticmethod
+    def get_meeting_dict(path: PurePath) -> "dict":
+        config_dict = {}
+        for node in reversed(path.parents):
+            config_path = (MEETING_CONFIGS_ROOT / node).resolve().with_suffix(".toml")
+            if config_path.exists():
+                with config_path.open("rb") as meeting_fd:
+                    deep_dict_update(config_dict, tomllib.load(meeting_fd)["meeting"])
+
+        config_path = (MEETING_CONFIGS_ROOT / path).resolve().with_suffix(".toml")
+        with config_path.open("rb") as meeting_fd:
+            deep_dict_update(config_dict, tomllib.load(meeting_fd)["meeting"])
+
+        return {**config_dict, "path": path}
 
     @classmethod
     def get_meeting_config(cls, *, path: str) -> "Meeting":
@@ -374,6 +364,14 @@ class State(BaseModel):
                 return "future"
             return "past"
         return [{**item.model_dump(), "state": get_state_for(item)} for index, item in enumerate(self.meeting.schedule)]
+
+    @computed_field
+    @property
+    def schedule_header(self) -> str:
+        return self.meeting.get_schedule_header(
+            state=self,
+            next_word="Today" if self._ticker == 0 else "Next",
+        )
 
     @computed_field
     @property
