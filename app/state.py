@@ -60,6 +60,7 @@ def get_state_update_for(state: State, target: str, command: str | None = None) 
             "offset": state.timer.offset,
             "message": state.timer.message,
         },
+        "state": state,
         "command": command,
         "meeting": state.meeting,
     }
