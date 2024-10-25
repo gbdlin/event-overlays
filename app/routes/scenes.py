@@ -9,9 +9,31 @@ from ..state import get_state_update_for
 from ..template_renderer import renderer
 
 
-async def scene_view(
+async def old_scene_view(
     request: Request,
     scene: str,
+    rig: str | None = None,
+    path: str | None = None,
+    state: str | None = None,
+    display: str = None,
+    presentation_bottom_bar: bool = True,
+    presentation_sponsors: Literal["left", "right"] | None = None,
+):
+    return await scene_view(
+        request=request,
+        view=scene,
+        rig=rig,
+        path=path,
+        state=state,
+        display=display,
+        presentation_bottom_bar=presentation_bottom_bar,
+        presentation_sponsors=presentation_sponsors,
+    )
+
+
+async def scene_view(
+    request: Request,
+    view: str,
     rig: str | None = None,
     path: str | None = None,
     state: str | None = None,
@@ -27,7 +49,7 @@ async def scene_view(
         state_obj.move_to(state)
         scene_data = json.loads(
             to_json(
-                {"status": "init", "role": f"scene-{scene}", **get_state_update_for(state_obj, f"scene-{scene}", "init")},
+                {"status": "init", "role": f"scene-{view}", **get_state_update_for(state_obj, f"scene-{view}", "init")},
             ),
         )
     else:
@@ -37,7 +59,7 @@ async def scene_view(
         {
             "request": request,
             "rig": rig,
-            "scene": scene,
+            "scene": view,
             "data": scene_data,
             "display_type": display,
             "presentation_bottom_bar": presentation_bottom_bar,
