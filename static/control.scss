@@ -204,6 +204,18 @@ input[type=text], input[type=number] {
       width: calc(100% / 6 * 5 - 5px)
     }
   }
+
+  &.row.preview {
+    height: 1110px;
+
+    > * {
+      width: calc(50% - 5px)
+    }
+  }
+
+  .demo & {
+    max-width: 3880px;
+  }
 }
 
 .row p {
@@ -353,5 +365,15 @@ dialog {
 
   .schedule-entry-current td {
     background: var(--accent-neg-color);
+  }
+}
+
+.previewWindow {
+  input {
+    width: 800px;
+  }
+  iframe {
+    width: 1920px;
+    height: 1080px;
   }
 }

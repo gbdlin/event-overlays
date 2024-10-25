@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Control</title>
+    <link type="text/css" rel="stylesheet" href="/static/control.css">
+
+    <script type="application/json" id="initSettings">
+      {
+        "meeting": {{ meeting | tojson }}
+      }
+    </script>
+  </head>
+  <body>
+    <div id="app" class="demo">
+      {% raw %}
+        <template v-if="state !== null" id="cp">
+          <div class="row">
+            <button id="untick" @click="untick()" :disabled="maxUntick"><i class="fa-solid fa-backward-step fa-xl"></i></button>
+            <p id="state">{{ meeting.name }} - {{ stateDisplay }}</p>
+            <button id="tick" @click="tick()" :disabled="maxTick"><i class="fa-solid fa-forward-step fa-xl"></i></button>
+          </div>
+          <div class="row">
+            <label for="sponsors-position">Sponsors position</label>
+            <select id="sponsors-position" v-model="state.sponsorsPosition">
+              <option value="">None</option>
+              <option value="left">Left</option>
+              <option value="right">Right</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="sponsors-position">Display type</label>
+            <select id="sponsors-position" v-model="state.display">
+              <option value="">OBS Overlay</option>
+              <option value="atem">ATEM BRB</option>
+              <option value="thumbnail">Youtube Thumbnail</option>
+            </select>
+          </div>
+          <div class="row">
+            <label for="sponsors-position">Bottom Bar</label>
+            <input type="checkbox" v-model="state.bottomBar">
+          </div>
+<!--           <div id="stream-message" class="row"> -->
+<!--             <input type="text" id="stream-message-text" placeholder="Intermission message..." v-model="state.message" @keyup.enter="handleAction('stream.set-message')"> -->
+<!--             <button id="set-stream-message" @click="handleAction('stream.set-message')"><i class="fa-solid fa-paper-plane fa-xl"></i></button> -->
+<!--           </div> -->
+          <hr>
+          <div class="row preview">
+            <div class="previewWindow">
+              <input type="text" readonly :value="scheduleUrl">
+              <iframe :src="scheduleUrl"></iframe>
+            </div>
+            <div class="previewWindow">
+              <input type="text" readonly :value="titleUrl">
+              <iframe :src="titleUrl"></iframe>
+            </div>
+          </div>
+          <div class="row preview">
+            <div class="previewWindow">
+              <input type="text" readonly :value="presentationUrl">
+              <iframe :src="presentationUrl"></iframe>
+            </div>
+            <div class="previewWindow">
+              <input type="text" readonly :value="brbUrl">
+              <iframe :src="brbUrl"></iframe>
+            </div>
+          </div>
+        </template>
+        <template v-else>
+          <p>Loading...</p>
+        </template>
+      {% endraw %}
+    </div>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "vue": "https://unpkg.com/vue@3/dist/vue.esm-browser.js"
+        }
+      }
+    </script>
+    <script type="module" src="/static/demo.js"></script>
+  </body>
+</html>

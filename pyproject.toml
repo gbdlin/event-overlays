@@ -9,13 +9,13 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
-fastapi = "^0.101.0"
+fastapi = "^0.115.3"
 fastapi-utilities = "^0.2.0"
-uvicorn = { version = "^0.23.2", extras = ["standard"] }
-jinja2 = "^3.1.2"
-pydantic = "^2.1.1"
+uvicorn = { version = "^0.32.0", extras = ["standard"] }
+jinja2 = "^3.1.4"
+pydantic = "^2.9.2"
 html2image = "^2.0.4.3"
-pydantic-settings = "^2.0.3"
+pydantic-settings = "^2.5.2"
 
 [tool.poetry.group.media_upload.dependencies]
 pyatem = "^0.9.0"
