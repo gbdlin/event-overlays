@@ -267,12 +267,16 @@ body, html {
   height: 140px;
 }
 
+.obs-intermission-schedule-talk {
+  margin-top: -15px;
+}
+
 .obs-intermission-schedule-talk-picture {
   width: 80px;
   height: 80px;
   overflow: hidden;
   position: absolute;
-  top: 0;
+  top: 15px;
   left: 0;
 
   img {
@@ -291,7 +295,7 @@ body, html {
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.015em;
-  margin-top: -15px;
+  margin-top: 0;
   white-space: nowrap;
 }
 
@@ -325,7 +329,7 @@ body, html {
 .obs-intermission-schedule-overflow {
   height: 140px;
   margin-bottom: -100px;
-  margin-top: -40px;
+  margin-top: -25px;
 
   .obs-intermission-schedule-misc-title:before {
     content: "";
