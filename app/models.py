@@ -2,11 +2,11 @@ import re
 import tomllib
 from datetime import datetime, timedelta, UTC
 from pathlib import Path, PurePath
-from typing import Annotated, Literal
+from typing import Literal
 from urllib.parse import urljoin
 
 from fastapi.utils import deep_dict_update
-from pydantic import AliasChoices, AnyHttpUrl, BaseModel, computed_field, ConfigDict, Field, HttpUrl
+from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, Field, HttpUrl
 
 from .utils.file_sha import get_file_sha
 
@@ -152,10 +152,10 @@ class Event(BaseModel):
     @computed_field
     @property
     def title(self) -> str:
-        return self.template.title.format(event=self, meeting=self)
+        return self.template.title.format(event=self)
 
     def get_schedule_header(self, state, next_word) -> str:
-        return self.template.schedule_header.format(event=self, meeting=self, state=state, next_word=next_word)
+        return self.template.schedule_header.format(event=self, state=state, next_word=next_word)
 
     @computed_field
     @property
@@ -180,7 +180,7 @@ class Event(BaseModel):
             with config_path.open("rb") as event_fd:
                 toml_data = tomllib.load(event_fd)
 
-            return toml_data.get("event", toml_data.get("meeting")) or {}
+            return toml_data.get("event") or {}
 
         config_dict = {}
         for node in reversed(path.parents):
@@ -403,7 +403,7 @@ class RigConfig(BaseModel):
     slug: str
 
     control_password: str
-    event_path: Annotated[str | None, Field(validation_alias=AliasChoices("event_path", "meeting_path"))]
+    event_path: str | None
 
     @staticmethod
     def get_rig_dict(path: Path) -> dict | None:
