@@ -1,4 +1,5 @@
 import random
+import secrets
 from asyncio import create_task, Event, FIRST_COMPLETED, wait
 from string import ascii_letters
 
@@ -134,7 +135,7 @@ async def get_ws_state(
     if rig is None:
         await websocket.close(code=4404, reason="NotFound")
         return None
-    if role == "control" and control_password != rig.control_password:
+    if role == "control" and not secrets.compare_digest(control_password, rig.control_password):
         await websocket.close(code=4401, reason="Unauthorized")
         return None
     await websocket.accept()

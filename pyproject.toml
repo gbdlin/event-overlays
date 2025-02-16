@@ -8,12 +8,12 @@ package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.11"
-fastapi = "^0.115.3"
+fastapi = "^0.115.8"
 fastapi-utilities = "^0.2.0"
 uvicorn = { version = "^0.32.0", extras = ["standard"] }
 jinja2 = "^3.1.4"
 pydantic = "^2.9.2"
-html2image = "^2.0.4.3"
+html2image = "^2.0.5"
 pydantic-settings = "^2.5.2"
 
 [tool.poetry.group.media_upload.dependencies]
