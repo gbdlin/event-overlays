@@ -1,8 +1,10 @@
 import re
 import tomllib
+from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import datetime, timedelta, UTC
 from pathlib import Path, PurePath
-from typing import Literal
+from typing import Any, Literal, Self
 from urllib.parse import urljoin
 
 from fastapi.utils import deep_dict_update
@@ -17,6 +19,31 @@ TIMER_CONFIGS_ROOT = CONFIG_ROOT / "timers"
 RIG_CONFIGS_ROOT = CONFIG_ROOT / "rigs"
 
 states: dict[str, "State"] = {}
+
+
+class ContextualModel(BaseModel):
+    _current_instance: ContextVar
+
+    @classmethod
+    def __pydantic_init_subclass__(cls, **kwargs: Any):
+        super().__init_subclass__(**kwargs)
+        cls._current_instance = ContextVar("_current_instance")
+
+    @classmethod
+    def get_current_instance(cls) -> Self | None:
+        return cls._current_instance.get(None)
+
+    @contextmanager
+    def _bind(self):
+        token = self._current_instance.set(self)
+        try:
+            yield self
+        finally:
+            self._current_instance.reset(token)
+
+    def __init__(self, /, **data):
+        with self._bind():
+            super().__init__(**data)
 
 
 def natural_sort_key(s: str, _nsre: re.Pattern = re.compile(r'([0-9]+)')) -> list[int | str]:
@@ -131,7 +158,7 @@ class EventQuestionsIntegration(BaseModel):
         return urljoin("/static/", str(self.qr_code))
 
 
-class Event(BaseModel):
+class Event(ContextualModel):
     model_config = ConfigDict(extra="allow")
 
     path: PurePath  # this is injected by config loader
