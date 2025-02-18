@@ -226,14 +226,14 @@ standard = ["email-validator (>=2.0.0)", "fastapi-cli[standard] (>=0.0.5)", "htt
 
 [[package]]
 name = "fastapi-utilities"
-version = "0.2.0"
+version = "0.3.0"
 description = "Reusable utilities for FastAPI"
 optional = false
-python-versions = ">=3.7,<4.0"
+python-versions = "<4.0,>=3.7"
 groups = ["main"]
 files = [
-    {file = "fastapi_utilities-0.2.0-py3-none-any.whl", hash = "sha256:f2f0c91a279141185ed8de10f2d4c30dd85f80a983c09cb5535302ad6299444f"},
-    {file = "fastapi_utilities-0.2.0.tar.gz", hash = "sha256:8932db04060cdd55c2630065865b43f61647125368405500732cd26d125af73c"},
+    {file = "fastapi_utilities-0.3.0-py3-none-any.whl", hash = "sha256:78dbcd54995900002370ee87e6b5de05ff69bce93e19d6a236f7810e5dc9c2f7"},
+    {file = "fastapi_utilities-0.3.0.tar.gz", hash = "sha256:8b11061310b355eb9a9a65b93170611639fd8a6960658e7a1aff881fd7e6a157"},
 ]
 
 [package.dependencies]
@@ -1333,5 +1333,5 @@ files = [
 
 [metadata]
 lock-version = "2.1"
-python-versions = "^3.11"
-content-hash = "35c9eb9de1296cdb1ef329ec30bce30ec51b7a20aa0b5d0efca2828c5a7587b0"
+python-versions = ">=3.11,<4.0"
+content-hash = "09c30311dcb854a9db859d3f9c087d575bd129765af5b8f2deae1995b7dc1cac"
