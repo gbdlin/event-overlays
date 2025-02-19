@@ -1,0 +1,46 @@
+{% macro checklistItems(items, breadcrumbs="") %}
+  <div class="checklist-items">
+    {% for item in items %}
+      {% set current_id = "{:s}{:d}".format(breadcrumbs, loop.index) %}
+      <div class="checklist-items-item">
+        <input type="checkbox" id="item_{{ current_id }}">
+        <label for="item_{{ current_id }}">
+          {{ item.name }}
+          {% if item.warning %}
+            <span class="hint">{{ item.warning }}</span>
+          {% endif %}
+          {% if item.hint %}
+            <span class="warning">{{ item.hint }}</span>
+          {% endif %}
+        </label>
+        {% if item.items %}{{ checklistItems(item.items, current_id + "_") }}{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endmacro %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Checklist {{ checklist.name }}</title>
+    <link type="text/css" rel="stylesheet" href="/static/control.css">
+
+  </head>
+  <body>
+    <div id="app">
+      <div class="checklist">
+        {{ checklistItems(checklist.items) }}
+      </div>
+      <div class="checklistBottomBar">
+        <div class="checklistBottomBar-actions">
+          <button  class="checklistBottomBar-actions-clear">Clear selection</button>
+        </div>
+        <div class="checklistBottomBar-links">
+          {% for linked in checklist.links_to %}
+            <a href="/v1/rigs/{{ rig.slug }}/checklists/{{ linked.slug }}?control_password={{ rig.control_password }}">{{ linked.name }}</a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

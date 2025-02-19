@@ -4,11 +4,11 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from datetime import datetime, timedelta, UTC
 from pathlib import Path, PurePath
-from typing import Any, Literal, Self
+from typing import Annotated, Any, Literal, Self
 from urllib.parse import urljoin
 
 from fastapi.utils import deep_dict_update
-from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, Field, HttpUrl
+from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, Field, field_validator, HttpUrl, model_validator
 
 from .utils.file_sha import get_file_sha
 
@@ -426,11 +426,53 @@ class State(BaseModel):
         return states[path]
 
 
-class RigConfig(BaseModel):
+class RigChecklistItem(BaseModel):
+    name: str
+    hint: str | None = None
+    warning: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def accept_pure_string(cls, data: Any):
+        if isinstance(data, str):
+            return {"name": data}
+        return data
+
+
+class RigChecklistItemGroup(BaseModel):
+    name: str
+    items: list["RigChecklistItem | RigChecklistItemGroup"]
+
+
+class RigChecklist(RigChecklistItemGroup):
+    _rig: "RigConfig | None"
+
+    slug: str  # injected by RigConfig validator
+    links_to_slugs: Annotated[list[str], Field(alias="links_to")] = []
+
+    def model_post_init(self, __context: Any):
+        self._rig = RigConfig.get_current_instance()
+
+    @property
+    def links_to(self) -> list["RigChecklist"]:
+        return [self._rig.checklists[other_checklist] for other_checklist in self.links_to_slugs]
+
+
+
+class RigConfig(ContextualModel):
     slug: str
 
     control_password: str
     event_path: str | None
+
+    checklists: dict[str, RigChecklist] = {}
+
+    @field_validator("checklists", mode="before")
+    @classmethod
+    def inject_checklist_slugs(cls, value: dict) -> dict:
+        if isinstance(value, dict):
+            return {slug: {**checklist, "slug": slug} for slug, checklist in value.items()}
+        return value
 
     @staticmethod
     def get_rig_dict(path: Path) -> dict | None:

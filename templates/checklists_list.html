@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Checklists</title>
+    <link type="text/css" rel="stylesheet" href="/static/control.css">
+
+  </head>
+  <body>
+    <div id="app">
+      {% for checklist in rig.checklists.values() %}
+      <p><a href="/v1/rigs/{{ rig.slug }}/checklists/{{ checklist.slug }}?control_password={{ rig.control_password }}">{{ checklist.name }}</a></p>
+      {% endfor %}
+    </div>
+  </body>
+</html>

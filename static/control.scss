@@ -15,10 +15,12 @@ $fa-font-path           : "./fontawesome/webfonts";
 :root {
   --main-bg-color: #2b2e38;
   --secondary-bg-color: #3c404b;
+  --ternary-bg-color: #323540;
   --lowlight-bg-color: #191b26;
   --highlight-bg-color: #4f535e;
 
   --fg-color: #fefefe;
+  --secondary-fg-color: #767e99;
   --lowlight-fg-color: #5b5e68;
 
   --accent-color: #284cb8;
@@ -26,6 +28,14 @@ $fa-font-path           : "./fontawesome/webfonts";
 
   --accent-pos-color: #008800;
   --accent-neg-color: #880000;
+
+  --ok-fg-color-rgb: 0, 127, 0;
+  --warn-fg-color-rgb: 219, 157, 32;
+  --danger-fg-color-rgb: 219, 13, 32;
+
+  --ok-fg-color: rgb(var(--ok-fg-color-rgb));
+  --warn-fg-color: rgb(var(--warn-fg-color-rgb));
+  --danger-fg-color: rgb(var(--danger-fg-color-rgb));
 }
 
 #app:not([data-v-app]) #cp {
@@ -374,5 +384,106 @@ dialog {
   iframe {
     width: 1920px;
     height: 1080px;
+  }
+}
+
+.checklist {
+  margin-bottom: 40px;
+  .checklist-items {
+    overflow: hidden;
+    input[type=checkbox] {
+      display: none;
+
+      + label {
+        margin: 0 2.5px 2.5px;
+        height: 30px;
+        background: var(--secondary-bg-color);
+        color: var(--fg-color);
+        cursor: pointer;
+        box-sizing: border-box;
+        line-height: 28px;
+        padding: 1px 4px 1px 34px;
+        display: block;
+        border-radius: 3px;
+        position: relative;
+
+        span {
+          font-size: 14px;
+          display: inline-block;
+          margin-left: 8px;
+
+          &.hint {
+            color: var(--secondary-fg-color);
+          }
+
+          &.warning {
+            color: var(--warn-fg-color);
+          }
+        }
+
+        &::before {
+          font-family: var(--#{$fa-css-prefix}-style-family, '#{$fa-style-family}');
+          font-weight: 400;
+
+          content: unquote("\"#{ $fa-var-square }\"");
+          position: absolute;
+          left: 6px;
+          font-size: 24px;
+          top: 1px;
+        }
+      }
+
+      &:checked {
+        + label {
+          background: var(--lowlight-bg-color);
+          color: var(--lowlight-fg-color);
+          text-decoration: line-through;
+
+          span {
+            text-decoration: line-through;
+          }
+
+          &::before {
+            content: unquote("\"#{ $fa-var-square-check }\"");
+          }
+        }
+      }
+    }
+    .checklist-items-item {
+      .checklist-items {
+        padding-left: 24px;
+      }
+    }
+  }
+}
+
+.checklistBottomBar {
+  position: fixed;
+  border-top: 2px solid var(--highlight-bg-color);
+  background: var(--main-bg-color);
+  box-sizing: border-box;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+
+  .checklistBottomBar-actions {
+    float: left;
+    margin: 5px;
+  }
+
+  .checklistBottomBar-links {
+    margin: 5px;
+    float: right;
+
+    a {
+      @extend button;
+      font-weight: normal;
+
+      display: inline-block;
+      text-decoration: none;
+      line-height: 28px;
+      padding: 1px 8px;
+    }
   }
 }
