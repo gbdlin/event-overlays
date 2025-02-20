@@ -183,6 +183,16 @@ class Event(ContextualModel):
 
     control_password: str | None = None
 
+    @field_validator("schedule", mode="before")
+    @classmethod
+    def add_schedule_entries_lp(cls, value: list[dict]):
+        if isinstance(value, list):
+            return [
+                {**el, "lp": i} if isinstance(el, dict) else el
+                for i, el in enumerate(value)
+            ]
+        return value
+
     @computed_field
     @property
     def title(self) -> str:
