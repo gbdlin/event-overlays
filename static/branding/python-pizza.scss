@@ -7,6 +7,12 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+:root {
+  --background-image: "/static/branding/python-pizza/prague-bg.jpg";
+  --intermission-sponsors-columns: 2;
+  --theme-ui-colors-primary: #ed4337;
+}
+
 body, html {
   font-family: "Roboto Mono", monospace;
   font-optical-sizing: auto;
@@ -14,7 +20,7 @@ body, html {
   font-style: normal;
 
   &.obs-body-default {
-    background: url("/static/branding/python-pizza/prague-bg.jpg") no-repeat center/cover;
+    background: image-set(var(--background-image) 1x) no-repeat center/cover;
     position: relative;
     overflow: hidden;
 
@@ -65,9 +71,9 @@ body, html {
 }
 
 .obs-intermission-schedule {
-  bottom: auto;
-  top: 450px;
-  left: 1040px
+  bottom: 0;
+  left: 1040px;
+  min-height: 610px;
 }
 
 .obs-intermission-schedule-title {
@@ -95,13 +101,90 @@ body, html {
     border-radius: 64px;
     height: 128px;
 
-    &:nth-of-type(2n) {
-      padding-left: 135px;
+    &.dense {
+      height: 144px;
+      margin-top: 22px;
+      border-radius: 72px;
     }
 
-    &:nth-of-type(2n + 1) {
-      padding-right: 135px;
+    .obs-intermission-schedule-variant-0 & {
+      &:nth-of-type(2n) {
+        padding-left: 135px;
+      }
+
+      &:nth-of-type(2n + 1) {
+        padding-right: 135px;
+      }
     }
+
+    .obs-intermission-schedule-variant-1 & {
+      &:nth-of-type(2n) {
+        padding-right: 135px;
+      }
+
+      &:nth-of-type(2n + 1) {
+        padding-left: 135px;
+      }
+    }
+  }
+}
+
+.obs-intermission-schedule-break, .obs-intermission-schedule-announcement {
+
+  &.obs-intermission-schedule-entry {
+    box-shadow: 0 4px 28px -8px #cac9c9;
+    background-color: var(--theme-ui-colors-primary);
+    background-image: linear-gradient(
+                    45deg,
+                    transparent 25%,
+                    rgba(0, 0, 0, 0.05) 25%,
+                    rgba(0, 0, 0, 0.05) 50%,
+                    transparent 50%,
+                    transparent 75%,
+                    rgba(0, 0, 0, 0.05) 75%
+    );
+    background-size: 2.4rem 2.4rem;
+    height: 66px;
+    border-radius: 33px;
+    padding: 0;
+    text-align: center;
+    margin-right: 30px;
+  }
+}
+
+.obs-intermission-schedule-entry-start-time {
+  position: absolute;
+  top: 14px;
+
+  .obs-intermission-schedule-variant-0 .obs-intermission-schedule-entry:nth-of-type(2n) & {
+    right: 32px;
+  }
+
+  .obs-intermission-schedule-variant-0 .obs-intermission-schedule-entry:nth-of-type(2n + 1) & {
+    left: 32px;
+  }
+
+  .obs-intermission-schedule-variant-1 .obs-intermission-schedule-entry:nth-of-type(2n) & {
+    left: 32px;
+  }
+
+  .obs-intermission-schedule-variant-1 .obs-intermission-schedule-entry:nth-of-type(2n + 1) & {
+    right: 32px;
+  }
+
+  .obs-intermission-schedule-announcement &, .obs-intermission-schedule-break & {
+    color: white;
+    top: 17px;
+  }
+}
+
+.obs-intermission-schedule-misc-title {
+  padding-top: 5px;
+  padding-bottom: 5px;
+
+  &:before {
+    display: none;
+    content: '';
   }
 }
 
@@ -113,12 +196,24 @@ body, html {
   left: auto;
   box-shadow: 2px 8px 32px -8px #ed4337;
 
-  .obs-intermission-schedule-talk:nth-of-type(2n) & {
+  .obs-intermission-schedule-variant-0 .obs-intermission-schedule-talk:nth-of-type(2n) & {
     left: -8px;
   }
 
-  .obs-intermission-schedule-talk:nth-of-type(2n + 1) & {
+  .obs-intermission-schedule-variant-0 .obs-intermission-schedule-talk:nth-of-type(2n + 1) & {
     right: -8px;
+  }
+
+  .obs-intermission-schedule-variant-1 .obs-intermission-schedule-talk:nth-of-type(2n) & {
+    right: -8px;
+  }
+
+  .obs-intermission-schedule-variant-1 .obs-intermission-schedule-talk:nth-of-type(2n + 1) & {
+    left: -8px;
+  }
+
+  .dense & {
+    top: 0;
   }
 
   img {
@@ -141,6 +236,11 @@ body, html {
   letter-spacing: initial;
   margin-top: 8px;
   margin-bottom: 8px;
+
+  .dense & {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
 }
 
 
@@ -148,6 +248,11 @@ body, html {
   color: #15141A;
   font-family: inherit;
   font-size: 1.25rem;
+  padding-bottom: 5px;
+}
+
+.obs-intermission-schedule-overflow {
+  display: none;
 }
 
 .obs-intermission-info {
@@ -194,22 +299,39 @@ body, html {
   position: absolute;
   top: 400px;
   left: 20px;
-  width: 700px;
+  width: calc(var(--intermission-sponsors-columns) * 350px);
 }
 
 .obs-intermission-sponsors-entry {
   width: 300px;
   height: 112px;
-  margin-left: 35px;
-  margin-bottom: 35px;
   line-height: 115px;
   display: inline-block;
+  background: white;
+  margin-left: 15px;
+  margin-bottom: 15px;
+  padding: 15px;
+  position: relative;
+  box-sizing: border-box;
 
   img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
     vertical-align: middle;
+    object-position: top;
+    position: absolute;
+    left: 15px;
+    right: 15px;
+    width: 270px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  &.preserve-width {
+    img {
+      object-fit: cover;
+    }
   }
 }
 
