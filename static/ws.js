@@ -210,5 +210,18 @@ createApp({
         return dateFormatter.format(date);
       }
     }
+  },
+  watch: {
+    "state.event.template"(newTemplate, oldTemplate) {
+      console.log(newTemplate)
+      for (const [key, el] of Object.entries(newTemplate)) {
+        if (key.startsWith("branding_")) {
+          document.documentElement.style.setProperty(
+            `--${key.replace('branding_', '').replaceAll('_', '-')}`,
+            JSON.stringify(el),
+          )
+        }
+      }
+    }
   }
 }).mount('#app');
