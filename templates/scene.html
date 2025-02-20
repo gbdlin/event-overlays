@@ -44,7 +44,7 @@
       <div class="obs-intermission-content">
         <template v-if="state.template != 'presentation' && event.template.sponsors_on_intermission && state.context.sponsors.length > 0">
           <div class="obs-intermission-sponsors">
-            <div class="obs-intermission-sponsors-entry" v-for="(sponsor, index) in state.context.sponsors">
+            <div v-for="(sponsor, index) in state.context.sponsors" :class="['obs-intermission-sponsors-entry', sponsor.classes]">
               <img :src="sponsor.logo_url" :alt="sponsor.name">
             </div>
           </div>
@@ -55,7 +55,8 @@
           </div>
 
           <div v-for="entry in state.context.schedule.slice(0, event.template.schedule_length)"
-               :class="['obs-intermission-schedule-entry', `obs-intermission-schedule-${entry.type}`, {'no-picture': (entry.type !== 'talk' || !entry.author.picture_url), 'no-author': (entry.type !== 'talk' || entry.authors.length === 0), 'with-start-time': entry.start}]">
+               :class="['obs-intermission-schedule-entry', `obs-intermission-schedule-${entry.type}`, {'no-picture': (entry.type !== 'talk' || !entry.author.picture_url), 'no-author': (entry.type !== 'talk' || entry.authors.length === 0), 'with-start-time': entry.start}, entry.classes]"
+          >
             <template v-if="entry.type === 'talk' && entry.authors.length > 0">
               <div class="obs-intermission-schedule-talk-picture" v-if="entry.author.picture_url">
                 <img :src="entry.author.picture_url" :alt="entry.author.name">

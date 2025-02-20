@@ -4,7 +4,7 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from datetime import datetime, timedelta, UTC
 from pathlib import Path, PurePath
-from typing import Annotated, Any, Literal, Self
+from typing import Annotated, Any, Literal, Self, TypeAlias
 from urllib.parse import urljoin
 
 from fastapi.utils import deep_dict_update
@@ -57,11 +57,13 @@ class EventScheduleAuthor(BaseModel):
 
 
 class EventScheduleEntryBase(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     start: datetime | None = None
+    classes: list[str] = []
 
 
 class EventTalkBase(EventScheduleEntryBase):
-    model_config = ConfigDict(extra="allow")
 
     type: Literal["talk"]
     title: str
@@ -119,6 +121,7 @@ class EventSponsor(BaseModel):
     name: str
     logo: AnyHttpUrl | Path
     url: AnyHttpUrl | None = None
+    classes: list[str] = []
 
     @computed_field
     @property
@@ -158,6 +161,10 @@ class EventQuestionsIntegration(BaseModel):
         return urljoin("/static/", str(self.qr_code))
 
 
+EventScheduleItem: TypeAlias = EventTalkLegacy | EventTalk | EventBreak | EventAnnouncement | EventLightningTalks
+
+
+
 class Event(ContextualModel):
     model_config = ConfigDict(extra="allow")
 
@@ -167,7 +174,7 @@ class Event(ContextualModel):
     starts: datetime
     branding: str | None = None
     sponsors: list[EventSponsor] = []
-    schedule: list[EventTalk | EventTalkLegacy | EventBreak | EventAnnouncement | EventLightningTalks] = []
+    schedule: list[EventScheduleItem] = []
     socials: list[EventSocial] = []
     farewell: EventFarewell = EventFarewell()
     questions_integration: EventQuestionsIntegration | None = None
@@ -339,11 +346,11 @@ class State(BaseModel):
         return predicted_state
 
     @property
-    def current_schedule_item(self) -> EventTalk | EventLightningTalks:
+    def current_schedule_item(self) -> EventScheduleItem:
         return self.event.schedule[self._schedule_position(self._ticker)]
 
     @property
-    def remaining_schedule(self) -> list[EventTalk | EventLightningTalks]:
+    def remaining_schedule(self) -> list[EventScheduleItem]:
         return self.event.schedule[self._schedule_screen_ticker:]
 
     @property
