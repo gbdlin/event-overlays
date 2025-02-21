@@ -19,6 +19,17 @@ function sendMessage(data) {
   ws.send(JSON.stringify(data));
 }
 
+function parseBranding(branding_data) {
+  for (const [key, el] of Object.entries(branding_data)) {
+    if (key.startsWith("branding_")) {
+      document.documentElement.style.setProperty(
+        `--${key.replace('branding_', '').replaceAll('_', '-')}`,
+        JSON.stringify(el),
+      )
+    }
+  }
+}
+
 function set_branding(name, version) {
   if (branding_style && !name) {
     branding_style.remove();
@@ -73,6 +84,7 @@ const parseEventData = (data) => {
     if (data.role !== "control" && data.role !== "timer") {
       set_branding(data.event.branding, data.event.branding_sha);
     }
+    parseBranding(data.event.template);
   }
   if (m_state.value === null) {
     m_state.value = {};
@@ -213,15 +225,7 @@ createApp({
   },
   watch: {
     "state.event.template"(newTemplate, oldTemplate) {
-      console.log(newTemplate)
-      for (const [key, el] of Object.entries(newTemplate)) {
-        if (key.startsWith("branding_")) {
-          document.documentElement.style.setProperty(
-            `--${key.replace('branding_', '').replaceAll('_', '-')}`,
-            JSON.stringify(el),
-          )
-        }
-      }
+      parseBranding(newTemplate)
     }
   }
 }).mount('#app');
