@@ -84,7 +84,8 @@
         </div>
 
         <div class="obs-intermission-next" v-if="state.template == 'next'">
-          <div :class="['obs-intermission-next-entry', `obs-intermission-schedule-${current.type}`]">
+          <div :class="['obs-intermission-next-entry', `obs-intermission-schedule-${current.type}`, current.classes]"
+               :key="`schedule-el-${current.lp}`">
             <template v-if="current.type == 'talk'">
               <div class="obs-intermission-next-entry-picture" v-if="current.author.picture_url">
                 <img :src="current.author.picture_url" :alt="current.author.name">
@@ -97,6 +98,11 @@
             <template v-else-if="current.type == 'lightning-talks'">
               <div class="obs-intermission-next-entry-content">
                 <span class="obs-intermission-next-entry-misc-title">Lightning talks</span>
+              </div>
+            </template>
+            <template v-else-if="current.type == 'break' || current.type == 'announcement'">
+              <div class="obs-intermission-next-entry-content">
+                <span class="obs-intermission-next-entry-misc-title">{{ current.title }}</span>
               </div>
             </template>
           </div>
@@ -121,6 +127,9 @@
             </template>
             <template v-else-if="current.type == 'lightning-talks'">
               <span class="obs-presentation-misc-title">Lightning talks</span>
+            </template>
+            <template v-else-if="current.type == 'break' || current.type == 'announcement'">
+              <span class="obs-presentation-misc-title">{{ current.title }}</span>
             </template>
           </div>
           <div :class="['obs-presentation-sponsors', 'slideshow', `obs-presentation-sponsors-${presentationSponsors}`]" v-if="presentationSponsors !== null && state.context.sponsors.length > 0">
