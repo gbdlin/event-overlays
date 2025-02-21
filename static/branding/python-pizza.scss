@@ -9,7 +9,7 @@
 
 :root {
   --background-image: "/static/branding/python-pizza/prague-bg.jpg";
-  --start-time-display: block;
+  --start-time: true;
   --intermission-sponsors-columns: 2;
   --theme-ui-colors-primary: #ed4337;
 }
@@ -156,7 +156,7 @@ body, html {
 .obs-intermission-schedule-entry-start-time {
   position: absolute;
   top: 14px;
-  display: var(--start-time-display);
+  display: none;
 
   .obs-intermission-schedule-variant-0 .obs-intermission-schedule-entry:nth-of-type(2n) & {
     right: 32px;
