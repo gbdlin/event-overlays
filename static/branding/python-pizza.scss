@@ -231,6 +231,7 @@ body, html {
 }
 
 .obs-intermission-schedule-talk-author-name {
+  font-family: "Open Sans", sans-serif;
   color: #15141A;
   font-size: 1.5rem;
   letter-spacing: initial;
@@ -263,12 +264,14 @@ body, html {
 
 .obs-intermission-next-entry {
   top: 305px;
+  left: 1050px;
+  margin-right: 15px;
 }
 
 .obs-intermission-next-entry-picture {
   border-radius: 226.5px;
   box-shadow: 2px 8px 32px -8px #ed4337;
-  left: 182px;
+  left: 201px;
 
   img {
     min-width: 453px;
@@ -277,12 +280,32 @@ body, html {
   }
 }
 
+.obs-intermission-next-entry-content {
+  top: 460px;
+  right: 0;
+}
+
 .obs-intermission-next-entry-author-name {
   color: #15141A;
   margin-bottom: 45px;
+  font-size: 2.45rem;
+  font-family: "Open Sans", sans-serif;
+
+  .dense & {
+    margin-bottom: 20px;
+  }
 }
 
 .obs-intermission-next-entry-title {
+  color: #15141A;
+
+  .dense & {
+    line-height: 1.2em;
+  }
+}
+
+
+.obs-intermission-next-entry-misc-title {
   color: #15141A;
 }
 
@@ -338,4 +361,23 @@ body, html {
 .obs-presentation-sponsors .slide {
   box-sizing: border-box;
   padding: 15px;
+}
+
+.obs-presentation-bottom-bar-social-icon {
+  color: #15141A;
+  text-shadow: none;
+}
+
+.obs-presentation-author, .obs-presentation-title, .obs-presentation-misc-title {
+  color: white;
+  text-shadow: none;
+}
+
+.obs-presentation-author {
+  font-family: "Open Sans", sans-serif;
+}
+
+.obs-presentation-bottom-bar-social-url, .obs-presentation-bottom-bar-social-code {
+  color: #15141A;
+  text-shadow: none;
 }
