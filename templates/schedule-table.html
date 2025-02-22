@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>{{ event.title }}</title>
+    <title></title>
     <link type="text/css" rel="stylesheet" href="/static/control.css">
 
     <script type="application/json" id="initSettings">
@@ -17,6 +17,7 @@
         <table v-if="state !== null" id="cp" class="schedule-table">
           <thead>
             <tr>
+              <th>Time</th>
               <th>Speaker</th>
               <th>Title</th>
               <th v-for="column in state.extra_columns">{{ column }}</th>
@@ -24,6 +25,7 @@
           </thead>
           <tr v-for="entry in state.schedule" :class=[`schedule-entry-${entry.state}`]>
             <template v-if="entry.state != 'past'">
+              <td>{{ formatTime(entry.start) }}</td>
               <td>{{ entry.author?entry.author.name:'---' }}</td>
               <td>{{ entry.title }}</td>
               <td v-for="column in state.extra_columns">{{ entry[column] }}</td>
