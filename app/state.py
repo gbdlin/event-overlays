@@ -1,7 +1,5 @@
-import random
 import secrets
-from asyncio import create_task, Event, FIRST_COMPLETED, wait
-from string import ascii_letters
+from asyncio import Event
 
 from fastapi.websockets import WebSocket
 from pydantic_core import to_json
