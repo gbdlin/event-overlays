@@ -3,6 +3,9 @@ from hashlib import sha256
 from pathlib import PurePath
 
 
-def get_file_sha(filename: PurePath | str, trim: int = 7) -> str:
-    with open(filename, "rb") as fd:
-        return urlsafe_b64encode(sha256(fd.read()).digest())[:trim].decode()
+def get_file_sha(filename: PurePath | str, trim: int = 7) -> str | None:
+    try:
+        with open(filename, "rb") as fd:
+            return urlsafe_b64encode(sha256(fd.read()).digest())[:trim].decode()
+    except FileNotFoundError:
+        return None

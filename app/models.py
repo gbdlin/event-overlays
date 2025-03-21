@@ -213,7 +213,7 @@ class Event(ContextualModel):
 
     @computed_field
     @property
-    def branding_sha(self) -> str:
+    def branding_sha(self) -> str | None:
         return get_file_sha(f"static/branding/{self.branding}.css")
 
     @staticmethod
