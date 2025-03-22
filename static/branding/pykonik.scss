@@ -1,22 +1,328 @@
+:root {
+  --pykonik-yellow: #f2aa0a;
+  --pykonik-grey: #606061;
+  --pykonik-blue: #3a77a6;
+}
+
+html {
+  background: initial;
+}
+
 body, html {
+  font-family: "Open Sans";
+  font-optical-sizing: initial;
+  font-weight: initial;
+  font-style: initial;
 
   &.obs-body-default {
-    background: url("/static/bg/yellow.png") no-repeat 539px 0,
-    url("/static/bg/gray.png") no-repeat -180px 564px,
-    url("/static/bg/blue.png") no-repeat 592px 439px,
-    white;
+    background:
+            url("/static/bg/yellow.png") no-repeat 539px 0,
+            url("/static/bg/gray.png") no-repeat -180px 564px,
+            url("/static/bg/blue.png") no-repeat 592px 439px,
+            white;
   }
 }
 
 .obs-event-logo {
-  img {
+  top: 186px;
 
+  img {
     width: 1008px;
     height: 297px;
+
+    .obs-body-scene-presentation & {
+      width: 314px;
+      height: 93px;
+    }
   }
+
+  &.thumbnail {
+    top: 299px;
+    left: 576px;
+
+    img {
+      width: 766px;
+      height: 230px;
+    }
+  }
+}
+
+.obs-event-title {
+  position: relative;
+  font-weight: 700;
+
+  text-shadow:
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black;
+
+  top: -52px;
+  left: 350px;
+
+  .obs-event-logo.thumbnail & {
+    font-size: 4.6666666666666666em;
+    top: 53px;
+    left: 0;
+    color: var(--pykonik-blue);
+    text-shadow:
+            0 0 8px white,
+            0 0 8px white,
+            0 0 8px white,
+            0 0 8px white,
+            0 0 8px white,
+            0 0 8px white,
+            0 0 8px white,
+            0 0 8px white,
+            0 0 8px white,
+            0 0 8px white,
+            0 0 8px white,
+            0 0 8px white,
+            0 0 8px white;
+  }
+}
+
+.obs-event-subtitle {
+  position: absolute;
+  font-size: 2.625em;
+  font-weight: bold;
+  color: var(--pykonik-yellow);
+  text-shadow:
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white;
+  top: 429px;
+  right: 1px;
+  letter-spacing: 0.004em;
+}
+
+.obs-event-social-link {
+  color: var(--pykonik-blue);
+  text-shadow:
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white,
+          0 0 8px white;
 }
 
 .obs-intermission-info {
   left: 840px;
   white-space: nowrap;
+  font-size: 4.4rem;
+}
+
+.obs-intermission-schedule {
+  top: auto;
+  left: 1125px;
+  bottom: 18px;
+}
+
+.obs-intermission-schedule-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 40px;
+  text-align: left;
+
+  text-shadow:
+          0 0 5px var(--pykonik-blue),
+          0 0 5px var(--pykonik-blue),
+          0 0 5px var(--pykonik-blue),
+          0 0 5px var(--pykonik-blue),
+          0 0 5px var(--pykonik-blue),
+          0 0 5px var(--pykonik-blue),
+          0 0 5px var(--pykonik-blue),
+          0 0 5px var(--pykonik-blue),
+          0 0 5px var(--pykonik-blue),
+          0 0 5px var(--pykonik-blue),
+          0 0 5px var(--pykonik-blue),
+          0 0 5px var(--pykonik-blue),
+          0 0 5px var(--pykonik-blue);
+}
+
+.obs-intermission-schedule-entry {
+  margin-bottom: -20px;
+  margin-right: initial;
+  height: 140px;
+
+  background: none;
+  color: white;
+  text-align: left;
+  overflow: hidden;
+
+  font-size: initial;
+  padding: 0 0 0 100px;
+}
+
+.obs-intermission-schedule-talk {
+  text-align: left;
+
+  &.obs-intermission-schedule-entry {
+    background: none;
+    height: 140px;
+
+    padding-left: 100px;
+  }
+}
+
+.obs-intermission-schedule-talk-picture {
+  width: 80px;
+  height: 80px;
+  top: 15px;
+
+  img {
+    left: 40px;
+    height: 80px;
+
+    min-width: unset;
+    min-height: unset;
+    object-position: unset;
+    object-fit: unset;
+    width: unset;
+  }
+}
+
+.obs-intermission-schedule-talk-author-name {
+  color: var(--pykonik-yellow);
+  letter-spacing: 0.015em;
+
+  background: none;
+  padding: 0;
+}
+
+
+.obs-intermission-schedule-talk-title {
+  display: block;
+  color: white;
+  font-size: 1.375rem;
+  font-family: "Lato", sans-serif;
+
+  padding: 0;
+  align-items: unset;
+  min-height: unset;
+  background: none;
+}
+
+
+.obs-intermission-schedule-misc-title:before,  .obs-intermission-schedule-talk.no-picture .obs-intermission-schedule-entry-content:before {
+  content: "➤";
+  position: absolute;
+  left: 25px;
+  font-weight: 900;
+  color: white;
+  font-size: 1.75rem;
+}
+
+.obs-intermission-info, .obs-intermission-message {
+  text-shadow:
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black;
+  color: white;
+  left: 845px;
+
+  &.alt-position {
+    left: 25px;
+  }
+}
+
+.obs-intermission-next-entry {
+  top: 223px;
+}
+
+.obs-intermission-next-entry-picture {
+  right: 139px;
+  left: auto;
+
+  img {
+    top: auto;
+    height: 453px;
+    width: auto;
+    min-width: unset;
+    min-height: unset;
+    object-fit: unset;
+    object-position: unset;
+  }
+}
+
+.obs-intermission-next-entry-content {
+  left: 0;
+  top: 500px;
+}
+
+.obs-intermission-next-entry-author-name {
+  color: var(--pykonik-yellow);
+  font-size: 3.25rem;
+  padding: 0;
+  background: none;
+  width: auto;
+}
+
+.obs-intermission-next-entry-title {
+  color: white;
+  background: none;
+  font-size: 2rem;
+  padding: 0;
+}
+
+.obs-presentation-author, .obs-presentation-title, .obs-presentation-misc-title {
+  text-shadow:
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black,
+          0 0 5px black;
+}
+
+.obs-presentation-author {
+  font-size: 1.5rem;
+}
+
+.obs-presentation-title {
+  font-size: 1.25rem;
 }
