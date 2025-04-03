@@ -294,7 +294,7 @@ body, html {
   padding: 15px;
   position: relative;
 
-  &:nth-child(3) {
+  &.double-width {
     width: 550px;
     height: 135px;
   }

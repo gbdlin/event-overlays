@@ -5,7 +5,7 @@ from typing import Literal, TypeAlias
 from urllib.parse import urljoin
 
 from fastapi.utils import deep_dict_update
-from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, field_validator, HttpUrl
+from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, field_validator, HttpUrl, model_validator
 
 from .base import ContextualModel
 from .constants import EVENT_CONFIGS_ROOT
@@ -83,11 +83,19 @@ class EventSponsor(BaseModel):
     logo: AnyHttpUrl | Path
     url: AnyHttpUrl | None = None
     classes: list[str] = []
+    show_on_presentation: bool = True
 
     @computed_field
     @property
     def logo_url(self) -> str:
         return urljoin("/static/", str(self.logo))
+
+
+class EventSponsorGroup(BaseModel):
+    name: str= ""
+    sponsors: list[EventSponsor] = []
+    classes: list[str] = []
+    show_on_presentation: bool = True
 
 
 class Template(BaseModel):
@@ -97,13 +105,13 @@ class Template(BaseModel):
 
     # TODO: figure out theme-specific settings
     sponsors_on_intermission: bool = False
+    schedule_sponsor_slides: int = 1
 
     title: str = "{event.name}"
     schedule_length: int = 3
     default_display: str = "scene"
     ticker_source: Literal["manual", "schedule"] = "manual"
     schedule_ticker_leeway: int = 10
-
     schedule_header: str = "{next_word} in the schedule:"
 
 
@@ -135,6 +143,7 @@ class Event(ContextualModel):
     starts: datetime
     branding: str | None = None
     sponsors: list[EventSponsor] = []
+    sponsor_groups: list[EventSponsorGroup] = []
     schedule: list[EventScheduleItem] = []
     socials: list[EventSocial] = []
     farewell: EventFarewell = EventFarewell()
@@ -154,6 +163,21 @@ class Event(ContextualModel):
             ]
         return value
 
+    @model_validator(mode="after")
+    def validate_sponsor_groups(self):
+        if self.sponsors and self.sponsor_groups:
+            raise ValueError("Only one of `sponsors` and `sponsor_groups` can be provided")
+
+        if self.sponsors:
+            self.sponsor_groups.append(
+                EventSponsorGroup(
+                    sponsors=self.sponsors,
+                )
+            )
+            self.sponsors = []
+
+        return self
+
     @computed_field
     @property
     def title(self) -> str:
@@ -171,6 +195,20 @@ class Event(ContextualModel):
     @property
     def slug(self) -> str:
         return self.path.stem
+
+    @computed_field
+    @property
+    def all_sponsors(self) -> list[EventSponsor]:
+        return [sponsor for group in self.sponsor_groups for sponsor in group.sponsors]
+
+    @computed_field
+    @property
+    def presentation_sponsors(self) -> list[EventSponsor]:
+        return [
+            sponsor
+            for group in self.sponsor_groups if group.show_on_presentation
+            for sponsor in group.sponsors if sponsor.show_on_presentation
+        ]
 
     @computed_field
     @property
