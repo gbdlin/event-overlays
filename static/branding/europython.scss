@@ -63,42 +63,20 @@ body, html {
 
 
 .obs-intermission-schedule-entry-start-time {
-  position: absolute;
-  top: 0;
-  right: 0;
   background: var(--color-accent-3);
-  color: var(--color-accent);
-  bottom: 0;
-  width: 90px;
-  font-size: 1.5rem;
-  letter-spacing: initial;
-  padding: 20px 25px 8px;
 
   .obs-intermission-schedule-talk:not(.no-author) & {
-    bottom: auto;
-    font-size: 1.5rem;
-    letter-spacing: initial;
-    padding: 5px 25px 8px;
+    padding-top: 5px;
   }
 }
 
 .obs-intermission-schedule-talk-author-name {
   padding-top: 5px;
-
-  .obs-intermission-schedule-entry.with-start-time & {
-    padding-right: 90px;
-  }
 }
 
 .obs-intermission-schedule-talk-title {
   color: var(--color-accent);
   font-weight: 500;
-}
-
-.obs-intermission-schedule-misc-title {
-  .obs-intermission-schedule-entry.with-start-time & {
-    padding-right: 90px;
-  }
 }
 
 .obs-intermission-schedule-overflow {
