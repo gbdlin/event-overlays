@@ -104,7 +104,8 @@ class Template(BaseModel):
     name: str = ""
 
     # TODO: figure out theme-specific settings
-    sponsors_on_intermission: bool = False
+    sponsors_on_intermission: bool | None = None
+    sponsors_on: list[Literal["presentation", "schedule", "next", "message"]] | None = None
     schedule_sponsor_slides: int = 1
 
     title: str = "{event.name}"
@@ -113,6 +114,17 @@ class Template(BaseModel):
     ticker_source: Literal["manual", "schedule"] = "manual"
     schedule_ticker_leeway: int = 10
     schedule_header: str = "{next_word} in the schedule:"
+
+    @model_validator(mode="after")
+    def validate_sponsors_on(self):
+        if self.sponsors_on_intermission is not None and self.sponsors_on is not None:
+            raise ValueError("Only one of `sponsors_on` and `sponsor_on_intermission` can be provided")
+
+        if self.sponsors_on is None:
+            self.sponsors_on = ["presentation"] + ["schedule", "next", "message"] if self.sponsors_on_intermission else []
+            self.sponsors_on_intermission = None
+
+        return self
 
 
 class EventFarewell(BaseModel):
