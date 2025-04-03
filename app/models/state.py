@@ -136,7 +136,13 @@ class State(BaseModel):
 
     @property
     def global_context(self) -> dict:
-        return {"message": self.message, "socials": self.event.socials, "sponsors": self.event.all_sponsors}
+        return {
+            "message": self.message,
+            "socials": self.event.socials,
+            "sponsors": self.event.all_sponsors,
+            "sponsor_groups": self.event.sponsor_groups,
+            "presentation_groups": self.event.presentation_sponsors,
+        }
 
     @computed_field
     @property

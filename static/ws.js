@@ -215,11 +215,14 @@ createApp({
       ticker: m_ticker,
       slideActive(ticker, time, index, total) {
         const current = ticker % (time * total)
-        return (current >= time * index && current < time * (index + 1));
+        return ((current >= time * index) && (current < time * (index - - 1)));  // subtracting negative to convert to int, don't ask, I'm lazy... You can do it properly if you read this...
       },
       formatTime(datetime) {
         const date = new Date(datetime);
         return dateFormatter.format(date);
+      },
+      groupBy(collection, field) {
+        return Object.groupBy(collection, (item) => item[field])
       }
     }
   },

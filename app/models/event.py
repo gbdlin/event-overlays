@@ -96,6 +96,7 @@ class EventSponsorGroup(BaseModel):
     sponsors: list[EventSponsor] = []
     classes: list[str] = []
     show_on_presentation: bool = True
+    intermission_screen_number: int = 0
 
 
 class Template(BaseModel):
@@ -106,7 +107,7 @@ class Template(BaseModel):
     # TODO: figure out theme-specific settings
     sponsors_on_intermission: bool | None = None
     sponsors_on: list[Literal["presentation", "schedule", "next", "message"]] | None = None
-    schedule_sponsor_slides: int = 1
+    intermission_sponsor_slides: int = 1
 
     title: str = "{event.name}"
     schedule_length: int = 3
@@ -221,6 +222,11 @@ class Event(ContextualModel):
             for group in self.sponsor_groups if group.show_on_presentation
             for sponsor in group.sponsors if sponsor.show_on_presentation
         ]
+
+    @computed_field
+    @property
+    def intermission_screens_count(self) -> int:
+        return max(group.intermission_screen_number for group in self.sponsor_groups) + 1
 
     @computed_field
     @property
