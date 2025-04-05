@@ -487,6 +487,9 @@ body, html {
   letter-spacing: 0.015em;
   color: white;
   margin-right: 20px;
+  max-width: 1200px;
+  text-align: right;
+  text-wrap: balance;
 }
 
 .obs-presentation-author {
