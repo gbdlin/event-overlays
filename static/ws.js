@@ -158,6 +158,7 @@ createApp({
       assignTarget: m_assignTarget,
       viewName: m_viewName,
       timerFlashing: m_timerFlashing,
+      timerWithPreview: initSettings['timerWithPreview'],
       displayMessages: computed(() => (
         m_state.value.template === "schedule"
         || m_state.value.template === "message"
@@ -223,7 +224,18 @@ createApp({
       },
       groupBy(collection, field) {
         return Object.groupBy(collection, (item) => item[field])
-      }
+      },
+      mediaStream: null,
+    }
+  },
+  mounted() {
+    if (initSettings['timerWithPreview']) {
+      navigator.mediaDevices.getUserMedia({video: true})
+        .then(mediaStream => {
+          this.$refs.video.srcObject = mediaStream;
+          this.$refs.video.play()
+          this.mediaStream = mediaStream
+        })
     }
   },
   watch: {

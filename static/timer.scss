@@ -18,6 +18,10 @@
   --ok-color: rgb(var(--ok-color-rgb));
   --warn-color: rgb(var(--warn-color-rgb));
   --danger-color: rgb(var(--danger-color-rgb));
+
+  --heightPreview: calc(100vw * 9 / 16);
+
+  --heightRest: calc(100vh - var(--heightPreview));
 }
 
 @keyframes blinker {
@@ -31,6 +35,7 @@
 html {
   overflow: hidden;
   cursor: none;
+  margin: 0;
 }
 
 body {
@@ -38,6 +43,7 @@ body {
   background: #000000;
   color: #dddddd;
   overflow: hidden;
+  margin: 0;
 }
 
 .timer-container {
@@ -48,6 +54,15 @@ body {
   &.timer-flash {
     animation: flash 0.5s steps(1, end) 3;
   }
+}
+
+.timer-cameraFeed {
+  width: 100vw;
+  height: var(--heightPreview);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
 }
 
 progress.progress-bar {
@@ -79,6 +94,23 @@ progress.progress-bar {
                     var(--danger-color) 100%
     ) center left / 95vw 100%;
   }
+
+  .timer-with-preview & {
+    height: calc(var(--heightRest) * 0.15);
+    margin: var(--heightPreview) auto 0;
+    width: 100vw;
+    &::-moz-progress-bar, &::-webkit-progress-bar {
+      background: linear-gradient(
+                      270deg,
+                      var(--ok-color) 0%,
+                      var(--ok-color) 70%,
+                      var(--warn-color) 70%,
+                      var(--warn-color) 90%,
+                      var(--danger-color) 90%,
+                      var(--danger-color) 100%
+      ) center left / 100vw 100%;
+    }
+  }
 }
 
 div.timer {
@@ -99,10 +131,42 @@ div.timer {
   &.outaTime {
     animation: blinker 1s steps(1, end) infinite;
   }
+
+  .timer-with-preview & {
+    text-align: left;
+    margin: 0 10px;
+    width: calc(50% - 20px);
+    float: left;
+    font-size: calc(min(var(--heightRest) * 0.76, 100vw / 13));
+    line-height: calc(min(var(--heightRest) * 0.76, 100vw / 13));
+
+    @media screen and (max-aspect-ratio: 32/23) {
+      font-size: calc(var(--heightRest) * 0.46);
+      line-height: calc(var(--heightRest) * 0.46);
+      float: initial;
+      width: auto;
+    }
+  }
 }
 
 .message {
   font-size: 8vw;
   text-align: center;
   margin: 8vh 0;
+  .timer-with-preview & {
+    margin: 0 10px;
+    text-align: right;
+    float: right;
+    width: calc(50% - 20px);
+    font-size: calc(min(var(--heightRest) * 0.66, 100vw / 18));
+    line-height: calc(min(var(--heightRest) * 0.66, 100vw / 18));
+
+    @media screen and (max-aspect-ratio: 32/23) {
+      font-size: calc(var(--heightRest) * 0.34);
+      line-height: calc(var(--heightRest) * 0.32);
+      text-align: left;
+      float: initial;
+      width: auto;
+    }
+  }
 }

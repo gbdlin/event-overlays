@@ -12,6 +12,7 @@ class TimerConfig(BaseModel):
 
     event: str | None = None
     rig: str | None = None
+    with_preview: bool = False
 
     @staticmethod
     def get_timer_dict(path: Path) -> "dict":
