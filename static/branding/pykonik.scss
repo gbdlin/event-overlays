@@ -183,6 +183,7 @@ body, html {
 
 .obs-intermission-schedule-talk {
   text-align: left;
+  background: none !important;
 
   &.obs-intermission-schedule-entry {
     background: none;
@@ -190,6 +191,7 @@ body, html {
 
     padding-left: 100px;
   }
+
 }
 
 .obs-intermission-schedule-talk-picture {
@@ -238,6 +240,10 @@ body, html {
   font-weight: 900;
   color: white;
   font-size: 1.75rem;
+}
+
+.obs-intermission-schedule-entry-content {
+  padding-bottom: 3px;
 }
 
 .obs-intermission-info, .obs-intermission-message {
