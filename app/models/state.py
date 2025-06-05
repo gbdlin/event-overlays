@@ -1,10 +1,15 @@
 from datetime import datetime, timedelta, UTC
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, computed_field
 
 from .event import Event, EventScheduleItem
 
+if TYPE_CHECKING:
+    from app.models import RigConfig
+
 states: dict[str, "State"] = {}
+rig_states: dict[str, "State"] = {}
 
 
 class StateException(Exception):
@@ -218,3 +223,13 @@ class State(BaseModel):
             )
 
         return states[path]
+
+    @classmethod
+    def get_rig_state(cls, *, rig: "RigConfig") -> "State":
+        if rig.slug not in rig_states:
+            rig_states[rig.slug] = cls(
+                event=Event.get_event_config(path=rig.event_path),
+                timer=TimerState(target=15 * 60 * 1000),  # 15 minutes default, will be read at some point from config.
+            )
+
+        return rig_states[rig.slug]

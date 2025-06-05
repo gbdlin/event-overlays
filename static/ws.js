@@ -2,9 +2,11 @@ import {createApp, ref, computed} from 'vue'
 
 let ws;
 let branding_style = null;
+const m_rig = ref(null);
 const m_state = ref(null);
 const m_event = ref(null);
 const m_role = ref(null);
+const m_timer_stream = ref(null);
 const m_timerFlashing = ref(false);
 const m_now = ref(Date.now());
 const m_assignTarget = ref(null);
@@ -81,8 +83,14 @@ const parseEventData = (data) => {
     m_event.value = {};
     Object.assign(m_event.value, data.event)
     m_role.value = data.role;
-    if (data.role !== "control" && data.role !== "timer") {
+    if (data.role !== "control" && data.role !== "checklist" && data.role !== "timer") {
       set_branding(data.event.branding, data.event.branding_sha);
+    }
+    m_rig.value = data.rig;
+    delete data.rig;
+    if (data.stream !== undefined) {
+      m_timer_stream.value = data.stream
+      delete data.stream
     }
     parseBranding(data.event.template);
   }
@@ -129,6 +137,19 @@ if (initSettings.ws !== undefined) {
   parseEventData(initSettings.data)
 }
 
+function timePieces(value) {
+  const s_msec = Math.abs(value % 1000);
+  const seconds = round_fn(value / 1000);
+  const minutes = Math.abs(round_fn(seconds / 60));
+  const m_seconds = Math.abs(seconds % 60);
+
+  const f_minutes = `${sign}${minutes}`
+  const f_seconds = String(m_seconds).padStart(2, "0");
+  const f_msec = String(s_msec).padStart(3, "0");
+
+  return [f_minutes, f_seconds, f_msec]
+}
+
 function timerPieces(value) {
   const round_fn = value > 0 ? Math.floor : Math.ceil;
   const sign = value >= 0 ? "" : "-"
@@ -154,7 +175,9 @@ createApp({
       )),
       presentationBottomBar: initSettings.presentationBottomBar,
       presentationSponsors: initSettings.presentationSponsors,
+      rig: m_rig,
       state: m_state,
+      timerStream: m_timer_stream,
       assignTarget: m_assignTarget,
       viewName: m_viewName,
       timerFlashing: m_timerFlashing,
@@ -195,6 +218,11 @@ createApp({
 
         return m_state.value.timer.target - m_state.value.timer.offset - tick;
       }),
+      timeFormat(value) {
+        const [minutes, f_seconds] = timerPieces(value);
+
+        return `${minutes}:${f_seconds}`
+      },
       timerFormat(value) {
         const [minutes, f_seconds] = timerPieces(value);
 
@@ -229,14 +257,14 @@ createApp({
     }
   },
   mounted() {
-    if (initSettings['timerWithPreview']) {
-      navigator.mediaDevices.getUserMedia({video: true})
-        .then(mediaStream => {
-          this.$refs.video.srcObject = mediaStream;
-          this.$refs.video.play()
-          this.mediaStream = mediaStream
-        })
-    }
+    // if (initSettings['timerWithPreview']) {
+    //   navigator.mediaDevices.getUserMedia({video: true})
+    //     .then(mediaStream => {
+    //       this.$refs.video.srcObject = mediaStream;
+    //       this.$refs.video.play()
+    //       this.mediaStream = mediaStream
+    //     })
+    // }
   },
   watch: {
     "state.event.template"(newTemplate, oldTemplate) {

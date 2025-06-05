@@ -1,5 +1,4 @@
 from .base import ContextualModel
-from .constants import EVENT_CONFIGS_ROOT, RIG_CONFIGS_ROOT
 from .event import (
     Event,
     EventAnnouncement,

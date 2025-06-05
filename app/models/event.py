@@ -7,8 +7,9 @@ from urllib.parse import urljoin
 from fastapi.utils import deep_dict_update
 from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, field_validator, HttpUrl, model_validator
 
+from app.constants import EVENT_CONFIGS_ROOT
+
 from .base import ContextualModel
-from .constants import EVENT_CONFIGS_ROOT
 from ..utils.file_sha import get_file_sha
 
 

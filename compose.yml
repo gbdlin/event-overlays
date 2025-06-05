@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   overlays:
+    pull_policy: never
     image: obs-event-overlays-dev
     build:
       context: ./

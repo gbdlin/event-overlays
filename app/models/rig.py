@@ -2,7 +2,7 @@ import tomllib
 from pathlib import Path
 
 from .base import ContextualModel
-from .constants import RIG_CONFIGS_ROOT
+from app.constants import RIG_CONFIGS_ROOT
 
 
 class RigConfig(ContextualModel):

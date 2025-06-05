@@ -92,6 +92,11 @@
                 <button @click.prevent="handleAction('config.refresh')" class="i"><i class="fa-solid fa-arrows-rotate"></i>Reload config</button>
                 <button @click.prevent="handleAction('config.force-reload')" class="i"><i class="fa-solid fa-circle-exclamation"></i>Force reload views</button>
               </div>
+              <div id="assigned-views" class="row row1">
+                <template v-for="(view, index) in state.assigned_views">
+                  {{ view[0] }}<a :href="`https://vdo.ninja/?view=${view[1]}&password=${view[2]}`">cam preview</a>
+                </template>
+              </div>
               <button class="dialog-close" id="rig-settings-close">x</button>
             </form>
           </dialog>

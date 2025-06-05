@@ -3,7 +3,6 @@ from fastapi import APIRouter
 from .control import checklist_view, control_view, checklists_list_view
 from .demo import demo_view
 from .scenes import old_scene_view, scene_view
-from .test_deps import view
 from .timers import speaker_timer_view, timer_redirect
 from .utils import schedule_table_view
 from .websocket import update_schedule_ticker, ws_view
@@ -40,5 +39,3 @@ v1_router.add_api_websocket_route("/rigs/{rig_slug:str}/control/ws", ws_view)
 v1_router.add_api_websocket_route("/rigs/{rig_slug:str}/views/{role:str}/ws", ws_view)
 
 v1_router.add_api_route("/views/{name:str}/timer", timer_redirect)
-
-v1_router.add_api_route("/test", view)

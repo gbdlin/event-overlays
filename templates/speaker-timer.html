@@ -19,7 +19,12 @@
     {% raw %}
       <div class="timer-layout" id="app">
         <div v-if="state !== null" id="cp" :class="['timer-container', {'timer-flash': timerFlashing, 'timer-with-preview': timerWithPreview}]">
-          <video autoplay="true" ref="video" class="timer-cameraFeed" v-if="timerWithPreview"></video>
+          <iframe :src="`https://vdo.ninja/?password=${timerStream.pwd}&push=${timerStream.id}&autostart&easyexit&hidehome&webcam&nocontrols&fullscreen&cleanoutput&nomirror&audiodevice=0`"
+                  v-if="timerWithPreview && timerStream"
+                  allow="camera;microphone"
+                  class="timer-cameraFeed"
+          ></iframe>
+          <video autoplay="true" ref="video" class="timer-cameraFeed" v-if="timerWithPreview && !timerStream"></video>
           <progress class="progress-bar" :value="timerValue" :max="state.timer.target"></progress>
 
           <div :class="['timer', {warn: timerValue < state.timer.target * 0.3, danger: timerValue < state.timer.target * 0.1, outaTime: timerValue < 0}]">

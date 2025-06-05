@@ -7,7 +7,9 @@ from ..template_renderer import renderer
 
 async def timer_redirect(timer_slug: str):
     timer_config = TimerConfig.get_timer_config(timer_slug)
-    return RedirectResponse(f"/{timer_config.rig}/speaker-timer.html?preview={int(timer_config.with_preview)}")
+    return RedirectResponse(
+        f"/{timer_config.rig}/speaker-timer.html?preview={int(timer_config.with_preview)}&name={timer_slug}",
+    )
 
 
 async def speaker_timer_view(request: Request, rig: str, name: str | None = None, preview: bool = False):

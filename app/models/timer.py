@@ -3,7 +3,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
-from .constants import TIMER_CONFIGS_ROOT
+from app.constants import TIMER_CONFIGS_ROOT
 
 
 

@@ -44,10 +44,15 @@ class ConnectionManager:
 
 managers: dict[str, ConnectionManager] = {}
 assignable_views: dict[str, tuple[WebSocket, Event]] = {}
-assigned_views: dict[str, RigConfig] = {}
+rig_views: dict[str, dict[str, tuple[WebSocket, str, str, str]]] = {}
 
 
-def get_state_update_for(state: State, target: str, command: str | None = None) -> dict:
+def get_state_update_for(
+    state: State,
+    target: str,
+    command: str | None = None,
+    rig_assigned_views: dict | None = None,
+) -> dict:
     global_scene_context = {
         "current_state": state.current_state,
         "next_state": state.next_state,
@@ -63,6 +68,10 @@ def get_state_update_for(state: State, target: str, command: str | None = None) 
         "command": command,
         "event": state.event,
     }
+    if rig_assigned_views is not None:
+        prepared_views = {slug: (role, stream, pwd) for slug, (_, role, stream, pwd) in rig_assigned_views.items()}
+    else:
+        prepared_views = None
     match target:
         case "scene-title":
             next_template, next_context = state.title_screen_content
@@ -118,6 +127,7 @@ def get_state_update_for(state: State, target: str, command: str | None = None) 
                 "scene-presentation": get_state_update_for(state, "scene-presentation", "b"),
                 "speaker-timer": get_state_update_for(state, "timer", "a"),
                 "message": state.message,
+                "assigned_views": prepared_views,
                 **global_scene_context,
             }
     return global_scene_context

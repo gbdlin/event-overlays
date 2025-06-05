@@ -1,15 +1,25 @@
+from base64 import urlsafe_b64encode
 from time import time_ns
 from typing import Annotated
+from hashlib import sha256
 
 from fastapi import Depends
 from fastapi.websockets import WebSocket, WebSocketDisconnect
 from pydantic_core import to_json
 
 from ..models import Event, RigConfig, State, StateException
-from ..state import ConnectionManager, get_state_update_for, get_ws_state, managers
+from ..state import ConnectionManager, get_state_update_for, get_ws_state, managers, rig_views
+
+from app.config import config
 
 
-async def notify_roles(notify: set[str], manager: ConnectionManager, state: State, command: str):
+async def notify_roles(
+    notify: set[str],
+    manager: ConnectionManager,
+    state: State,
+    command: str,
+    rig_assigned_views: dict | None = None,
+) -> None:
     for target_role in (
         "scene-brb",
         "scene-title",
@@ -22,24 +32,62 @@ async def notify_roles(notify: set[str], manager: ConnectionManager, state: Stat
     ):
         if target_role in notify:
             await manager.broadcast_targeted_json(
-                get_state_update_for(state, target_role, command),
+                get_state_update_for(state, target_role, command, rig_assigned_views),
                 notify & {target_role, "debug"},
             )
+
 
 
 async def ws_view(
     websocket: WebSocket,
     role: str,
     state_and_manager: Annotated[tuple[State, ConnectionManager, RigConfig] | None, Depends(get_ws_state)],
+    view_name: str | None = None,
 ):
     if state_and_manager is None:
         return
     state, manager, rig = state_and_manager
 
+    assigned_views = rig_views.setdefault(rig.slug, {})
+
     await manager.connect(websocket, role)
+    if view_name is not None:
+        stream_id = urlsafe_b64encode(
+            sha256(f"{rig.slug}-{view_name}-{config.secret_key}".encode()).digest()
+        ).decode().rstrip("=").replace("-", "").replace("_", "")
+        stream_pwd = urlsafe_b64encode(
+            sha256(f"{rig.slug}-{view_name}-{rig.control_password}-{config.secret_key}".encode()).digest()
+        ).decode().rstrip("=").replace("-", "").replace("_", "")
+        assigned_views[view_name] = (
+            websocket,
+            role,
+            stream_id,
+            stream_pwd,
+        )
+
+        await notify_roles({"control", "debug"}, manager, state, "views.assigned", assigned_views)
+    else:
+        stream_id = None
+        stream_pwd = None
     await websocket.send_text(
         to_json(
-            {"status": "init", "role": role, **get_state_update_for(state, role, "init")},
+            {
+                "status": "init",
+                "rig": rig.slug,
+                "role": role,
+                **get_state_update_for(
+                    state,
+                    role,
+                    "init",
+                    assigned_views,
+                ),
+                **({
+                    "stream": {
+                        "id": stream_id,
+                        "pwd": stream_pwd,
+                    },
+                } if view_name is not None and role == "timer" else {})
+            },
         ).decode()
     )
 
@@ -139,14 +187,19 @@ async def ws_view(
                                 )
                                 continue
                         await websocket.send_json({"status": "success"})
-                        await notify_roles(notify, manager, state, command)
+                        await notify_roles(notify, manager, state, command, assigned_views)
                         await update_schedule_ticker()
             except StateException as ex:
                 await websocket.send_json(
                     {"status": "error", "detail": ex.detail},
                 )
     except WebSocketDisconnect:
+        print("Connection closed by remote host")
         manager.disconnect(websocket)
+        if view_name is not None:
+            assigned_views.pop(view_name, None)
+
+        await notify_roles({"control", "debug"}, manager, state, "views.unassigned", assigned_views)
 
 
 async def update_schedule_ticker():

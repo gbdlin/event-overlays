@@ -46,6 +46,10 @@ body {
   background: var(--main-bg-color);
   color: var(--fg-color);
   font-family: sans-serif;
+
+  &.demo {
+    margin: 0;
+  }
 }
 
 hr {
@@ -215,10 +219,19 @@ input[type=text], input[type=number] {
   }
 
   &.row.preview {
+    margin: 0;
     height: 1110px;
+    display: block;
+
+    @media screen and (min-width: 3840px) {
+      display: flex;
+    }
 
     > * {
-      width: calc(50% - 5px)
+      @media screen and (min-width: 3840px) {
+        width: 50%;
+      }
+      width: 100%;
     }
   }
 
