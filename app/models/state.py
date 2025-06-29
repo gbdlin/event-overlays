@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, UTC
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
-from pydantic import BaseModel, computed_field
+from pydantic import BaseModel, computed_field, ConfigDict, field_validator
 
 from .event import Event, EventScheduleItem
 
@@ -37,6 +37,8 @@ class TimerState(BaseModel):
 
 
 class State(BaseModel):
+    model_config = ConfigDict(validate_assignment=True)
+
     event: Event
     _manual_ticker: int = 0
 
@@ -131,6 +133,7 @@ class State(BaseModel):
             return None, None
         return predicted_state
 
+    @computed_field
     @property
     def current_schedule_item(self) -> EventScheduleItem:
         return self.event.schedule[self._schedule_position(self._ticker)]
@@ -149,7 +152,7 @@ class State(BaseModel):
             "sponsors": self.event.all_sponsors,
             "sponsor_groups": self.event.sponsor_groups,
             "presentation_groups": self.event.presentation_sponsors,
-            "current_entry": self.current_schedule_item.model_dump(),
+            "current_entry": self.current_schedule_item,
             "schedule": schedule,
         }
 
@@ -209,25 +212,33 @@ class State(BaseModel):
                 columns |= set(item.model_extra.keys())
         return list(columns)
 
-    def get_view_for(self, view_name: str):
+    def get_view_for(self, view_name: str) -> dict:
         return self.event.views.get(view_name, None).model_dump()
+
+    def replace_event(self, event: Event) -> None:
+        self.event.remove_state()
+        self.event = event
+        self.event.inject_state(self)
+
+    @classmethod
+    def create_event_state(cls, *, path: str) -> "State":
+        state =  cls(
+            event=Event.get_event_config(path=path),
+            timer=TimerState(target=15 * 60 * 1000),  # 15 minutes default, will be read at some point from config.
+        )
+        state.event.inject_state(state)
+        return state
 
     @classmethod
     def get_event_state(cls, *, path: str) -> "State":
         if path not in states:
-            states[path] = cls(
-                event=Event.get_event_config(path=path),
-                timer=TimerState(target=15 * 60 * 1000),  # 15 minutes default, will be read at some point from config.
-            )
+            states[path] = cls.create_event_state(path=path)
 
         return states[path]
 
     @classmethod
     def get_rig_state(cls, *, rig: "RigConfig") -> "State":
         if rig.slug not in rig_states:
-            rig_states[rig.slug] = cls(
-                event=Event.get_event_config(path=rig.event_path),
-                timer=TimerState(target=15 * 60 * 1000),  # 15 minutes default, will be read at some point from config.
-            )
+            rig_states[rig.slug] = cls.create_event_state(path=rig.event_path)
 
         return rig_states[rig.slug]

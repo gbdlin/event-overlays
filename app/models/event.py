@@ -1,9 +1,10 @@
 import tomllib
 from datetime import datetime
 from pathlib import Path, PurePath
-from typing import Annotated, Any, Literal, TypeAlias
+from typing import Annotated, Any, Literal, TYPE_CHECKING, TypeAlias
 from urllib.parse import urljoin
 
+import jinja2
 from fastapi.utils import deep_dict_update
 from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, Field, field_validator, HttpUrl, model_validator
 
@@ -11,6 +12,9 @@ from app.constants import EVENT_CONFIGS_ROOT
 
 from .base import ContextualModel
 from ..utils.file_sha import get_file_sha
+
+if TYPE_CHECKING:
+    from .state import State
 
 
 class EventScheduleAuthor(BaseModel):
@@ -106,6 +110,7 @@ class BaseViewScreen(BaseModel):
     _event: "Event | None" = None
 
     logo: bool = True
+    condition: str = "True"
 
     def model_post_init(self, __context: Any) -> None:
         self._event = Event.get_current_instance()
@@ -155,8 +160,28 @@ type ViewScreen = Annotated[
 
 class View(BaseModel):
     model_config = ConfigDict(extra="allow")
+    _event: "Event | None" = None
 
     screens: list[ViewScreen]
+
+    def model_post_init(self, __context: Any) -> None:
+        self._event = Event.get_current_instance()
+
+    def get_active_screens(self, state: "State") -> list[ViewScreen]:
+        jinja_env = jinja2.Environment()
+        return [
+            screen
+            for screen in self.screens
+            if jinja_env.from_string(screen.condition).render(state=state) == "True"
+        ]
+
+    @computed_field
+    @property
+    def active_screens(self) -> list[ViewScreen]:
+        if self._event is None or self._event.get_state() is None:
+            return []
+
+        return self.get_active_screens(self._event.get_state())
 
 
 class Template(BaseModel):
@@ -198,6 +223,8 @@ EventScheduleItem: TypeAlias = EventTalkLegacy | EventTalk | EventBreak | EventA
 class Event(ContextualModel):
     model_config = ConfigDict(extra="allow")
 
+    _state: "State | None" = None
+
     path: PurePath  # this is injected by config loader
     name: str
     logo_url: HttpUrl | Path
@@ -215,6 +242,15 @@ class Event(ContextualModel):
     views: dict[str, View] = {}
 
     control_password: str | None = None
+
+    def inject_state(self, state: "State") -> None:
+        self._state = state
+
+    def get_state(self) -> "State":
+        return self._state
+
+    def remove_state(self) -> None:
+        self._state = None
 
     @field_validator("schedule", mode="before")
     @classmethod

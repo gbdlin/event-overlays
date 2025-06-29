@@ -161,7 +161,7 @@ async def ws_view(
                                 notify.add("scene-presentation")
                                 notify.add("schedule")
                                 notify.add("control")
-                                state.event = Event.get_event_config(path=str(state.event.path))
+                                state.replace_event(Event.get_event_config(path=str(state.event.path)))
                                 state.fix_ticker()
                             case {"action": "config.force-reload"}:
                                 notify.add("scene-brb")

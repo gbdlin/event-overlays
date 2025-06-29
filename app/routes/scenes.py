@@ -42,10 +42,7 @@ async def scene_view(
     presentation_sponsors: Literal["left", "right"] | None = None,
 ):
     if path is not None:
-        state_obj = State(
-            event=Event.get_event_config(path=path),
-            timer=TimerState(target=15 * 60 * 1000),  # 15 minutes default, will be read at some point from config.
-        )
+        state_obj = State.create_event_state(path=path)
         state_obj.move_to(state)
         scene_data = json.loads(
             to_json(

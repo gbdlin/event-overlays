@@ -6,6 +6,7 @@ const m_state = ref(null);
 const m_event = ref(null);
 const m_role = ref(null);
 const m_screen_counter = ref(0);
+let previous_screen = null;
 let screen_ticker_timer = null;
 const m_timer_stream = ref(null);
 const m_timerFlashing = ref(false);
@@ -33,8 +34,8 @@ function parseBranding(branding_data) {
   }
 }
 
-function getCurrentScrenNumber() {
-  return m_screen_counter.value % m_state.value.view.screens.length;
+function getCurrentScreenNumber() {
+  return m_screen_counter.value % m_state.value.view.active_screens.length;
 }
 
 function getScreenTimeout(screen, screen_no) {
@@ -48,16 +49,33 @@ function getScreenTimeout(screen, screen_no) {
   }
 }
 
+function initScreen() {
+  let currentScreenNumber = getCurrentScreenNumber();
+  let currentScreen = {...m_state.value.view.active_screens[currentScreenNumber]};
+  if (JSON.stringify(currentScreen) !== JSON.stringify(previous_screen) ) {
+    let new_timeout = getScreenTimeout(currentScreen, currentScreenNumber);
+    for (let [otherScreenNumber, otherScreen] of m_state.value.view.active_screens.entries()) {
+
+      if (otherScreen.type === "video" && vue_app.$refs[`video${otherScreenNumber}`] !== undefined) {
+        let otherVideo = vue_app.$refs[`video${otherScreenNumber}`][0];
+        otherVideo.pause();
+        otherVideo.currentTime = 0;
+      }
+    }
+
+    if (currentScreen.type === "video") {
+      vue_app.$refs[`video${currentScreenNumber}`][0].play();
+    }
+    clearTimeout(screen_ticker_timer)
+    screen_ticker_timer = setTimeout(tickScreen, new_timeout);
+    previous_screen = currentScreen;
+  }
+}
+
 function tickScreen() {
   m_screen_counter.value += 1;
-  let currentScreenNumber = getCurrentScrenNumber();
-  let currentScreen = m_state.value.view.screens[currentScreenNumber];
-  let new_timeout = getScreenTimeout(currentScreen, currentScreenNumber);
-  if (currentScreen.type === "video") {
-    vue_app.$refs[`video${currentScreenNumber}`][0].play();
-  }
-  clearTimeout(screen_ticker_timer)
-  screen_ticker_timer = setTimeout(tickScreen, new_timeout);
+  m_screen_counter.value = getCurrentScreenNumber();
+  initScreen();
 }
 
 const parseEventData = (data) => {
@@ -103,15 +121,19 @@ const parseEventData = (data) => {
     m_role.value = data.role;
     m_rig.value = data.rig;
     m_screen_counter.value = 0;
-    console.log(data);
-    clearTimeout(screen_ticker_timer);
-    screen_ticker_timer = setTimeout(tickScreen, getScreenTimeout(data.view.screens[0], 0));
+    initScreen();
     delete data.rig;
     if (data.stream !== undefined) {
       m_timer_stream.value = data.stream
       delete data.stream
     }
     parseBranding(data.event.template);
+  }
+
+  if (status === "update") {
+    if (data.command === "event.tick" || data.command === "event.untick") {
+      initScreen();
+    }
   }
   console.log(data);
 }
@@ -259,7 +281,7 @@ const vue_app = createApp({
         document.getElementById(`${name}-dialog`).showModal();
       },
       screenCounter: m_screen_counter,
-      currentScreenNumber: computed(getCurrentScrenNumber),
+      currentScreenNumber: computed(getCurrentScreenNumber),
       ticker: m_ticker,
       slideActive(ticker, time, index, total) {
         const current = ticker % (time * total)

@@ -58,7 +58,7 @@
       </Teleport>
 
       <div
-           v-for="(screen, screen_no) in state.view.screens"
+           v-for="(screen, screen_no) in state.view.active_screens"
            :class="['obs-intermission-content', `onScreenNo-${screen_no}`, {'onCurrentScreen': currentScreenNumber == screen_no}]"
       >
       <!-- Event Logo -->
