@@ -458,7 +458,9 @@ docker-compose.override.yml
 docker-compose.override.yaml
 
 config/
-static/sponsors/
+assets/
+static/sponsors
+static/branding
 
 static/fontawesome/*.css
 static/fontawesome/*.css.map

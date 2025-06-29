@@ -41,9 +41,7 @@ ENV BUILD_COMMIT_SHA ${BUILD_COMMIT_SHA:-}
 # All directories are unpacked. Due to it, each file must be specified separately!
 COPY . /code
 COPY --from=scss-builder /code/static/*.css static/
-COPY --from=scss-builder /code/static/branding/*.css static/branding/
 COPY --from=scss-builder /code/static/*.css.map static/
-COPY --from=scss-builder /code/static/branding/*.css.map static/branding/
 
 ENV PYTHONUNBUFFERED=0
 
