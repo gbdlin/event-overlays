@@ -1,11 +1,11 @@
 import tomllib
 from datetime import datetime
 from pathlib import Path, PurePath
-from typing import Literal, TypeAlias
+from typing import Annotated, Any, Literal, TypeAlias
 from urllib.parse import urljoin
 
 from fastapi.utils import deep_dict_update
-from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, field_validator, HttpUrl, model_validator
+from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, Field, field_validator, HttpUrl, model_validator
 
 from app.constants import EVENT_CONFIGS_ROOT
 
@@ -96,8 +96,67 @@ class EventSponsorGroup(BaseModel):
     name: str= ""
     sponsors: list[EventSponsor] = []
     classes: list[str] = []
+    sponsor_classes: list[str] = []
     show_on_presentation: bool = True
     intermission_screen_number: int = 0
+
+
+class BaseViewScreen(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    _event: "Event | None" = None
+
+    logo: bool = True
+
+    def model_post_init(self, __context: Any) -> None:
+        self._event = Event.get_current_instance()
+
+
+class PresentationTitleViewScreen(BaseViewScreen):
+    type: Literal["presentation-title"]
+
+
+class MessageViewScreen(BaseViewScreen):
+    type: Literal["message"]
+
+
+class NextViewScreen(BaseViewScreen):
+    type: Literal["next"]
+
+
+class ScheduleViewScreen(BaseViewScreen):
+    type: Literal["schedule"]
+
+
+class SponsorGroupsViewScreen(BaseViewScreen):
+    type: Literal["sponsor-groups"]
+    group_numbers: Annotated[list[int], Field(alias="groups")]
+
+    @computed_field()
+    @property
+    def groups(self) -> list[EventSponsorGroup]:
+        if self._event is None:
+            return []
+        return [self._event.sponsor_groups[no] for no in self.group_numbers]
+
+
+class SponsorsViewScreen(BaseViewScreen):
+    type: Literal["sponsors"]
+
+
+class VideoViewScreen(BaseViewScreen):
+    type: Literal["video"]
+
+
+type ViewScreen = Annotated[
+    PresentationTitleViewScreen | MessageViewScreen | NextViewScreen | ScheduleViewScreen | SponsorsViewScreen | SponsorGroupsViewScreen | VideoViewScreen,
+    Field(discriminator="type"),
+]
+
+
+class View(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
+    screens: list[ViewScreen]
 
 
 class Template(BaseModel):
@@ -106,9 +165,8 @@ class Template(BaseModel):
     name: str = ""
 
     # TODO: figure out theme-specific settings
-    sponsors_on_intermission: bool | None = None
     sponsors_on: list[Literal["presentation", "schedule", "next", "message"]] | None = None
-    intermission_sponsor_slides: int = 1
+    default_screen_timeout: int = 5000
 
     title: str = "{event.name}"
     schedule_length: int = 3
@@ -116,17 +174,6 @@ class Template(BaseModel):
     ticker_source: Literal["manual", "schedule"] = "manual"
     schedule_ticker_leeway: int = 10
     schedule_header: str = "{next_word} in the schedule:"
-
-    @model_validator(mode="after")
-    def validate_sponsors_on(self):
-        if self.sponsors_on_intermission is not None and self.sponsors_on is not None:
-            raise ValueError("Only one of `sponsors_on` and `sponsor_on_intermission` can be provided")
-
-        if self.sponsors_on is None:
-            self.sponsors_on = ["presentation"] + ["schedule", "next", "message"] if self.sponsors_on_intermission else []
-            self.sponsors_on_intermission = None
-
-        return self
 
 
 class EventFarewell(BaseModel):
@@ -164,6 +211,8 @@ class Event(ContextualModel):
     questions_integration: EventQuestionsIntegration | None = None
 
     template: Template = Template()
+
+    views: dict[str, View] = {}
 
     control_password: str | None = None
 
@@ -227,7 +276,7 @@ class Event(ContextualModel):
     @computed_field
     @property
     def intermission_screens_count(self) -> int:
-        return max(group.intermission_screen_number for group in self.sponsor_groups) + 1
+        return max((group.intermission_screen_number for group in self.sponsor_groups), default=0) + 1
 
     @computed_field
     @property

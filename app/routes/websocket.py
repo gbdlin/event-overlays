@@ -23,7 +23,6 @@ async def notify_roles(
     for target_role in (
         "scene-brb",
         "scene-title",
-        "scene-hybrid",
         "scene-schedule",
         "scene-presentation",
         "timer",
@@ -105,7 +104,6 @@ async def ws_view(
                     case _ if role == "control":
                         match command:
                             case {"action": "event.tick"}:
-                                notify.add("scene-hybrid")
                                 notify.add("schedule")
                                 if state.increment()[1]:
                                     notify.add("scene-schedule")
@@ -113,7 +111,6 @@ async def ws_view(
                                     notify.add("scene-presentation")
                                     notify.add("scene-title")
                             case {"action": "event.untick"}:
-                                notify.add("scene-hybrid")
                                 notify.add("schedule")
                                 if state.decrement()[1]:
                                     notify.add("scene-presentation")
@@ -122,7 +119,6 @@ async def ws_view(
                                     notify.add("scene-schedule")
                             case {"action": "stream.set-message", "message": message}:
                                 notify.add("scene-brb")
-                                notify.add("scene-hybrid")
                                 notify.add("scene-schedule")
                                 notify.add("scene-presentation")
                                 state.message = message
@@ -160,7 +156,6 @@ async def ws_view(
                                 continue
                             case {"action": "config.refresh"}:
                                 notify.add("scene-brb")
-                                notify.add("scene-hybrid")
                                 notify.add("scene-title")
                                 notify.add("scene-schedule")
                                 notify.add("scene-presentation")
@@ -170,7 +165,6 @@ async def ws_view(
                                 state.fix_ticker()
                             case {"action": "config.force-reload"}:
                                 notify.add("scene-brb")
-                                notify.add("scene-hybrid")
                                 notify.add("scene-title")
                                 notify.add("scene-schedule")
                                 notify.add("scene-presentation")
@@ -203,7 +197,7 @@ async def ws_view(
 
 
 async def update_schedule_ticker():
-    notify = {"scene-hybrid", "schedule", "scene-schedule", "scene-presentation", "scene-title"}
+    notify = {"schedule", "scene-schedule", "scene-presentation", "scene-title"}
 
     for event_path, manager in managers.items():
         state = State.get_event_state(path=event_path)

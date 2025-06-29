@@ -4,6 +4,25 @@
     <meta charset="UTF-8">
     <title>Web Source</title>
     <link type="text/css" rel="stylesheet" href="/static/global.css?v={{ get_file_sha('static/global.css') }}">
+    {% if display_type == "no-background" %}
+      <style>
+        body, html {
+            background: transparent !important;
+        }
+      </style>
+    {% elif display_type == "only-background" %}
+      <style>
+        body > * {
+          display: none !important;
+        }
+      </style>
+    {% elif display_type == "logo-and-background" %}
+      <style>
+          body > *:not(.obs-event-logo) {
+              display: none !important;
+          }
+      </style>
+    {% endif %}
 
     <script type="application/json" id="initSettings">
       {% if data %}
@@ -16,7 +35,7 @@
       {% else %}
         {
           "display": {{ display_type | tojson }},
-          "ws": "/{{ rig }}/ws/scene-{{ scene }}?display={{ display_type }}",
+          "ws": "/v1/rigs/{{ rig }}/views/scene-{{ scene }}/ws?display={{ display_type }}",
           "presentationBottomBar": {{ presentation_bottom_bar | default(None) | tojson }},
           "presentationSponsors": {{ presentation_sponsors | default(None) | tojson }}
         }
@@ -34,26 +53,37 @@
   <body class="obs-body-default obs-body-scene-{{ scene }}" id="app">
     {% raw %}
     <template v-if="state">
-      <div v-if="event" :class="['obs-event-logo', {'obs-event-logo-thumbnail': display !== 'scene'}]">
-        <img :src="event.logo_url" :alt="`${event.name} logo`">
-        <div class="obs-event-title">
-          {{ event.title }}
-        </div>
-      </div>
+      <Teleport to="head">
+        <link type="text/css" rel="stylesheet" :href="`/static/branding/${event.branding}.css?v=${event.branding_sha}`">
+      </Teleport>
 
-      <div class="obs-intermission-content">
-        <template v-if="state.template != 'presentation' && event.template.sponsors_on.includes(state.template) && state.context.sponsors.length > 0">
-          <div :class="['obs-intermission-sponsors', `onScreenNo-${screen_no}`, {'onCurrentScreen': slideActive(ticker, 5000, screen_no, event.intermission_screens_count)}]" v-for="(groups, screen_no) in groupBy(state.context.sponsor_groups, 'intermission_screen_number')">
-            <div v-for="group in groups" :class="['obs-intermission-sponsor-group', group.classes]">
+      <div
+           v-for="(screen, screen_no) in state.view.screens"
+           :class="['obs-intermission-content', `onScreenNo-${screen_no}`, {'onCurrentScreen': currentScreenNumber == screen_no}]"
+      >
+      <!-- Event Logo -->
+        <div v-if="screen.logo" :class="['obs-event-logo', {'obs-event-logo-thumbnail': display !== 'scene'}]">
+          <img :src="event.logo_url" :alt="`${event.name} logo`">
+          <div class="obs-event-title">
+            {{ event.title }}
+          </div>
+        </div>
+
+      <!-- Sponsor groups -->
+        <div v-if="screen.type == 'sponsor-groups'"
+            :class="['obs-intermission-sponsors', {'noLogo': !screen.logo, 'underLogo': screen.type == 'schedule'}]">
+          <div v-for="(group, index) in screen.groups"
+              :class="['obs-intermission-sponsor-group', group.classes]">
               <div class="obs-intermission-sponsor-group-title" v-if="group.name">{{ group.name }}</div>
-              <div v-for="sponsor in group.sponsors" :class="['obs-intermission-sponsors-entry', sponsor.classes]">
+              <div v-for="sponsor in group.sponsors" :class="['obs-intermission-sponsors-entry', sponsor.classes, group.sponsor_classes]">
                 <img :src="sponsor.logo_url" :alt="sponsor.name">
               </div>
-            </div>
           </div>
-        </template>
-        <div :class="['obs-intermission-schedule', `obs-intermission-schedule-variant-${(state.current_state[0] + state.current_state[1]) % 2}`, {'onCurrentScreen': slideActive(ticker, 5000, 0, event.intermission_screens_count)}]"
-             v-if="state.template === 'schedule'">
+        </div>
+
+      <!-- Schedule -->
+        <div :class="['obs-intermission-schedule', `obs-intermission-schedule-variant-${(state.current_state[0] + state.current_state[1]) % 2}`]"
+             v-if="screen.type === 'schedule'">
           <div class="obs-intermission-schedule-title" v-if="display !== 'thumbnail'">
             {{ state.state.schedule_header }}
           </div>
@@ -87,7 +117,17 @@
           </div>
         </div>
 
-        <div class="obs-intermission-next" v-if="state.template == 'next'">
+      <!-- Video -->
+        <video
+          class="obs-intermission-video"
+          v-if="screen.type === 'video'"
+          :src="screen.url"
+          :ref="`video${screen_no}`"
+          :id="`screen-${screen_no}-video`"
+        ></video>
+
+      <!-- Next -->
+        <div class="obs-intermission-next" v-if="screen.type == 'next'">
           <div :class="['obs-intermission-next-entry', `obs-intermission-schedule-${current.type}`, current.classes]"
                :key="`schedule-el-${current.lp}`">
             <template v-if="current.type == 'talk'">
@@ -112,18 +152,21 @@
           </div>
         </div>
 
-        <template v-if="displayMessages && display == 'scene'">
+      <!-- Message -->
+        <template v-if="displayMessagesFor(screen.type) && display == 'scene'">
           <div :class="['obs-intermission-info', messagesPositionCls]">{{ state.context.info }}</div>
           <div :class="['obs-intermission-message', messagesPositionCls]">{{ state.context.message }}</div>
         </template>
 
-        <div v-if="displayMessages && display == 'atem' && event.questions_integration" class="obs-intermission-questions-integration">
+      <!-- questions integration -->
+        <div v-if="displayMessagesFor(screen.type) && display == 'atem' && event.questions_integration" class="obs-intermission-questions-integration">
           <img :src="event.questions_integration.qr_code_url" class="obs-intermission-questions-integration-qr">
           <span class="obs-intermission-questions-integration-text">Ask questions using {{ event.questions_integration.name }}</span>
           <span class="obs-intermission-questions-integration-url" v-if="event.questions_integration.url">{{ event.questions_integration.url }}</span>
         </div>
 
-        <template v-if="state.template == 'presentation'">
+      <!-- presentation-title -->
+        <template v-if="screen.type == 'presentation'">
           <div class="obs-presentation-top-bar">
             <template v-if="current.type == 'talk'">
               <span class="obs-presentation-author">{{ current.author.name }}</span>

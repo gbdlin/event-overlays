@@ -78,6 +78,7 @@ def get_state_update_for(
             return {
                 "template": next_template,
                 "context": next_context,
+                "view": state.get_view_for("scene-title"),
                 **global_scene_context,
             }
         case "scene-brb":
@@ -85,13 +86,7 @@ def get_state_update_for(
             return {
                 "template": brb_template,
                 "context": brb_context,
-                **global_scene_context,
-            }
-        case "scene-hybrid":
-            hybrid_template, hybrid_context = state.hybrid_screen_content
-            return {
-                "template": hybrid_template,
-                "context": hybrid_context,
+                "view": state.get_view_for("scene-brb"),
                 **global_scene_context,
             }
         case "scene-schedule":
@@ -99,6 +94,7 @@ def get_state_update_for(
             return {
                 "template": schedule_template,
                 "context": schedule_context,
+                "view": state.get_view_for("scene-schedule"),
                 **global_scene_context,
             }
         case "scene-presentation":
@@ -106,6 +102,7 @@ def get_state_update_for(
             return {
                 "template": presentation_template,
                 "context": presentation_context,
+                "view": state.get_view_for("scene-presentation"),
                 **global_scene_context,
             }
         case "timer":
@@ -122,7 +119,6 @@ def get_state_update_for(
             return {
                 "scene-brb": get_state_update_for(state, "scene-brb", "d"),
                 "scene-title": get_state_update_for(state, "scene-title", "d"),
-                "scene-hybrid": get_state_update_for(state, "scene-hybrid", "d"),
                 "scene-schedule": get_state_update_for(state, "scene-schedule", "c"),
                 "scene-presentation": get_state_update_for(state, "scene-presentation", "b"),
                 "speaker-timer": get_state_update_for(state, "timer", "a"),

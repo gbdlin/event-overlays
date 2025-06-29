@@ -141,12 +141,16 @@ class State(BaseModel):
 
     @property
     def global_context(self) -> dict:
+        schedule = [item.model_dump() for item in self.remaining_schedule]
+
         return {
             "message": self.message,
             "socials": self.event.socials,
             "sponsors": self.event.all_sponsors,
             "sponsor_groups": self.event.sponsor_groups,
             "presentation_groups": self.event.presentation_sponsors,
+            "current_entry": self.current_schedule_item.model_dump(),
+            "schedule": schedule,
         }
 
     @computed_field
@@ -161,23 +165,14 @@ class State(BaseModel):
 
     @computed_field
     @property
-    def hybrid_screen_content(self) -> tuple[str, dict]:
-        if self._is_mid_talk(self._ticker):  # we're mid talk
-            return self.brb_screen_content
-        else:  # we're between talks
-            return self.title_screen_content
-
-    @computed_field
-    @property
     def schedule_screen_content(self) -> tuple[str, dict]:
-        schedule = [item.model_dump() for item in self.remaining_schedule]
         if self._schedule_screen_ticker == 0:
             message = "Starting soon..."
-        elif len(schedule):
+        elif len(self.remaining_schedule):
             message = "Be right back..."
         else:  # we're at the end, there is no next talk
             return "message", {**self.global_context, "info": self.event.farewell.message}
-        return "schedule", {**self.global_context, "schedule": schedule, "info": message}
+        return "schedule", {**self.global_context, "info": message}
 
     @computed_field
     @property
@@ -213,6 +208,9 @@ class State(BaseModel):
             if item.model_extra:
                 columns |= set(item.model_extra.keys())
         return list(columns)
+
+    def get_view_for(self, view_name: str):
+        return self.event.views.get(view_name, None).model_dump()
 
     @classmethod
     def get_event_state(cls, *, path: str) -> "State":

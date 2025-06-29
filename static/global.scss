@@ -99,6 +99,21 @@ body, html {
   left: 0;
   right: 0;
   bottom: 0;
+  opacity: 0;
+  transition: opacity 0.7s ease-in-out;
+
+  &.onCurrentScreen {
+    opacity: 1;
+  }
+}
+
+.obs-intermission-video {
+  border: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
 }
 
 .obs-intermission-info, .obs-intermission-message {
@@ -160,12 +175,7 @@ body, html {
   bottom: 0;
   top: auto;
   left: 1040px;
-  opacity: 0;
   transition: opacity 0.7s ease-in-out;
-
-  &.onCurrentScreen {
-    opacity: 1;
-  }
 }
 
 .obs-intermission-schedule-title {
@@ -322,20 +332,22 @@ body, html {
 
 .obs-intermission-sponsors {
   position: absolute;
+  text-align: center;
   top: 350px;
   left: 30px;
-  width: 620px;
-  opacity: 0;
-  transition: opacity 0.7s ease-in-out;
-  text-align: center;
+  width: 1860px;
 
-  &.onCurrentScreen {
-    opacity: 1;
+  &.underLogo {
+    top: 350px;
+    left: 30px;
+    width: 620px;
   }
 
-  &:not(.onScreenNo-0) {
+  &.noLogo {
+    height: auto;
+    top: 540px;
     left: 30px;
-    width: 1880px;
+    transform: translateY(-50%);
   }
 }
 
@@ -368,8 +380,8 @@ body, html {
 .obs-intermission-sponsors-entry {
   width: 250px;
   height: 90px;
-  margin-left: 20px;
-  margin-right: 10px;
+  margin-left: 15px;
+  margin-right: 15px;
   margin-bottom: 10px;
   line-height: 115px;
   display: inline-block;
@@ -377,6 +389,7 @@ body, html {
   border-radius: 20px;
   padding: 15px;
   position: relative;
+  box-sizing: border-box;
 
   img {
     width: 90%;
@@ -397,6 +410,21 @@ body, html {
       width: 120%;
       height: 120%;
     }
+  }
+
+  &.in-a-row-5 {
+    width: 342px;
+    height: 124px;
+  }
+
+  &.in-a-row-4 {
+    width: 435px;
+    height: 158px;
+  }
+
+  &.big, &.in-a-row-3 {
+    width: 590px;
+    height: 215px;
   }
 }
 

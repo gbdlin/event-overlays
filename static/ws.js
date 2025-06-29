@@ -1,11 +1,12 @@
 import {createApp, ref, computed} from 'vue'
 
 let ws;
-let branding_style = null;
 const m_rig = ref(null);
 const m_state = ref(null);
 const m_event = ref(null);
 const m_role = ref(null);
+const m_screen_counter = ref(0);
+let screen_ticker_timer = null;
 const m_timer_stream = ref(null);
 const m_timerFlashing = ref(false);
 const m_now = ref(Date.now());
@@ -32,43 +33,55 @@ function parseBranding(branding_data) {
   }
 }
 
-function set_branding(name, version) {
-  if (branding_style && !name) {
-    branding_style.remove();
-    return
+function getCurrentScrenNumber() {
+  return m_screen_counter.value % m_state.value.view.screens.length;
+}
+
+function getScreenTimeout(screen, screen_no) {
+  if (screen.type === "video") {
+    let video_element = document.getElementById(`screen-${screen_no}-video`);
+    return vue_app.$refs[`video${screen_no}`][0].duration * 1000
+  } else if (screen.timeout !== undefined) {
+    return screen.timeout
+  } else {
+    return m_event.value.template.default_screen_timeout;
   }
-  if (!name) {
-    return
+}
+
+function tickScreen() {
+  m_screen_counter.value += 1;
+  let currentScreenNumber = getCurrentScrenNumber();
+  let currentScreen = m_state.value.view.screens[currentScreenNumber];
+  let new_timeout = getScreenTimeout(currentScreen, currentScreenNumber);
+  if (currentScreen.type === "video") {
+    vue_app.$refs[`video${currentScreenNumber}`][0].play();
   }
-  if (!branding_style) {
-    branding_style = document.createElement('link');
-    branding_style.rel = 'stylesheet';
-    document.head.appendChild(branding_style);
-  }
-  branding_style.href = `/static/branding/${name}.css?v=${version}`;
+  clearTimeout(screen_ticker_timer)
+  screen_ticker_timer = setTimeout(tickScreen, new_timeout);
 }
 
 const parseEventData = (data) => {
   if (data.command && data.command.action === "config.force-reload" && m_role.value !== "control") {
     window.location.reload();
   }
-  if (data.status === "unassigned") {
+  let status = data.status;
+  if (status === "unassigned") {
     m_viewName.value = data.name;
     m_state.value = null;
     return;
   }
-  if (data.status === "success")
+  if (status === "success")
     return;
-  if (data.status === "timer.flash") {
+  if (status === "timer.flash") {
     m_timerFlashing.value = true;
     setTimeout(() => m_timerFlashing.value = false, 3000);
   }
-  if (data.status === "error") {
+  if (status === "error") {
     console.log("ws error")
     console.log(data);
     return;
   }
-  if (data.status === "ntc.sync") {
+  if (status === "ntc.sync") {
     let client_time = Date.now();
     let client_offset = data.server_time - client_time;
     let avg_offset = (client_offset + data.offset) / 2;
@@ -77,16 +90,22 @@ const parseEventData = (data) => {
     console.log(avg_offset);
     return
   }
-  if (data.status === "init") {
+  delete data.status;
+  if (m_state.value === null) {
+    m_state.value = {};
+  }
+  Object.assign(m_state.value, data);
+  if (status === "init") {
     if (ws !== undefined)
       sendMessage({"action": "ntc.sync", "client_time": Date.now()});
     m_event.value = {};
     Object.assign(m_event.value, data.event)
     m_role.value = data.role;
-    if (data.role !== "control" && data.role !== "checklist" && data.role !== "timer") {
-      set_branding(data.event.branding, data.event.branding_sha);
-    }
     m_rig.value = data.rig;
+    m_screen_counter.value = 0;
+    console.log(data);
+    clearTimeout(screen_ticker_timer);
+    screen_ticker_timer = setTimeout(tickScreen, getScreenTimeout(data.view.screens[0], 0));
     delete data.rig;
     if (data.stream !== undefined) {
       m_timer_stream.value = data.stream
@@ -94,11 +113,6 @@ const parseEventData = (data) => {
     }
     parseBranding(data.event.template);
   }
-  if (m_state.value === null) {
-    m_state.value = {};
-  }
-  delete data.status;
-  Object.assign(m_state.value, data);
   console.log(data);
 }
 
@@ -166,7 +180,7 @@ function timerPieces(value) {
   return [f_minutes, f_seconds, f_msec]
 }
 
-createApp({
+const vue_app = createApp({
   data() {
     return {
       event: m_event,
@@ -186,6 +200,9 @@ createApp({
         m_state.value.template === "schedule"
         || m_state.value.template === "message"
       )),
+      displayMessagesFor(type) {
+        return type === "schedule" || type === "message"
+      },
       messagesPositionCls: computed(() => ({
         "alt-position": m_state.value.template === "schedule",
       })),
@@ -241,10 +258,13 @@ createApp({
       showDialog(name) {
         document.getElementById(`${name}-dialog`).showModal();
       },
+      screenCounter: m_screen_counter,
+      currentScreenNumber: computed(getCurrentScrenNumber),
       ticker: m_ticker,
       slideActive(ticker, time, index, total) {
         const current = ticker % (time * total)
-        return ((current >= time * index) && (current < time * (index - - 1)));  // subtracting negative to convert to int, don't ask, I'm lazy... You can do it properly if you read this...
+        return ((current >= time * index) && (current < time * (index - - 1)));  // Subtracting negative to convert to int, don't ask, I'm lazy... You can do it properly if you read this...
+
       },
       formatTime(datetime) {
         const date = new Date(datetime);
