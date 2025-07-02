@@ -1,0 +1,6 @@
+{% raw %}
+  <template v-if="displayMessagesFor(screen.type) && display == 'scene'">
+    <div :class="['obs-intermission-info', messagesPositionCls]">{{ state.context.info }}</div>
+    <div :class="['obs-intermission-message', messagesPositionCls]">{{ state.context.message }}</div>
+  </template>
+{% endraw %}

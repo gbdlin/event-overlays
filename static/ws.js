@@ -50,25 +50,27 @@ function getScreenTimeout(screen, screen_no) {
 }
 
 function initScreen() {
-  let currentScreenNumber = getCurrentScreenNumber();
-  let currentScreen = {...m_state.value.view.active_screens[currentScreenNumber]};
-  if (JSON.stringify(currentScreen) !== JSON.stringify(previous_screen) ) {
-    let new_timeout = getScreenTimeout(currentScreen, currentScreenNumber);
-    for (let [otherScreenNumber, otherScreen] of m_state.value.view.active_screens.entries()) {
+  if (m_state.value.view !== undefined) {
+    let currentScreenNumber = getCurrentScreenNumber();
+    let currentScreen = {...m_state.value.view.active_screens[currentScreenNumber]};
+    if (JSON.stringify(currentScreen) !== JSON.stringify(previous_screen) ) {
+      let new_timeout = getScreenTimeout(currentScreen, currentScreenNumber);
+      for (let [otherScreenNumber, otherScreen] of m_state.value.view.active_screens.entries()) {
 
-      if (otherScreen.type === "video" && vue_app.$refs[`video${otherScreenNumber}`] !== undefined) {
-        let otherVideo = vue_app.$refs[`video${otherScreenNumber}`][0];
-        otherVideo.pause();
-        otherVideo.currentTime = 0;
+        if (otherScreen.type === "video" && vue_app.$refs[`video${otherScreenNumber}`] !== undefined) {
+          let otherVideo = vue_app.$refs[`video${otherScreenNumber}`][0];
+          otherVideo.pause();
+          otherVideo.currentTime = 0;
+        }
       }
-    }
 
-    if (currentScreen.type === "video") {
-      vue_app.$refs[`video${currentScreenNumber}`][0].play();
+      if (currentScreen.type === "video") {
+        vue_app.$refs[`video${currentScreenNumber}`][0].play();
+      }
+      clearTimeout(screen_ticker_timer)
+      screen_ticker_timer = setTimeout(tickScreen, new_timeout);
+      previous_screen = currentScreen;
     }
-    clearTimeout(screen_ticker_timer)
-    screen_ticker_timer = setTimeout(tickScreen, new_timeout);
-    previous_screen = currentScreen;
   }
 }
 

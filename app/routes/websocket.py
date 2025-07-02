@@ -21,10 +21,13 @@ async def notify_roles(
     rig_assigned_views: dict | None = None,
 ) -> None:
     for target_role in (
+        'scene"'
         "scene-brb",
         "scene-title",
         "scene-schedule",
         "scene-presentation",
+        "signage",
+        "signage-schedule",
         "timer",
         "control",
         "schedule",
@@ -104,23 +107,28 @@ async def ws_view(
                     case _ if role == "control":
                         match command:
                             case {"action": "event.tick"}:
+                                state.increment()
                                 notify.add("schedule")
-                                if state.increment()[1]:
-                                    notify.add("scene-schedule")
-                                else:
-                                    notify.add("scene-presentation")
-                                    notify.add("scene-title")
-                            case {"action": "event.untick"}:
-                                notify.add("schedule")
-                                if state.decrement()[1]:
-                                    notify.add("scene-presentation")
-                                    notify.add("scene-title")
-                                else:
-                                    notify.add("scene-schedule")
-                            case {"action": "stream.set-message", "message": message}:
-                                notify.add("scene-brb")
-                                notify.add("scene-schedule")
+                                notify.add("scene")
                                 notify.add("scene-presentation")
+                                notify.add("scene-schedule")
+                                notify.add("scene-title")
+                                notify.add("signage")
+                                notify.add("signage-schedule")
+                            case {"action": "event.untick"}:
+                                state.decrement()
+                                notify.add("schedule")
+                                notify.add("scene")
+                                notify.add("scene-presentation")
+                                notify.add("scene-schedule")
+                                notify.add("scene-title")
+                                notify.add("signage")
+                                notify.add("signage-schedule")
+                            case {"action": "stream.set-message", "message": message}:
+                                notify.add("scene")
+                                notify.add("scene-presentation")
+                                notify.add("scene-schedule")
+                                notify.add("scene-title")
                                 state.message = message
                             case {"action": "timer.set", "time": set_time}:
                                 notify.add("timer")
@@ -155,19 +163,23 @@ async def ws_view(
                                 )
                                 continue
                             case {"action": "config.refresh"}:
-                                notify.add("scene-brb")
-                                notify.add("scene-title")
-                                notify.add("scene-schedule")
+                                notify.add("scene")
                                 notify.add("scene-presentation")
+                                notify.add("scene-schedule")
+                                notify.add("scene-title")
+                                notify.add("signage")
+                                notify.add("signage-schedule")
                                 notify.add("schedule")
                                 notify.add("control")
                                 state.replace_event(Event.get_event_config(path=str(state.event.path)))
                                 state.fix_ticker()
                             case {"action": "config.force-reload"}:
-                                notify.add("scene-brb")
-                                notify.add("scene-title")
-                                notify.add("scene-schedule")
+                                notify.add("scene")
                                 notify.add("scene-presentation")
+                                notify.add("scene-schedule")
+                                notify.add("scene-title")
+                                notify.add("signage")
+                                notify.add("signage-schedule")
                                 notify.add("schedule")
                                 notify.add("control")
                             case {"action": other}:

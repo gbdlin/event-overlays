@@ -24,7 +24,9 @@ $fa-font-path           : "./fontawesome/webfonts";
 }
 
 html {
-  background: rgba(0,0,0,.92);
+  //background: rgba(0,0,0,.92);
+  width: auto;
+  height: auto;
 }
 
 body, html {
@@ -33,13 +35,16 @@ body, html {
   font-weight: 500;
   font-style: normal;
 
-  width: 1920px;
-  height: 1080px;
   margin: 0;
   padding: 0;
   overflow: hidden;
   position: relative;
   font-size: 24px;
+}
+
+body {
+  width: 1920px;
+  height: 1080px;
 }
 
 .obs-event-logo {

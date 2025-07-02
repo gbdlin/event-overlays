@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Web Source</title>
     <link type="text/css" rel="stylesheet" href="/static/global.css?v={{ get_file_sha('static/global.css') }}">
+    <link type="text/css" rel="stylesheet" href="/static/signage.css?v={{ get_file_sha('static/global.css') }}">
     {% if display_type == "no-background" %}
       <style>
         body, html {
@@ -27,17 +28,11 @@
     <script type="application/json" id="initSettings">
       {% if data %}
       {
-        "display": {{ display_type | tojson }},
-        "data": {{ data | tojson }},
-        "presentationBottomBar": {{ presentation_bottom_bar | default(None) | tojson }},
-        "presentationSponsors": {{ presentation_sponsors | default(None) | tojson }}
+        "data": {{ data | tojson }}
       }
       {% else %}
         {
-          "display": {{ display_type | tojson }},
-          "ws": "/v1/rigs/{{ rig }}/views/scene-{{ scene }}/ws?display={{ display_type }}",
-          "presentationBottomBar": {{ presentation_bottom_bar | default(None) | tojson }},
-          "presentationSponsors": {{ presentation_sponsors | default(None) | tojson }}
+          "ws": "/v1/rigs/{{ rig }}/views/{{ view }}/ws"
         }
       {% endif %}
     </script>
@@ -50,7 +45,7 @@
     </script>
     <script type="module" src="/static/ws.js?v={{ get_file_sha('static/ws.js') }}"></script>
   </head>
-  <body class="obs-body-default obs-body-scene-{{ scene }}" id="app">
+  <body class="obs-body-signage obs-body-{{ view }}" id="app">
     <template v-if="state">
       <Teleport to="head">
         <link type="text/css" rel="stylesheet" :href="`/static/branding/${event.branding}.css?v=${event.branding_sha}`">
@@ -63,7 +58,6 @@
         {% include "partials/event-logo.html" %}
         {% include "partials/message.html" %}
         {% include "partials/next.html" %}
-        {% include "partials/presentation-title.html" %}
         {% include "partials/questions-integration.html" %}
         {% include "partials/schedule.html" %}
         {% include "partials/sponsor-groups.html" %}

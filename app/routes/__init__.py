@@ -2,7 +2,7 @@ from fastapi import APIRouter
 
 from .control import checklist_view, control_view, checklists_list_view
 from .demo import demo_view
-from .scenes import old_scene_view, scene_view
+from .scenes import old_scene_view, scene_view, signage_view
 from .timers import speaker_timer_view, timer_redirect
 from .utils import schedule_table_view
 from .websocket import update_schedule_ticker, ws_view
@@ -25,6 +25,9 @@ old_router.add_api_route("/{rig:str}/schedule-table.html", schedule_table_view)
 v1_router = APIRouter()
 
 v1_router.add_api_route("/events/{path:path}/demo", demo_view)
+v1_router.add_api_route("/events/{path:path}/views/signage-{view:str}", signage_view)
+v1_router.add_api_route("/events/{path:path}/views/signage-{view:str}/{state:str}", signage_view)
+v1_router.add_api_route("/events/{path:path}/views/{view:str}", scene_view)
 v1_router.add_api_route("/events/{path:path}/views/{view:str}/{state:str}", scene_view)
 
 v1_router.add_api_route("/rigs/{rig:str}/control", control_view)
@@ -34,6 +37,7 @@ v1_router.add_api_route("/rigs/{rig:str}/checklists/{checklist:str}", checklist_
 v1_router.add_api_route("/rigs/{rig:str}/views/speaker-timer", speaker_timer_view)
 v1_router.add_api_route("/rigs/{rig:str}/views/schedule-table", schedule_table_view)
 v1_router.add_api_route("/rigs/{rig:str}/views/scene-{view:str}", scene_view)
+v1_router.add_api_route("/rigs/{rig:str}/views/signage-{view:str}", signage_view)
 
 v1_router.add_api_websocket_route("/rigs/{rig_slug:str}/control/ws", ws_view)
 v1_router.add_api_websocket_route("/rigs/{rig_slug:str}/views/{role:str}/ws", ws_view)

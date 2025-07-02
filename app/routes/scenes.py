@@ -63,3 +63,31 @@ async def scene_view(
             "presentation_sponsors": presentation_sponsors,
         },
     )
+
+
+async def signage_view(
+    request: Request,
+    view: str,
+    rig: str | None = None,
+    path: str | None = None,
+    state: str | None = None,
+):
+    if path is not None:
+        state_obj = State.create_event_state(path=path)
+        state_obj.move_to(state or "0-pre")
+        view_data = json.loads(
+            to_json(
+                {"status": "init", "role": f"signage-{view}", **get_state_update_for(state_obj, f"signage-{view}", "init")},
+            ),
+        )
+    else:
+        view_data = None
+    return renderer.TemplateResponse(
+        "signage.html",
+        {
+            "request": request,
+            "rig": rig,
+            "view": f"signage-{view}",
+            "data": view_data,
+        },
+    )

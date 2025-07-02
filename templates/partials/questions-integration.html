@@ -1,0 +1,7 @@
+{% raw %}
+  <div v-if="displayMessagesFor(screen.type) && display == 'atem' && event.questions_integration" class="obs-intermission-questions-integration">
+    <img :src="event.questions_integration.qr_code_url" class="obs-intermission-questions-integration-qr">
+    <span class="obs-intermission-questions-integration-text">Ask questions using {{ event.questions_integration.name }}</span>
+    <span class="obs-intermission-questions-integration-url" v-if="event.questions_integration.url">{{ event.questions_integration.url }}</span>
+  </div>
+{% endraw %}

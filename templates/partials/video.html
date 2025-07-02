@@ -1,0 +1,9 @@
+{% raw %}
+  <video
+      class="obs-intermission-video"
+      v-if="screen.type === 'video'"
+      :src="screen.url"
+      :ref="`video${screen_no}`"
+      :id="`screen-${screen_no}-video`"
+  ></video>
+{% endraw %}

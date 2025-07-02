@@ -17,6 +17,24 @@ if TYPE_CHECKING:
     from .state import State
 
 
+class ReferencingEvent:
+    _event: "Event | None" = None
+    _jinja_env: jinja2.Environment | None = None
+
+    def model_post_init(self, __context: Any) -> None:
+        self._event = Event.get_current_instance()
+        self._jinja_env = jinja2.Environment()
+
+    def render_template(self, template: str, **extra_context) -> str:
+        if self._event is None or self._event.get_state() is None:
+            return ""
+        return self._jinja_env.from_string(template).render(
+            event=self._event,
+            state=self._event.get_state(),
+            **extra_context,
+        )
+
+
 class EventScheduleAuthor(BaseModel):
     name: str
     picture_url: AnyHttpUrl | None = None
@@ -105,15 +123,15 @@ class EventSponsorGroup(BaseModel):
     intermission_screen_number: int = 0
 
 
-class BaseViewScreen(BaseModel):
+class BaseViewScreen(ReferencingEvent, BaseModel):
     model_config = ConfigDict(extra="allow")
-    _event: "Event | None" = None
+    # _event: "Event | None" = None
 
     logo: bool = True
     condition: str = "True"
-
-    def model_post_init(self, __context: Any) -> None:
-        self._event = Event.get_current_instance()
+    #
+    # def model_post_init(self, __context: Any) -> None:
+    #     self._event = Event.get_current_instance()
 
 
 class PresentationTitleViewScreen(BaseViewScreen):
@@ -130,6 +148,44 @@ class NextViewScreen(BaseViewScreen):
 
 class ScheduleViewScreen(BaseViewScreen):
     type: Literal["schedule"]
+
+    header_template: Annotated[str | None, Field(validation_alias="header", exclude=True)] = None
+    subheader_template: Annotated[str | None, Field(validation_alias="subheader", exclude=True)] = None
+
+    raw_length: Annotated[int | None, Field(validation_alias="length", exclude=True)] = None
+
+    show_start_time: bool = True
+    show_end_time: bool = False
+    skip_breaks: bool = False
+
+    @computed_field()
+    @property
+    def header(self) -> str:
+        if self._event.get_state() is None:
+            return None
+
+        if self.header_template is None:
+            return self._event.get_state().schedule_header
+
+        return self.render_template(self.header_template)
+
+    @computed_field()
+    @property
+    def subheader(self) -> str:
+        if self.subheader_template is None:
+            return None
+        return self.render_template(self.subheader_template)
+
+    @computed_field()
+    @property
+    def length(self) -> int:
+        if self.raw_length is not None:
+            return self.raw_length
+
+        if self._event is None:
+            return 3
+
+        return self._event.template.schedule_length
 
 
 class SponsorGroupsViewScreen(BaseViewScreen):

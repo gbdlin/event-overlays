@@ -213,7 +213,7 @@ class State(BaseModel):
         return list(columns)
 
     def get_view_for(self, view_name: str) -> dict:
-        return self.event.views.get(view_name, None).model_dump()
+        return self.event.views[view_name].model_dump() if view_name in self.event.views else None
 
     def replace_event(self, event: Event) -> None:
         self.event.remove_state()

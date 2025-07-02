@@ -1,0 +1,12 @@
+{% raw %}
+  <div v-if="screen.type == 'sponsor-groups'"
+       :class="['obs-intermission-sponsors', {'noLogo': !screen.logo, 'underLogo': screen.type == 'schedule'}]">
+    <div v-for="(group, index) in screen.groups"
+         :class="['obs-intermission-sponsor-group', group.classes]">
+      <div class="obs-intermission-sponsor-group-title" v-if="group.name">{{ group.name }}</div>
+      <div v-for="sponsor in group.sponsors" :class="['obs-intermission-sponsors-entry', sponsor.classes, group.sponsor_classes]">
+        <img :src="sponsor.logo_url" :alt="sponsor.name">
+      </div>
+    </div>
+  </div>
+{% endraw %}

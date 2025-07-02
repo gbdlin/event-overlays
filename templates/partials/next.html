@@ -1,0 +1,26 @@
+{% raw %}
+  <div class="obs-intermission-next" v-if="screen.type == 'next'">
+    <div :class="['obs-intermission-next-entry', `obs-intermission-schedule-${current.type}`, current.classes]"
+         :key="`schedule-el-${current.lp}`">
+      <template v-if="current.type == 'talk'">
+        <div class="obs-intermission-next-entry-picture" v-if="current.author.picture_url">
+          <img :src="current.author.picture_url" :alt="current.author.name">
+        </div>
+        <div class="obs-intermission-next-entry-content">
+          <span class="obs-intermission-next-entry-author-name">{{ current.author.name }}</span>
+          <span class="obs-intermission-next-entry-title">{{ current.title }}</span>
+        </div>
+      </template>
+      <template v-else-if="current.type == 'lightning-talks'">
+        <div class="obs-intermission-next-entry-content">
+          <span class="obs-intermission-next-entry-misc-title">Lightning talks</span>
+        </div>
+      </template>
+      <template v-else-if="current.type == 'break' || current.type == 'announcement'">
+        <div class="obs-intermission-next-entry-content">
+          <span class="obs-intermission-next-entry-misc-title">{{ current.title }}</span>
+        </div>
+      </template>
+    </div>
+  </div>
+{% endraw %}

@@ -105,6 +105,12 @@ def get_state_update_for(
                 "view": state.get_view_for("scene-presentation"),
                 **global_scene_context,
             }
+        case str(view) if view.startswith("scene-") or view.startswith("signage-"):
+            return {
+                "context": state.global_context,
+                "view": state.get_view_for(view),
+                **global_scene_context,
+            }
         case "timer":
             return {
                 **global_scene_context,
