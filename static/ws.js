@@ -290,9 +290,13 @@ const vue_app = createApp({
         return ((current >= time * index) && (current < time * (index - - 1)));  // Subtracting negative to convert to int, don't ask, I'm lazy... You can do it properly if you read this...
 
       },
-      formatTime(datetime) {
+      formatTime(datetime, trimLeadingZero = false) {
         const date = new Date(datetime);
-        return dateFormatter.format(date);
+        let formatted =  dateFormatter.format(date)
+        if (trimLeadingZero) {
+          formatted = formatted.replace(/^0+/, "");
+        }
+        return formatted;
       },
       groupBy(collection, field) {
         return Object.groupBy(collection, (item) => item[field])

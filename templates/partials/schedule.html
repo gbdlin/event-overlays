@@ -16,8 +16,8 @@
         </div>
         <div class="obs-intermission-schedule-entry-content">
           <span class="obs-intermission-schedule-entry-start-time" v-if="entry.start && screen.show_start_time">
-            {{ formatTime(entry.start) }}
-            <template v-if="entry.end && screen.show_end_time"> - {{ formatTime(entry.end) }}</template>
+            {{ formatTime(entry.start, screen.trim_time_zeros) }}
+            <template v-if="entry.end && screen.show_end_time"> - {{ formatTime(entry.end, screen.trim_time_zeros) }}</template>
           </span>
           <span class="obs-intermission-schedule-talk-author-name">{{ entry.author.name }}</span>
           <span class="obs-intermission-schedule-talk-title">{{ entry.title }}</span>
@@ -26,8 +26,8 @@
       <template v-else>
         <div class="obs-intermission-schedule-entry-content">
           <span class="obs-intermission-schedule-entry-start-time" v-if="entry.start && screen.show_start_time">
-            {{ formatTime(entry.start) }}
-            <template v-if="entry.end && screen.show_end_time"> - {{ formatTime(entry.end) }}</template>
+            {{ formatTime(entry.start, screen.trim_time_zeros) }}
+            <template v-if="entry.end && screen.show_end_time"> - {{ formatTime(entry.end, screen.trim_time_zeros) }}</template>
           </span>
           <span class="obs-intermission-schedule-misc-title">{{ entry.title }}</span>
         </div>
