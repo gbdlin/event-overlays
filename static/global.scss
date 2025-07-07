@@ -226,7 +226,9 @@ body {
       background-color: var(--color-background);
       height: 132px;
 
-      padding-left: 120px;
+      &:not(.no-picture) {
+        padding-left: 120px;
+      }
     }
   }
 }
