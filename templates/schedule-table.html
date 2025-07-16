@@ -7,35 +7,36 @@
 
     <script type="application/json" id="initSettings">
       {
-        "ws": "/{{ rig }}/ws/schedule"
+        "ws": "/{{ rig }}/ws/schedule",
+        "display": {{ display_type | tojson }}
       }
     </script>
   </head>
   <body>
     <div id="app">
-      {% raw %}
         <table v-if="state !== null" id="cp" class="schedule-table">
-          <thead>
+          <thead v-if="display == 'full' || display == 'no-extra'">
             <tr>
               <th>Time</th>
               <th>Speaker</th>
               <th>Title</th>
-              <th v-for="column in state.extra_columns">{{ column }}</th>
+              <th v-for="column in state.extra_columns" v-if="display == 'full' || display == 'no-header'">{% raw %}{{ column }}{% endraw %}</th>
             </tr>
           </thead>
-          <tr v-for="entry in state.schedule" :class=[`schedule-entry-${entry.state}`]>
-            <template v-if="entry.state != 'past'">
-              <td>{{ formatTime(entry.start) }}</td>
-              <td>{{ entry.author?entry.author.name:'---' }}</td>
-              <td>{{ entry.title }}</td>
-              <td v-for="column in state.extra_columns">{{ entry[column] }}</td>
+          {% raw %}
+            <template v-for="entry in state.schedule">
+              <tr v-if="entry.state != 'past'" :class=[`schedule-entry-${entry.state}`]>
+                <td>{{ formatTime(entry.start) }}</td>
+                <td>{{ entry.author?entry.author.name:'---' }}</td>
+                <td>{{ entry.title }}</td>
+                <td v-for="column in state.extra_columns" v-if="display == 'full' || display == 'no-header'">{{ entry[column] }}</td>
+              </tr>
             </template>
-          </tr>
+          {% endraw %}
         </table>
         <template v-else>
           <p>Loading...</p>
         </template>
-      {% endraw %}
     </div>
 
     <script type="importmap">
