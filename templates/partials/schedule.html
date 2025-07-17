@@ -1,38 +1,41 @@
 {% raw %}
-  <div :class="['obs-intermission-schedule', `obs-intermission-schedule-variant-${(state.current_state[0] + state.current_state[1]) % 2}`]"
-       v-if="screen.type === 'schedule'">
-    <div class="obs-intermission-schedule-title" v-if="display !== 'thumbnail'">
+  <div :class="['obs-intermission-schedule', `obs-intermission-schedule-variant-${(state.current_state[0] + state.current_state[1]) % 2}`, {'obs-intermission-schedule-other-events': screen.type == 'other-events-schedule'}]"
+       v-if="screen.type === 'schedule' || screen.type === 'other-event-schedule' || screen.type === 'other-events-schedule'">
+    <div class="obs-intermission-schedule-title" v-if="display !== 'thumbnail' && screen.header">
       {{ screen.header }}
     </div>
     <div class="obs-intermission-schedule-subheader" v-if="screen.subheader">{{ screen.subheader }}</div>
 
-    <div v-for="entry in state.context.schedule.filter(x => x.type != 'break' || !screen.skip_breaks).slice(0, screen.length)"
-         :class="['obs-intermission-schedule-entry', `obs-intermission-schedule-${entry.type}`, {'no-picture': (entry.type !== 'talk' || !entry.author.picture_url), 'no-author': (entry.type !== 'talk' || entry.authors.length === 0), 'with-start-time': entry.start}, entry.classes]"
-         :key="`schedule-el-${entry.lp}`"
+    <template v-for="entry in screen.schedule.filter(x => x.type != 'break' || !screen.skip_breaks).slice(0, screen.length)"
     >
-      <template v-if="entry.type === 'talk' && entry.authors.length > 0">
-        <div class="obs-intermission-schedule-talk-picture" v-if="entry.author.picture_url">
-          <img :src="entry.author.picture_url" :alt="entry.author.name">
-        </div>
-        <div class="obs-intermission-schedule-entry-content">
-          <span class="obs-intermission-schedule-entry-start-time" v-if="entry.start && screen.show_start_time">
-            {{ formatTime(entry.start, screen.trim_time_zeros) }}
-            <template v-if="entry.end && screen.show_end_time"> - {{ formatTime(entry.end, screen.trim_time_zeros) }}</template>
-          </span>
-          <span class="obs-intermission-schedule-talk-author-name">{{ entry.author.name }}</span>
-          <span class="obs-intermission-schedule-talk-title">{{ entry.title }}</span>
-        </div>
-      </template>
-      <template v-else>
-        <div class="obs-intermission-schedule-entry-content">
-          <span class="obs-intermission-schedule-entry-start-time" v-if="entry.start && screen.show_start_time">
-            {{ formatTime(entry.start, screen.trim_time_zeros) }}
-            <template v-if="entry.end && screen.show_end_time"> - {{ formatTime(entry.end, screen.trim_time_zeros) }}</template>
-          </span>
-          <span class="obs-intermission-schedule-misc-title">{{ entry.title }}</span>
-        </div>
-      </template>
-    </div>
+      <div :class="['obs-intermission-schedule-other-event-name', `obs-intermission-schedule-other-event-${entry.type}`, {'no-picture': (entry.type !== 'talk' || !entry.author.picture_url), 'no-author': (entry.type !== 'talk' || entry.authors.length === 0), 'with-start-time': entry.start}, entry.classes]"
+           v-if="screen.type === 'other-events-schedule'">{{ entry.event_name }}:</div>
+      <div :class="['obs-intermission-schedule-entry', `obs-intermission-schedule-${entry.type}`, {'no-picture': (entry.type !== 'talk' || !entry.author.picture_url), 'no-author': (entry.type !== 'talk' || entry.authors.length === 0), 'with-start-time': entry.start}, entry.classes]"
+      >
+        <template v-if="entry.type === 'talk' && entry.authors.length > 0">
+          <div class="obs-intermission-schedule-talk-picture" v-if="entry.author.picture_url">
+            <img :src="entry.author.picture_url" :alt="entry.author.name">
+          </div>
+          <div class="obs-intermission-schedule-entry-content">
+            <span class="obs-intermission-schedule-entry-start-time" v-if="entry.start && screen.show_start_time">
+              {{ formatTime(entry.start, screen.trim_time_zeros) }}
+              <template v-if="entry.end && screen.show_end_time"> - {{ formatTime(entry.end, screen.trim_time_zeros) }}</template>
+            </span>
+            <span class="obs-intermission-schedule-talk-author-name">{{ entry.author.name }}</span>
+            <span class="obs-intermission-schedule-talk-title">{{ entry.title }}</span>
+          </div>
+        </template>
+        <template v-else>
+          <div class="obs-intermission-schedule-entry-content">
+            <span class="obs-intermission-schedule-entry-start-time" v-if="entry.start && screen.show_start_time">
+              {{ formatTime(entry.start, screen.trim_time_zeros) }}
+              <template v-if="entry.end && screen.show_end_time"> - {{ formatTime(entry.end, screen.trim_time_zeros) }}</template>
+            </span>
+            <span class="obs-intermission-schedule-misc-title">{{ entry.title }}</span>
+          </div>
+        </template>
+      </div>
+    </template>
 
     <div class="obs-intermission-schedule-entry obs-intermission-schedule-overflow" v-if="state.context.schedule.length > event.template.schedule_length">
       <div class="obs-intermission-schedule-entry-content">

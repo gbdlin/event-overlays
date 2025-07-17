@@ -1,5 +1,6 @@
 import tomllib
 from datetime import datetime
+from functools import cached_property
 from pathlib import Path, PurePath
 from typing import Annotated, Any, Literal, TYPE_CHECKING, TypeAlias
 from urllib.parse import urljoin
@@ -29,10 +30,14 @@ class ReferencingEvent:
         if self._event is None or self._event.get_state() is None:
             return ""
         return self._jinja_env.from_string(template).render(
-            event=self._event,
-            state=self._event.get_state(),
-            **extra_context,
+            **{**self.template_context(), **extra_context},
         )
+
+    def template_context(self) -> dict[str, Any]:
+        return {
+            "event": self._event,
+            "state": self._event.get_state(),
+        }
 
 
 class EventScheduleAuthor(BaseModel):
@@ -125,13 +130,9 @@ class EventSponsorGroup(BaseModel):
 
 class BaseViewScreen(ReferencingEvent, BaseModel):
     model_config = ConfigDict(extra="allow")
-    # _event: "Event | None" = None
 
     logo: bool = True
     condition: str = "True"
-    #
-    # def model_post_init(self, __context: Any) -> None:
-    #     self._event = Event.get_current_instance()
 
 
 class PresentationTitleViewScreen(BaseViewScreen):
@@ -187,6 +188,62 @@ class ScheduleViewScreen(BaseViewScreen):
 
         return self._event.template.schedule_length
 
+    @computed_field()
+    @property
+    def schedule(self) -> list["EventScheduleItem"]:
+        if self._event.get_state() is None:
+            return []
+        return self._event.get_state().remaining_schedule
+
+
+class OtherScheduleViewScreen(ScheduleViewScreen):
+    type: Literal["other-event-schedule"]
+
+    event_path: Annotated[str, Field(validation_alias="event")]
+
+    @cached_property
+    def other_event_state(self):
+        from .state import State
+        return State.get_event_state(path=self.event_path)
+
+    @computed_field()
+    @property
+    def schedule(self) -> list["EventScheduleItem"]:
+        if self.other_event_state is None:
+            return []
+        return self.other_event_state.remaining_schedule
+
+
+class OtherSchedulesViewScreen(ScheduleViewScreen):
+    type: Literal["other-events-schedule"]
+
+    event_paths: Annotated[list[str], Field(validation_alias="events")]
+    other_event_name_template: Annotated[str, Field(validation_alias="other_event_name", exclude=True)]
+
+    @cached_property
+    def other_event_states(self):
+        from .state import State
+        return [
+            State.get_event_state(path=event_path)
+            for event_path in self.event_paths
+        ]
+
+    def create_other_event_name(self, other_event_state: "State") -> str:
+        return self.render_template(
+            self.other_event_name_template,
+            state=other_event_state,
+            event=other_event_state.event,
+        )
+
+    @computed_field()
+    @property
+    def schedule(self) -> list[dict]:
+        return [
+            {**state.remaining_schedule[0].model_dump(), "event_name": self.create_other_event_name(state)}
+            for state in self.other_event_states
+            if state is not None and len(state.remaining_schedule)
+        ]
+
 
 class SponsorGroupsViewScreen(BaseViewScreen):
     type: Literal["sponsor-groups"]
@@ -209,7 +266,7 @@ class VideoViewScreen(BaseViewScreen):
 
 
 type ViewScreen = Annotated[
-    PresentationTitleViewScreen | MessageViewScreen | NextViewScreen | ScheduleViewScreen | SponsorsViewScreen | SponsorGroupsViewScreen | VideoViewScreen,
+    PresentationTitleViewScreen | MessageViewScreen | NextViewScreen | ScheduleViewScreen | OtherScheduleViewScreen | OtherSchedulesViewScreen | SponsorsViewScreen | SponsorGroupsViewScreen | VideoViewScreen,
     Field(discriminator="type"),
 ]
 

@@ -8,6 +8,10 @@
       <style>
         body, html {
             background: transparent !important;
+
+            &:before, &:after {
+                display: none;
+            }
         }
       </style>
     {% elif display_type == "only-background" %}
