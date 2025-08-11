@@ -213,6 +213,12 @@ class OtherScheduleViewScreen(ScheduleViewScreen):
             return []
         return self.other_event_state.remaining_schedule
 
+    def template_context(self) -> dict[str, Any]:
+        return {
+            "state": self.other_event_state,
+            "event": self.other_event_state.event,
+        }
+
 
 class OtherSchedulesViewScreen(ScheduleViewScreen):
     type: Literal["other-events-schedule"]
