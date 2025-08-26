@@ -173,6 +173,18 @@ async def ws_view(
                                 notify.add("control")
                                 state.replace_event(Event.get_event_config(path=str(state.event.path)))
                                 state.fix_ticker()
+                            case {"action": "config.refresh-recursive"}:
+                                notify.add("scene")
+                                notify.add("scene-presentation")
+                                notify.add("scene-schedule")
+                                notify.add("scene-title")
+                                notify.add("signage")
+                                notify.add("signage-schedule")
+                                notify.add("schedule")
+                                notify.add("control")
+                                state.event.deep_refresh()
+                                state.replace_event(Event.get_event_config(path=str(state.event.path)))
+                                state.fix_ticker()
                             case {"action": "config.force-reload"}:
                                 notify.add("scene")
                                 notify.add("scene-presentation")

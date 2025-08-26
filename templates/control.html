@@ -90,6 +90,9 @@
               </div>
               <div id="reload-actions" class="row row2">
                 <button @click.prevent="handleAction('config.refresh')" class="i"><i class="fa-solid fa-arrows-rotate"></i>Reload config</button>
+                <button @click.prevent="handleAction('config.refresh-recursive')" class="i"><i class="fa-solid fa-arrows-rotate"></i>Reload config recursively</button>
+              </div>
+              <div id="reload-actions" class="row row2">
                 <button @click.prevent="handleAction('config.force-reload')" class="i"><i class="fa-solid fa-circle-exclamation"></i>Force reload views</button>
               </div>
               <div id="assigned-views" class="row row1">

@@ -1,6 +1,7 @@
 import tomllib
 from datetime import datetime
 from functools import cached_property
+from itertools import chain
 from pathlib import Path, PurePath
 from typing import Annotated, Any, Literal, TYPE_CHECKING, TypeAlias
 from urllib.parse import urljoin
@@ -134,6 +135,9 @@ class BaseViewScreen(ReferencingEvent, BaseModel):
     logo: bool = True
     condition: str = "True"
 
+    def refresh(self) -> None:
+        pass
+
 
 class PresentationTitleViewScreen(BaseViewScreen):
     type: Literal["presentation-title"]
@@ -201,6 +205,9 @@ class OtherScheduleViewScreen(ScheduleViewScreen):
 
     event_path: Annotated[str, Field(validation_alias="event")]
 
+    def refresh(self) -> None:
+        self.other_event_state.replace_event(Event.get_event_config(path=str(self.other_event_state.event.path)))
+
     @cached_property
     def other_event_state(self):
         from .state import State
@@ -226,6 +233,10 @@ class OtherSchedulesViewScreen(ScheduleViewScreen):
     event_paths: Annotated[list[str], Field(validation_alias="events")]
     other_event_name_template: Annotated[str, Field(validation_alias="other_event_name", exclude=True)]
 
+    def refresh(self) -> None:
+        for state in self.other_event_states:
+            state.replace_event(Event.get_event_config(path=str(state.event.path)))
+
     @cached_property
     def other_event_states(self):
         from .state import State
@@ -244,11 +255,20 @@ class OtherSchedulesViewScreen(ScheduleViewScreen):
     @computed_field()
     @property
     def schedule(self) -> list[dict]:
-        return [
-            {**state.remaining_schedule[0].model_dump(), "event_name": self.create_other_event_name(state)}
-            for state in self.other_event_states
-            if state is not None and len(state.remaining_schedule)
-        ]
+        return list(
+            chain(
+                *zip(
+                    *[
+                        [
+                            {**item.model_dump(), "event_name": self.create_other_event_name(state)}
+                            for item in state.remaining_schedule
+                        ]
+                        for state in self.other_event_states
+                        if state is not None and len(state.remaining_schedule) > 0
+                    ]
+                )
+            )
+        )
 
 
 class SponsorGroupsViewScreen(BaseViewScreen):
@@ -282,6 +302,10 @@ class View(BaseModel):
     _event: "Event | None" = None
 
     screens: list[ViewScreen]
+
+    def refresh(self):
+        for screen in self.screens:
+            screen.refresh()
 
     def model_post_init(self, __context: Any) -> None:
         self._event = Event.get_current_instance()
@@ -370,6 +394,10 @@ class Event(ContextualModel):
 
     def remove_state(self) -> None:
         self._state = None
+
+    def deep_refresh(self) -> None:
+        for view in self.views.values():
+            view.refresh()
 
     @field_validator("schedule", mode="before")
     @classmethod
