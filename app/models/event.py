@@ -379,6 +379,7 @@ class Event(ContextualModel):
     socials: list[EventSocial] = []
     farewell: EventFarewell = EventFarewell()
     questions_integration: EventQuestionsIntegration | None = None
+    timezone: str
 
     template: Template = Template()
 

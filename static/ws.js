@@ -17,7 +17,7 @@ setInterval(() => m_now.value = Date.now(), 69);
 const m_ticker = ref(0);
 setInterval(() => m_ticker.value += 100, 100);
 const initSettings = JSON.parse(document.getElementById("initSettings").textContent)
-const dateFormatter = new Intl.DateTimeFormat('default', {hour12: false, timeZone: "Europe/Warsaw", timeStyle: "short"})
+let dateFormatter = new Intl.DateTimeFormat('default', {hour12: false, timeZone: "UTC", timeStyle: "short"})
 
 function sendMessage(data) {
   ws.send(JSON.stringify(data));
@@ -123,6 +123,7 @@ const parseEventData = (data) => {
     m_role.value = data.role;
     m_rig.value = data.rig;
     m_screen_counter.value = 0;
+    dateFormatter = new Intl.DateTimeFormat('default', {hour12: false, timeZone: m_event.value.timezone, timeStyle: "short"})
     initScreen();
     delete data.rig;
     if (data.stream !== undefined) {
@@ -130,6 +131,7 @@ const parseEventData = (data) => {
       delete data.stream
     }
     parseBranding(data.event.template);
+
   }
 
   if (status === "update") {
