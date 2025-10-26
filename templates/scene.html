@@ -14,6 +14,19 @@
             }
         }
       </style>
+    {% elif display_type == "no-logo-and-background" %}
+      <style>
+          body, html {
+              background: transparent !important;
+
+              &:before, &:after {
+                  display: none;
+              }
+          }
+          .obs-event-logo {
+              display: none !important;
+          }
+      </style>
     {% elif display_type == "only-background" %}
       <style>
         body > * {
