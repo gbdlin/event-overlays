@@ -29,13 +29,13 @@
       </style>
     {% elif display_type == "only-background" %}
       <style>
-        body > * {
+        .obs-intermission-content {
           display: none !important;
         }
       </style>
     {% elif display_type == "logo-and-background" %}
       <style>
-          body > *:not(.obs-event-logo) {
+          .obs-intermission-content > *:not(.obs-event-logo) {
               display: none !important;
           }
       </style>
