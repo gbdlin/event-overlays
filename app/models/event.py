@@ -43,6 +43,7 @@ class ReferencingEvent:
 
 class EventScheduleAuthor(BaseModel):
     name: str
+    name_title: str | None = None
     picture_url: AnyHttpUrl | None = None
 
 

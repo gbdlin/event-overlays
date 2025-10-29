@@ -7,7 +7,7 @@
           <img :src="current.author.picture_url" :alt="current.author.name">
         </div>
         <div class="obs-intermission-next-entry-content">
-          <span class="obs-intermission-next-entry-author-name">{{ current.author.name }}</span>
+          <span class="obs-intermission-next-entry-author-name"><template v-for="author in current.authors">{{ author.name_title || author.name }}</template></span>
           <span class="obs-intermission-next-entry-title">{{ current.title }}</span>
         </div>
       </template>
