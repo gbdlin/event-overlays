@@ -135,7 +135,7 @@ async def ws_view(
                                 state.timer.target = set_time
                             case {"action": "timer.jog", "diff": jog_time}:
                                 notify.add("timer")
-                                state.timer.target += jog_time
+                                state.timer.offset -= jog_time
                             case {"action": "timer.start"}:
                                 if state.timer.started_at is not None:
                                     await websocket.send_json({"status": "error", "error": f"Timer already started"})
