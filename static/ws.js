@@ -278,6 +278,9 @@ const vue_app = createApp({
       setTimer(value) {
         sendMessage({"action": "timer.set", "time": value});
       },
+      jogTimer(value) {
+        sendMessage({"action": "timer.jog", "diff": value});
+      },
       adjustTimer(value) {
         sendMessage({"action": "timer.set", "time": Math.max(m_state.value.timer.target + value, 0)});
       },
