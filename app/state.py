@@ -130,6 +130,8 @@ def get_state_update_for(
                 "speaker-timer": get_state_update_for(state, "timer", "a"),
                 "message": state.message,
                 "assigned_views": prepared_views,
+                "schedule": state.schedule,
+                "extra_columns": state.schedule_extra_columns,
                 **global_scene_context,
             }
     return global_scene_context

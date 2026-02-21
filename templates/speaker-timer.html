@@ -25,11 +25,7 @@
                   class="timer-cameraFeed"
           ></iframe>
           <video autoplay="true" ref="video" class="timer-cameraFeed" v-if="timerWithPreview && !timerStream"></video>
-          <progress class="progress-bar" :value="timerValue" :max="state.timer.target"></progress>
-
-          <div :class="['timer', {warn: timerValue < state.timer.target * 0.3, danger: timerValue < state.timer.target * 0.1, outaTime: timerValue < 0}]">
-            {{ timerFormatMsec(timerValue) }}
-          </div>
+          {% endraw %}{% include "partials/elements/timer.html" %}{% raw %}
 
           <div class="message">{{ state.timer.message }}</div>
           <div class="clock"></div>

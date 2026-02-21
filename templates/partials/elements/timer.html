@@ -1,0 +1,7 @@
+{% raw %}
+<progress class="progress-bar" :value="timerValue" :max="state.timer.target"></progress>
+
+<div :class="['timer', {warn: timerValue < state.timer.target * 0.3, danger: timerValue < state.timer.target * 0.1, outaTime: timerValue < 0}]">
+  {{ timerFormatMsec(timerValue) }}
+</div>
+{% endraw %}

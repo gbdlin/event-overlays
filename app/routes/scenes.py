@@ -43,6 +43,7 @@ async def scene_view(
 ):
     if path is not None:
         state_obj = State.create_event_state(path=path)
+        state_obj.event.template.ticker_source = "manual"
         state_obj.move_to(state)
         scene_data = json.loads(
             to_json(
@@ -74,6 +75,7 @@ async def signage_view(
 ):
     if path is not None:
         state_obj = State.create_event_state(path=path)
+        state_obj.event.template.ticker_source = "manual"
         state_obj.move_to(state or "0-pre")
         view_data = json.loads(
             to_json(

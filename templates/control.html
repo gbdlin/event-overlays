@@ -13,111 +13,28 @@
   </head>
   <body>
     <div id="app">
-      {% raw %}
         <template v-if="state !== null" id="cp">
-          <div :class="['row', {'row1': event.template.ticker_source !== 'manual'}]">
-            <button id="untick" @click="handleAction('event.untick')" :disabled="state.previous_state[0] === null" v-if="event.template.ticker_source === 'manual'"><i
-                class="fa-solid fa-backward-step fa-xl"></i></button>
-            <p id="state" class="cell4">
-              {{ event.name }} - {{ getStateDisplay(state.current_state) }}
-              <a @click="showDialog('rig-settings')"><i class="fa-solid fa-gear"></i></a>
-            </p>
-            <button id="tick" @click="handleAction('event.tick')" :disabled="state.next_state[0] === null" v-if="event.template.ticker_source === 'manual'"><i
-                class="fa-solid fa-forward-step fa-xl"></i></button>
-          </div>
-          <div id="stream-message" class="row">
-            <input type="text" id="stream-message-text" placeholder="Intermission message..." v-model="state.message" @keyup.enter="handleAction('stream.set-message')">
-            <button id="set-stream-message" @click="handleAction('stream.set-message')"><i class="fa-solid fa-paper-plane fa-xl"></i></button>
-          </div>
-          <hr>
-          <div class="row timer-status-controls">
-            <button id="timer-start" @click="handleAction('timer.start')" v-if="!state.timer.started_at"><i class="fa-solid fa-play fa-xl"></i></button>
-            <button id="timer-stop" @click="handleAction('timer.stop')" v-if="state.timer.started_at"><i class="fa-solid fa-pause fa-xl"></i></button>
-            <div class="cell3 timer-status">
-              <span class="timer-current">{{ timerFormatMsec(timerValue) }}</span>
-              <span class="timer-set">{{ timerFormat(state.timer.target) }}</span>
+          <div class="grid">
+            <div class="grid-el grid-control">
+              <div class="timer-container">
+                {% include "partials/elements/timer.html" %}
+              </div>
+              {% include "partials/control/control.html" %}
             </div>
-            <button id="timer-reset" @click="handleAction('timer.reset')"><i class="fa-solid fa-clock-rotate-left fa-xl"></i>
-            </button>
-            <button id="timer-flash" @click="handleAction('timer.flash')"><i class="fa-solid fa-sun fa-xl"></i></button>
+            <div class="grid-el grid-schedule">
+              {% include "partials/control/schedule-table.html" %}
+            </div>
+            <div class="grid-el grid-presentation-preview">
+              <template v-for="(view, index) in state.assigned_views">
+                <iframe :src="`https://vdo.ninja/?view=${view[1]}&password=${view[2]}`"></iframe>
+              </template>
+            </div>
+
           </div>
-          <div class="row row4 row-wrap timer-set-controls">
-            <button :class="{active: state.timer.target === 5 * 60 * 1000}" id="timer-5" @click="setTimer(5 * 60 * 1000)">5:00</button>
-            <button :class="{active: state.timer.target === 10 * 60 * 1000}" id="timer-10" @click="setTimer(10 * 60 * 1000)">10:00</button>
-            <button :class="{active: state.timer.target === 15 * 60 * 1000}" id="timer-15" @click="setTimer(15 * 60 * 1000)">15:00</button>
-            <button :class="{active: state.timer.target === 20 * 60 * 1000}" id="timer-20" @click="setTimer(20 * 60 * 1000)">20:00</button>
-            <button :class="{active: state.timer.target === 30 * 60 * 1000}" id="timer-30" @click="setTimer(30 * 60 * 1000)">30:00</button>
-            <button :class="{active: state.timer.target === 45 * 60 * 1000}" id="timer-45" @click="setTimer(45 * 60 * 1000)">45:00</button>
-            <button :class="{active: state.timer.target === 60 * 60 * 1000}" id="timer-60" @click="setTimer(60 * 60 * 1000)">60:00</button>
-            <button class="other-active" id="timer-custom" @click="showDialog('timer-custom')">Custom</button>
-          </div>
-          <div class="row row4 row-wrap timer-jog-controls">
-            <button id="timer-jog-plus-5s" @click="jogTimer(5 * 1000)">+ 0:05</button>
-            <button id="timer-jog-plus-30s" @click="jogTimer(30 * 1000)">+ 0:30</button>
-            <button id="timer-jog-plus-1m" @click="jogTimer(1 * 60 * 1000)">+ 1:00</button>
-            <button id="timer-jog-plus-5" @click="jogTimer(5 * 60 * 1000)">+ 5:00</button>
-            <button id="timer-jog-minus-5s" @click="jogTimer(-5 * 1000)">- 0:05</button>
-            <button id="timer-jog-minus-30s" @click="jogTimer(-30 * 1000)">- 0:30</button>
-            <button id="timer-jog-minus-1m" @click="jogTimer(-1 * 60 * 1000)">- 1:00</button>
-            <button id="timer-jog-minus-5" @click="jogTimer(-5 * 60 * 1000)">- 5:00</button>
-          </div>
-          <div id="timer-message" class="row">
-            <input type="text" id="timer-message-text" placeholder="Timer message..." v-model="state.timer.message" @keyup.enter="handleAction('timer.set-message')">
-            <button id="set-timer-message" @click="handleAction('timer.set-message')"><i class="fa-solid fa-paper-plane fa-xl"></i></button>
-          </div>
-          <dialog id="timer-custom-dialog">
-            <form method="dialog">
-              <div class="spinner" id="time-custom-minutes">
-                <div class="spinner-row">
-                  <button id="time-custom-minutes-up-10" @click.prevent="adjustTimer(10 * 60 * 1000)">↑</button>
-                  <button id="time-custom-minutes-up-1" @click.prevent="adjustTimer(60 * 1000)">↑</button>
-                </div>
-                <span id="time-custom-minutes-value">{{ timerMinutes(state.timer.target).padStart(2, "0") }}</span>
-                <div class="spinner-row">
-                  <button id="time-custom-minutes-down-10" @click.prevent="adjustTimer(-10 * 60 * 1000)">↓</button>
-                  <button id="time-custom-minutes-down-1" @click.prevent="adjustTimer(-60 * 1000)">↓</button>
-                </div>
-              </div>
-              <span class="spinner-colon">:</span>
-              <div class="spinner" id="time-custom-seconds">
-                <div class="spinner-row">
-                  <button id="time-custom-seconds-up-10" @click.prevent="adjustTimer(10 * 1000)">↑</button>
-                  <button id="time-custom-seconds-up-1" @click.prevent="adjustTimer(1000)">↑</button>
-                </div>
-                <span id="time-custom-seconds-value">{{ timerSeconds(state.timer.target) }}</span>
-                <div class="spinner-row">
-                  <button id="time-custom-seconds-down-10" @click.prevent="adjustTimer(-10 * 1000)">↓</button>
-                  <button id="time-custom-seconds-down-1" @click.prevent="adjustTimer(-1000)">↓</button>
-                </div>
-              </div>
-              <button class="dialog-close" id="timer-custom-close">x</button>
-            </form>
-          </dialog>
-          <dialog id="rig-settings-dialog">
-            <form method="dialog">
-              <div id="settings-dialog-title" class="row row1">
-                <p>Settings</p>
-              </div>
-              <div id="reload-actions" class="row row2">
-                <button @click.prevent="handleAction('config.refresh')" class="i"><i class="fa-solid fa-arrows-rotate"></i>Reload config</button>
-                <button @click.prevent="handleAction('config.refresh-recursive')" class="i"><i class="fa-solid fa-arrows-rotate"></i>Reload config recursively</button>
-              </div>
-              <div id="reload-actions" class="row row2">
-                <button @click.prevent="handleAction('config.force-reload')" class="i"><i class="fa-solid fa-circle-exclamation"></i>Force reload views</button>
-              </div>
-              <div id="assigned-views" class="row row1">
-                <template v-for="(view, index) in state.assigned_views">
-                  {{ view[0] }}<a :href="`https://vdo.ninja/?view=${view[1]}&password=${view[2]}`">cam preview</a>
-                </template>
-              </div>
-              <button class="dialog-close" id="rig-settings-close">x</button>
-            </form>
-          </dialog>
         </template>
         <template v-else>
           <p>Loading...</p>
         </template>
-      {% endraw %}
     </div>
 
     <script type="importmap">
