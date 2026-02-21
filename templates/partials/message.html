@@ -1,6 +1,6 @@
 {% raw %}
   <template v-if="displayMessagesFor(screen.type) && display != 'atem' && display != 'thumbnail'">
-    <div :class="['obs-intermission-info', messagesPositionCls]">{{ state.context.info }}</div>
-    <div :class="['obs-intermission-message', messagesPositionCls]">{{ state.context.message }}</div>
+    <div :class="['obs-intermission-info', messagesPositionCls]">{{ screen.info || state.context.info }}</div>
+    <div :class="['obs-intermission-message', messagesPositionCls]">{{ screen.message || state.context.message }}</div>
   </template>
 {% endraw %}

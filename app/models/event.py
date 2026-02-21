@@ -136,8 +136,33 @@ class BaseViewScreen(ReferencingEvent, BaseModel):
     logo: bool = True
     condition: str = "True"
 
+    info_template: Annotated[str | None, Field(validation_alias="info", exclude=True)] = None
+    message_template: Annotated[str | None, Field(validation_alias="message", exclude=True)] = None
+
     def refresh(self) -> None:
         pass
+
+    @computed_field()
+    @property
+    def info(self) -> str | None:
+        if self._event.get_state() is None:
+            return None
+
+        if self.info_template is None:
+            return None
+
+        return self.render_template(self.info_template)
+
+    @computed_field()
+    @property
+    def message(self) -> str | None:
+        if self._event.get_state() is None:
+            return None
+
+        if self.message_template is None:
+            return None
+
+        return self.render_template(self.message_template)
 
 
 class PresentationTitleViewScreen(BaseViewScreen):
