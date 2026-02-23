@@ -22,7 +22,9 @@
               {% include "partials/control/control.html" %}
             </div>
             <div class="grid-el grid-schedule">
-              {% include "partials/control/schedule-table.html" %}
+              {% with show_all="true", show_past_items="true", show_jump_buttons="true" %}
+                {% include "partials/control/schedule-table.html" %}
+              {% endwith %}
             </div>
             <div class="grid-el grid-presentation-preview">
               <template v-for="(view, index) in state.assigned_views">

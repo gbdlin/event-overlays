@@ -245,6 +245,9 @@ const vue_app = createApp({
         else
           sendMessage({"action": action_name});
       },
+      jump(new_state) {
+        sendMessage({"action": "event.jump", "to": new_state});
+      },
       current: computed(() => m_state.value.context.entry),
       timerSeconds(value) {
         return timerPieces(value)[1];

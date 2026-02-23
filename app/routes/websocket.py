@@ -124,6 +124,15 @@ async def ws_view(
                                 notify.add("scene-title")
                                 notify.add("signage")
                                 notify.add("signage-schedule")
+                            case {"action": "event.jump", "to": new_state}:
+                                state.move_to(new_state)
+                                notify.add("schedule")
+                                notify.add("scene")
+                                notify.add("scene-presentation")
+                                notify.add("scene-schedule")
+                                notify.add("scene-title")
+                                notify.add("signage")
+                                notify.add("signage-schedule")
                             case {"action": "stream.set-message", "message": message}:
                                 notify.add("scene")
                                 notify.add("scene-presentation")
