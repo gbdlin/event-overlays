@@ -209,6 +209,7 @@ function timerPieces(value) {
 const vue_app = createApp({
   data() {
     return {
+      hostname: location.hostname,
       event: m_event,
       display: computed(() => (
         initSettings.display || m_event.value.template.default_display

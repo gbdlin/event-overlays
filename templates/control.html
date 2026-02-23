@@ -31,6 +31,14 @@
                 <iframe :src="`https://vdo.ninja/?view=${view[1]}&password=${view[2]}`"></iframe>
               </template>
             </div>
+            <template v-if="event.youtube_stream_id">
+              <div class="grid-el grid-youtube-chat">
+                <iframe :src="`https://studio.youtube.com/live_chat?is_popout=1&v=${event.youtube_stream_id}&amp;embed_domain=${hostname}`"></iframe>
+              </div>
+              <div class="grid-el grid-youtube-preview">
+                <iframe :src="`https://www.youtube.com/embed/${event.youtube_stream_id}?rel=0&amp;autoplay=1&amp;mute=1`" allowfullscreen></iframe>
+              </div>
+            </template>
 
           </div>
         </template>
