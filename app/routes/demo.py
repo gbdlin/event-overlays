@@ -6,6 +6,7 @@ from ..template_renderer import renderer
 
 async def demo_view(request: Request, path: str):
     event = Event.get_event_config(path=path)
+    event.template.ticker_source = "manual"
 
     return renderer.TemplateResponse(
         "demo.html",

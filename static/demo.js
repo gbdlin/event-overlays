@@ -40,6 +40,10 @@ createApp({
         return m_state.value.tick <= 0;
       }),
 
+      viewUrl: function(url_slug) {
+        return new URL(`/v1/events/${event.path}/views/${url_slug}/${stateSlug()}`, window.location.origin);
+      },
+
       scheduleUrl: computed(function () {
         const url = new URL(`/v1/events/${event.path}/views/schedule/${stateSlug()}`, window.location.origin)
         const searchParams = [];

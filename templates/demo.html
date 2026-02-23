@@ -46,20 +46,24 @@
 <!--           </div> -->
           <hr>
           <div class="row preview">
-            <div class="previewWindow">
-              <input type="text" readonly :value="scheduleUrl">
-              <iframe :src="scheduleUrl"></iframe>
+            <div class="previewWindow" v-for="viewSlug in event.template.demo_screens">
+              <input type="text" readonly :value="viewUrl(viewSlug)">
+              <iframe :src="viewUrl(viewSlug)"></iframe>
             </div>
+<!--            <div class="previewWindow">-->
+<!--              <input type="text" readonly :value="scheduleUrl">-->
+<!--              <iframe :src="scheduleUrl"></iframe>-->
+<!--            </div>-->
 <!--            <div class="previewWindow">-->
 <!--              <input type="text" readonly :value="titleUrl">-->
 <!--              <iframe :src="titleUrl"></iframe>-->
 <!--            </div>-->
 <!--          </div>-->
 <!--          <div class="row preview">-->
-            <div class="previewWindow">
-              <input type="text" readonly :value="presentationUrl">
-              <iframe :src="presentationUrl"></iframe>
-            </div>
+<!--            <div class="previewWindow">-->
+<!--              <input type="text" readonly :value="presentationUrl">-->
+<!--              <iframe :src="presentationUrl"></iframe>-->
+<!--            </div>-->
 <!--            <div class="previewWindow">-->
 <!--              <input type="text" readonly :value="brbUrl">-->
 <!--              <iframe :src="brbUrl"></iframe>-->

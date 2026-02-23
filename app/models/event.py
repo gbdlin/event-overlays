@@ -369,6 +369,8 @@ class Template(BaseModel):
     schedule_ticker_leeway: int = 10
     schedule_header: str = "{next_word} in the schedule:"
 
+    demo_screens: list[str] = []
+
 
 class EventFarewell(BaseModel):
     message: str = "See you next time!"
