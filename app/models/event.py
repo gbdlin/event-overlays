@@ -52,6 +52,7 @@ class EventScheduleEntryBase(BaseModel):
 
     start: datetime | None = None
     classes: list[str] = []
+    show_in_schedule: bool = True
 
 
 class EventTalkBase(EventScheduleEntryBase):
