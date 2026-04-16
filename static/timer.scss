@@ -114,24 +114,11 @@ progress.progress-bar {
   }
 }
 
-div.timer {
+div.timer, div.clock {
   text-align: center;
   font-size: 15vw;
   margin: 8vh 0;
-  color: var(--ok-color);
   font-family: "Roboto Mono", monospace;
-
-  &.warn {
-    color: var(--warn-color);
-  }
-
-  &.danger {
-    color: var(--danger-color);
-  }
-
-  &.outaTime {
-    animation: blinker 1s steps(1, end) infinite;
-  }
 
   .timer-with-preview & {
     text-align: left;
@@ -147,6 +134,35 @@ div.timer {
       float: initial;
       width: auto;
     }
+  }
+}
+
+div.clock {
+  color: #dddddd;
+
+  .timer-with-preview & {
+    margin: calc(var(--heightPreview) + 10px) 10px 0;
+    font-size: calc(min(var(--heightRest) * 1.06, 100vw / 13));
+
+    @media screen and (max-aspect-ratio: 32/23) {
+      font-size: calc(var(--heightRest) * 0.56);
+    }
+  }
+}
+
+div.timer {
+  color: var(--ok-color);
+
+  &.warn {
+    color: var(--warn-color);
+  }
+
+  &.danger {
+    color: var(--danger-color);
+  }
+
+  &.outaTime {
+    animation: blinker 1s steps(1, end) infinite;
   }
 }
 

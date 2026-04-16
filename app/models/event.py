@@ -1,5 +1,6 @@
 import tomllib
 from datetime import datetime
+from enum import StrEnum
 from functools import cached_property
 from itertools import chain
 from pathlib import Path, PurePath
@@ -391,6 +392,11 @@ class EventQuestionsIntegration(BaseModel):
 EventScheduleItem: TypeAlias = EventTalkLegacy | EventTalk | EventBreak | EventAnnouncement | EventLightningTalks
 
 
+class TimerType(StrEnum):
+    REMAINING = "remaining"
+    ELAPSED = "elapsed"
+    CLOCK = "clock"
+
 
 class Event(ContextualModel):
     model_config = ConfigDict(extra="allow")
@@ -409,6 +415,8 @@ class Event(ContextualModel):
     farewell: EventFarewell = EventFarewell()
     questions_integration: EventQuestionsIntegration | None = None
     timezone: str
+
+    timer_type: TimerType | None = None
 
     template: Template = Template()
 

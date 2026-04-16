@@ -177,17 +177,16 @@ if (initSettings.ws !== undefined) {
   parseEventData(initSettings.data)
 }
 
-function timePieces(value) {
-  const s_msec = Math.abs(value % 1000);
-  const seconds = round_fn(value / 1000);
-  const minutes = Math.abs(round_fn(seconds / 60));
-  const m_seconds = Math.abs(seconds % 60);
+function clockPieces(value) {
+  var date = new Date(value);
+  console.log(date);
 
-  const f_minutes = `${sign}${minutes}`
-  const f_seconds = String(m_seconds).padStart(2, "0");
-  const f_msec = String(s_msec).padStart(3, "0");
-
-  return [f_minutes, f_seconds, f_msec]
+  return [
+    String(date.getHours()).padStart(2, "0"),
+    String(date.getMinutes()).padStart(2, "0"),
+    String(date.getSeconds()).padStart(2, "0"),
+    String(date.getMilliseconds()).padStart(3, "0"),
+  ];
 }
 
 function timerPieces(value) {
@@ -264,6 +263,10 @@ const vue_app = createApp({
           tick = m_now.value - m_state.value.timer.started_at;
 
         return m_state.value.timer.target - m_state.value.timer.offset - tick;
+      }),
+      clock: computed(function () {
+        const [hours, f_minutes, f_seconds, f_msec] = clockPieces(m_now.value);
+        return `${hours}:${f_minutes}:${f_seconds}`
       }),
       timeFormat(value) {
         const [minutes, f_seconds] = timerPieces(value);

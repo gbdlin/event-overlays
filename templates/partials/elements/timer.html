@@ -1,7 +1,14 @@
 {% raw %}
-<progress class="progress-bar" :value="timerValue" :max="state.timer.target"></progress>
+<template v-if="state.event.timer_type == 'remaining'">
+  <progress class="progress-bar" :value="timerValue" :max="state.timer.target"></progress>
 
-<div :class="['timer', {warn: timerValue < state.timer.target * 0.3, danger: timerValue < state.timer.target * 0.1, outaTime: timerValue < 0}]">
-  {{ timerFormatMsec(timerValue) }}
-</div>
+  <div :class="['timer', {warn: timerValue < state.timer.target * 0.3, danger: timerValue < state.timer.target * 0.1, outaTime: timerValue < 0}]">
+    {{ timerFormatMsec(timerValue) }}
+  </div>
+</template>
+<template v-else-if="state.event.timer_type == 'clock'">
+  <div class="clock">
+    {{ clock }}
+  </div>
+</template>
 {% endraw %}
