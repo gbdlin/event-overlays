@@ -179,7 +179,6 @@ if (initSettings.ws !== undefined) {
 
 function clockPieces(value) {
   var date = new Date(value);
-  console.log(date);
 
   return [
     String(date.getHours()).padStart(2, "0"),

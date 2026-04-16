@@ -89,14 +89,6 @@ def get_state_update_for(
                 "view": state.get_view_for("scene-brb"),
                 **global_scene_context,
             }
-        case "scene-schedule":
-            schedule_template, schedule_context = state.schedule_screen_content
-            return {
-                "template": schedule_template,
-                "context": schedule_context,
-                "view": state.get_view_for("scene-schedule"),
-                **global_scene_context,
-            }
         case "scene-presentation":
             presentation_template, presentation_context = state.presentation_screen_content
             return {

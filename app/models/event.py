@@ -193,6 +193,19 @@ class ScheduleViewScreen(BaseViewScreen):
 
     @computed_field()
     @property
+    def info(self) -> str | None:
+        if self._event.get_state() is None:
+            return "Starting soon..."
+
+        state = self._event.get_state()
+
+        if self.info_template is None:
+            return "Starting soon..." if state.current_state == (0, False) else "Be right back..."
+
+        return self.render_template(self.info_template)
+
+    @computed_field()
+    @property
     def header(self) -> str:
         if self._event.get_state() is None:
             return None
