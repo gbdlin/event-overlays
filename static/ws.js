@@ -228,9 +228,9 @@ const vue_app = createApp({
       displayMessagesFor(type) {
         return type === "schedule" || type === "message"
       },
-      messagesPositionCls: computed(() => ({
-        "alt-position": m_state.value.template === "schedule",
-      })),
+      messagesPositionClsFor(type) {
+        return {"alt-position": type === "schedule"}
+      },
       getStateDisplay: function (state) {
         return `${state[1] ? "Mid" : "Pre"} #${state[0] + 1}`
       },
