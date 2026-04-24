@@ -278,6 +278,16 @@ body {
     object-fit: cover;
     height: 132px;
     width: 120px;
+
+    .picture-align-center & {
+      object-position: center center;
+    }
+
+    @for $i from 1 through 10 {
+      .picture-align-#{$i * 10} & {
+        object-position: center #{$i * 10%};
+      }
+    }
   }
 }
 
