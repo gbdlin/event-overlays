@@ -321,6 +321,13 @@ body {
   align-items: center;
   min-height: 60px;
   background: var(--color-background);
+
+
+  .dense & {
+    font-size: 1rem;
+    padding-top: 0;
+    line-height: 0.9em
+  }
 }
 
 .obs-intermission-schedule-misc-title {
