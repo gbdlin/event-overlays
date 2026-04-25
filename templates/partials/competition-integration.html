@@ -1,0 +1,7 @@
+{% raw %}
+  <div v-if="screen.with_competition && event.competition_integration" class="obs-intermission-competition-integration">
+    <img :src="event.competition_integration.qr_code_url" class="obs-intermission-integration-qr">
+    <span class="obs-intermission-integration-text">{{ event.competition_integration.name }}</span>
+    <span class="obs-intermission-integration-url" v-if="event.competition_integration.url">{{ event.competition_integration.url }}</span>
+  </div>
+{% endraw %}

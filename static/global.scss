@@ -143,10 +143,13 @@ body {
 }
 
 .obs-intermission-questions-integration {
+
+}
+
+.obs-intermission-questions-integration, .obs-intermission-competition-integration  {
   position: absolute;
   left: 25px;
-  top: 865px;
-  width: 704px;
+  width: 870px;
   color: white;
   font-size: 1.5rem;
   overflow: hidden;
@@ -164,15 +167,22 @@ body {
     display: block;
   }
 
-  .obs-intermission-questions-integration-text {
+  .obs-intermission-integration-text {
     margin-top: 32px;
     margin-bottom: 24px;
   }
 
-  .obs-intermission-questions-integration-url {
+  .obs-intermission-integration-url {
     white-space: nowrap;
   }
+}
 
+.obs-intermission-questions-integration  {
+  top: 865px;
+}
+
+.obs-intermission-competition-integration  {
+  top: 540px;
 }
 
 .obs-intermission-schedule {

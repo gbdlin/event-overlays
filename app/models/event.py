@@ -143,6 +143,9 @@ class BaseViewScreen(ReferencingEvent, BaseModel):
     info_template: Annotated[str | None, Field(validation_alias="info", exclude=True)] = None
     message_template: Annotated[str | None, Field(validation_alias="message", exclude=True)] = None
 
+    with_questions: bool = False
+    with_competition: bool = False
+
     def refresh(self) -> None:
         pass
 
@@ -404,6 +407,17 @@ class EventQuestionsIntegration(BaseModel):
         return urljoin("/static/", str(self.qr_code))
 
 
+class EventCompetitionIntegration(BaseModel):
+    name: str
+    qr_code: HttpUrl | Path
+    url: str | None = None
+
+    @computed_field
+    @property
+    def qr_code_url(self) -> str:
+        return urljoin("/static/", str(self.qr_code))
+
+
 EventScheduleItem: TypeAlias = EventTalkLegacy | EventTalk | EventBreak | EventAnnouncement | EventLightningTalks
 
 
@@ -429,6 +443,7 @@ class Event(ContextualModel):
     socials: list[EventSocial] = []
     farewell: EventFarewell = EventFarewell()
     questions_integration: EventQuestionsIntegration | None = None
+    competition_integration: EventCompetitionIntegration | None = None
     timezone: str
 
     timer_type: TimerType | None = None
