@@ -1,5 +1,5 @@
 import tomllib
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import StrEnum
 from functools import cached_property
 from itertools import chain
@@ -54,6 +54,8 @@ class EventScheduleEntryBase(BaseModel):
     start: datetime | None = None
     classes: list[str] = []
     show_in_schedule: bool = True
+    duration: int | None = None
+    timer_duration: timedelta | None = None
 
 
 class EventTalkBase(EventScheduleEntryBase):

@@ -163,6 +163,10 @@ async def ws_view(
                                 state.timer.offset = 0
                                 if state.timer.started_at is not None:
                                     state.timer.started_at = server_time
+                                if state.current_schedule_item.timer_duration is not None:
+                                    state.timer.target = round(
+                                        state.current_schedule_item.timer_duration.total_seconds()
+                                    ) * 1000
                             case {"action": "timer.set-message", "message": message}:
                                 notify.add("timer")
                                 state.timer.message = message
