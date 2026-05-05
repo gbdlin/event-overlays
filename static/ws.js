@@ -38,10 +38,24 @@ function getCurrentScreenNumber() {
   return m_screen_counter.value % m_state.value.view.active_screens.length;
 }
 
-function getScreenTimeout(screen, screen_no) {
+function delay(time) {
+  return new Promise(resolve => setTimeout(resolve, time));
+}
+
+async function getScreenTimeout(screen, screen_no) {
   if (screen.type === "video") {
     let video_element = document.getElementById(`screen-${screen_no}-video`);
-    return vue_app.$refs[`video${screen_no}`][0].duration * 1000
+    let video_duration = vue_app.$refs[`video${screen_no}`][0].duration
+    let waitCounter = 0;
+    while (Number.isNaN(video_duration) && waitCounter < 5) {
+      await delay(100);
+      video_duration = vue_app.$refs[`video${screen_no}`][0].duration
+      ++waitCounter;
+    }
+    if (Number.isNaN(video_duration)) {
+      return m_event.value.template.default_screen_timeout
+    }
+    return video_duration * 1000;
   } else if (screen.timeout !== undefined) {
     return screen.timeout
   } else {
@@ -49,12 +63,12 @@ function getScreenTimeout(screen, screen_no) {
   }
 }
 
-function initScreen() {
+async function initScreen() {
   if (m_state.value.view !== undefined) {
     let currentScreenNumber = getCurrentScreenNumber();
     let currentScreen = {...m_state.value.view.active_screens[currentScreenNumber]};
     if (JSON.stringify(currentScreen) !== JSON.stringify(previous_screen) ) {
-      let new_timeout = getScreenTimeout(currentScreen, currentScreenNumber);
+      let new_timeout = await getScreenTimeout(currentScreen, currentScreenNumber);
       for (let [otherScreenNumber, otherScreen] of m_state.value.view.active_screens.entries()) {
 
         if (otherScreen.type === "video" && vue_app.$refs[`video${otherScreenNumber}`] !== undefined) {
@@ -74,13 +88,13 @@ function initScreen() {
   }
 }
 
-function tickScreen() {
+async function tickScreen() {
   m_screen_counter.value += 1;
   m_screen_counter.value = getCurrentScreenNumber();
-  initScreen();
+  await initScreen();
 }
 
-const parseEventData = (data) => {
+async function parseEventData(data) {
   if (data.command && data.command.action === "config.force-reload" && m_role.value !== "control") {
     window.location.reload();
   }
@@ -124,19 +138,19 @@ const parseEventData = (data) => {
     m_rig.value = data.rig;
     m_screen_counter.value = 0;
     dateFormatter = new Intl.DateTimeFormat('default', {hour12: false, timeZone: m_event.value.timezone, timeStyle: "short"})
-    initScreen();
     delete data.rig;
     if (data.stream !== undefined) {
       m_timer_stream.value = data.stream
       delete data.stream
     }
     parseBranding(data.event.template);
-
+    await delay(10);
+    await initScreen()
   }
 
   if (status === "update") {
     if (data.command === "event.tick" || data.command === "event.untick") {
-      initScreen();
+      await initScreen();
     }
   }
   console.log(data);
@@ -155,8 +169,8 @@ const openSocket = (wsURL, waitTimer, waitSeed, multiplier) => {
       openSocket(ws.url, waitTimer, waitSeed, multiplier);
     };
 
-    ws.onmessage = (event) => {
-      parseEventData(JSON.parse(event.data));
+    ws.onmessage = async (event) => {
+      await parseEventData(JSON.parse(event.data));
     };
   };
 
@@ -174,7 +188,7 @@ const openSocket = (wsURL, waitTimer, waitSeed, multiplier) => {
 if (initSettings.ws !== undefined) {
   openSocket(`${location.origin.replace("http", "ws")}${initSettings.ws}`, 1000, 1000, 2)
 } else {
-  parseEventData(initSettings.data)
+  await parseEventData(initSettings.data)
 }
 
 function clockPieces(value) {
