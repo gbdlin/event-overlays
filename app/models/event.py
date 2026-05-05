@@ -93,16 +93,12 @@ class EventAnnouncement(EventScheduleEntryBase):
 
 class EventBreak(EventScheduleEntryBase):
     type: Literal["break"]
-    title: str | None = "Break"
+    title: str = "Break"
 
 
 class EventLightningTalks(EventScheduleEntryBase):
     type: Literal["lightning-talks"]
-
-    @computed_field
-    @property
-    def title(self) -> str:
-        return "Lightning talks"
+    title: str = "Lightning talks"
 
 
 class EventSocial(BaseModel):
