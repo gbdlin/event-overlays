@@ -32,6 +32,11 @@
   50% { background: #ffffff; color: #000000}
 }
 
+@keyframes flash-bgo {
+  0% { background: #000000;}
+  50% { background: #ffffff;}
+}
+
 html {
   overflow: hidden;
   cursor: none;
@@ -121,18 +126,55 @@ div.timer, div.clock {
   font-family: "Roboto Mono", monospace;
 
   .timer-with-preview & {
-    text-align: left;
-    margin: 0 10px;
-    width: calc(50% - 20px);
-    float: left;
-    font-size: calc(min(var(--heightRest) * 0.76, 100vw / 13));
-    line-height: calc(min(var(--heightRest) * 0.76, 100vw / 13));
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    font-size: calc(min(16vh, 9vw));
+    margin: 0;
+    text-shadow:
+            0 0 5px black,
+            0 0 5px black,
+            0 0 5px black,
+            0 0 5px black,
+            0 0 5px black,
+            0 0 5px black,
+            0 0 5px black,
+            0 0 5px black,
+            0 0 5px black,
+            0 0 5px black,
+            0 0 5px black,
+            0 0 5px black,
+            0 0 5px black;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 10px;
+
+    @media screen and (max-aspect-ratio: 32/19) {
+      bottom: auto;
+      right: auto;
+      position: relative;
+      text-align: left;
+      margin: 0 10px;
+      width: calc(50% - 20px);
+      float: left;
+      font-size: calc(min(var(--heightRest) * 0.76, 100vw / 13));
+      line-height: calc(min(var(--heightRest) * 0.76, 100vw / 13));
+      text-shadow: none;
+      background: none;
+      padding: 0;
+    }
 
     @media screen and (max-aspect-ratio: 32/23) {
       font-size: calc(var(--heightRest) * 0.46);
       line-height: calc(var(--heightRest) * 0.46);
       float: initial;
       width: auto;
+    }
+  }
+
+  .timer-with-preview.timer-flash & {
+    animation: flash-bgo 0.5s steps(1, end) 3;
+    @media screen and (max-aspect-ratio: 32/19) {
+      animation: none;
     }
   }
 }
