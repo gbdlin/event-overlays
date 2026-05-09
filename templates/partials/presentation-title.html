@@ -2,7 +2,7 @@
   <template v-if="screen.type == 'presentation-title'">
     <div class="obs-presentation-top-bar">
       <template v-if="current.type == 'talk'">
-        <span class="obs-presentation-author"><template v-for="author in current.authors">{{ author.name }}</template></span>
+        <span class="obs-presentation-author"><template v-for="(author, index) in current.authors">{{ author.name }}<template v-if="index < current.authors.length - 1">, </template></template></span>
         <span class="obs-presentation-title">{{ current.title }}</span>
       </template>
       <template v-else-if="current.type == 'lightning-talks'">
