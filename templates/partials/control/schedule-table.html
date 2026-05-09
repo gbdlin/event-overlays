@@ -6,7 +6,7 @@
     <th>Time</th>
     <th>Speaker</th>
     <th>Title</th>
-    <th>Dur</th>
+    <th v-if="state.show_duration || state.show_timer_duration" :colspan="state.show_duration && state.show_timer_duration ? 2 : 1">Dur</th>
     <th
         v-for="column in state.extra_columns"
         v-if="display == 'full' || display == 'no-header' || {{ show_all|default("false") }}"
@@ -21,7 +21,8 @@
           <td>{% raw %}{{ formatTime(entry.start) }}{% endraw %}</td>
           <td>{% raw %}{{ entry.author?entry.author.name:'---' }}{% endraw %}</td>
           <td>{% raw %}{{ entry.title }}{% endraw %}</td>
-          <td>{% raw %}{{ entry.duration }}{% endraw %}</td>
+          <td v-if="state.show_duration">{% raw %}{{ entry.duration }}{% endraw %}</td>
+          <td v-if="state.show_timer_duration">{% raw %}{{ entry.timer_duration }}{% endraw %}</td>
           <td
               v-for="column in state.extra_columns"
               v-if="display == 'full' || display == 'no-header' || {{ show_all|default("false") }}"

@@ -212,7 +212,23 @@ class State(BaseModel):
                 columns |= set(item.model_extra.keys())
         return list(columns)
 
-    def get_view_for(self, view_name: str) -> dict:
+    @computed_field
+    @property
+    def schedule_show_duration(self) -> bool:
+        for item in self.event.schedule:
+            if item.duration is not None:
+                return True
+        return False
+
+    @computed_field
+    @property
+    def schedule_show_timer_duration(self) -> bool:
+        for item in self.event.schedule:
+            if item.timer_duration is not None:
+                return True
+        return False
+
+    def get_view_for(self, view_name: str) -> dict | None:
         return self.event.views[view_name].model_dump() if view_name in self.event.views else None
 
     def replace_event(self, event: Event) -> None:

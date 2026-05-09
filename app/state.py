@@ -111,6 +111,8 @@ def get_state_update_for(
             return {
                 "schedule": state.schedule,
                 "extra_columns": state.schedule_extra_columns,
+                "show_duration": state.schedule_show_duration,
+                "show_timer_duration": state.schedule_show_timer_duration,
                 **global_scene_context,
             }
         case ("control" | "debug"):
@@ -124,6 +126,8 @@ def get_state_update_for(
                 "assigned_views": prepared_views,
                 "schedule": state.schedule,
                 "extra_columns": state.schedule_extra_columns,
+                "show_duration": state.schedule_show_duration,
+                "show_timer_duration": state.schedule_show_timer_duration,
                 **global_scene_context,
             }
     return global_scene_context

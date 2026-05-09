@@ -9,7 +9,17 @@ from urllib.parse import urljoin
 
 import jinja2
 from fastapi.utils import deep_dict_update
-from pydantic import AnyHttpUrl, BaseModel, computed_field, ConfigDict, Field, field_validator, HttpUrl, model_validator
+from pydantic import (
+    AnyHttpUrl,
+    BaseModel,
+    computed_field,
+    ConfigDict,
+    Field,
+    field_validator,
+    HttpUrl,
+    model_validator,
+    PlainSerializer,
+)
 
 from app.constants import EVENT_CONFIGS_ROOT
 
@@ -18,6 +28,12 @@ from ..utils.file_sha import get_file_sha
 
 if TYPE_CHECKING:
     from .state import State
+
+
+def timedelta_to_str(td: timedelta | None) -> str | None:
+    if td is None:
+        return None
+    return f"{td.seconds // 60}:{td.seconds % 60:02}"
 
 
 class ReferencingEvent:
@@ -55,7 +71,7 @@ class EventScheduleEntryBase(BaseModel):
     classes: list[str] = []
     show_in_schedule: bool = True
     duration: int | None = None
-    timer_duration: timedelta | None = None
+    timer_duration: Annotated[timedelta | None, PlainSerializer(timedelta_to_str)] = None
 
 
 class EventTalkBase(EventScheduleEntryBase):
