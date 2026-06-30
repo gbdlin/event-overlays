@@ -22,8 +22,10 @@
                 {{ formatTime(entry.start, screen.trim_time_zeros) }}
                 <template v-if="entry.end && screen.show_end_time"> - {{ formatTime(entry.end, screen.trim_time_zeros) }}</template>
               </span>
-              <span class="obs-intermission-schedule-talk-author-name">{{ entry.author.name }}</span>
-              <span class="obs-intermission-schedule-talk-title">{{ entry.title }}</span>
+              <div class="obs-intermission-schedule-entry-inner">
+                <span class="obs-intermission-schedule-talk-author-name">{{ entry.author.name }}</span>
+                <span class="obs-intermission-schedule-talk-title">{{ entry.title }}</span>
+              </div>
             </div>
           </template>
           <template v-else>
@@ -32,7 +34,9 @@
                 {{ formatTime(entry.start, screen.trim_time_zeros) }}
                 <template v-if="entry.end && screen.show_end_time"> - {{ formatTime(entry.end, screen.trim_time_zeros) }}</template>
               </span>
-              <span class="obs-intermission-schedule-misc-title">{{ entry.title }}</span>
+              <div class="obs-intermission-schedule-entry-inner">
+                <span class="obs-intermission-schedule-misc-title">{{ entry.title }}</span>
+              </div>
             </div>
           </template>
         </div>
@@ -40,7 +44,9 @@
 
       <div class="obs-intermission-schedule-entry obs-intermission-schedule-overflow" v-if="screen.schedule.filter(x => x.type != 'break' || !screen.skip_breaks).filter(x => x.show_in_schedule).length > event.template.schedule_length && screen.show_ellipsis">
         <div class="obs-intermission-schedule-entry-content">
-          <span class="obs-intermission-schedule-misc-title">And more...</span>
+          <div class="obs-intermission-schedule-entry-inner">
+            <span class="obs-intermission-schedule-misc-title">And more...</span>
+          </div>
         </div>
       </div>
     </template>
