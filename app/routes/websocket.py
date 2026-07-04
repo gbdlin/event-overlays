@@ -180,6 +180,7 @@ async def ws_view(
                                 continue
                             case {"action": "config.refresh"}:
                                 notify.add("scene")
+                                notify.add("scene-brb")
                                 notify.add("scene-presentation")
                                 notify.add("scene-schedule")
                                 notify.add("scene-title")
@@ -191,6 +192,7 @@ async def ws_view(
                                 state.fix_ticker()
                             case {"action": "config.refresh-recursive"}:
                                 notify.add("scene")
+                                notify.add("scene-brb")
                                 notify.add("scene-presentation")
                                 notify.add("scene-schedule")
                                 notify.add("scene-title")
@@ -203,6 +205,7 @@ async def ws_view(
                                 state.fix_ticker()
                             case {"action": "config.force-reload"}:
                                 notify.add("scene")
+                                notify.add("scene-brb")
                                 notify.add("scene-presentation")
                                 notify.add("scene-schedule")
                                 notify.add("scene-title")
