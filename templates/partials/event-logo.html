@@ -1,7 +1,7 @@
 {% raw %}
   <!-- Event Logo -->
   <div v-if="screen.logo" :class="['obs-event-logo', {'obs-event-logo-thumbnail': display !== 'scene'}]">
-    <img :src="event.logo_url" :alt="`${event.name} logo`">
+    <img :src="state.view.logo" :alt="`${event.name} logo`">
     <div class="obs-event-title">
       {{ event.title }}
     </div>

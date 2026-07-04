@@ -361,6 +361,8 @@ class View(BaseModel):
 
     screens: list[ViewScreen]
 
+    logo_url: HttpUrl | Path | None = None
+
     def refresh(self):
         for screen in self.screens:
             screen.refresh()
@@ -384,6 +386,10 @@ class View(BaseModel):
 
         return self.get_active_screens(self._event.get_state())
 
+    @computed_field
+    @property
+    def logo(self) -> HttpUrl | Path:
+        return self.logo_url if self.logo_url is not None else self._event.logo_url
 
 class Template(BaseModel):
     model_config = ConfigDict(extra="allow")
