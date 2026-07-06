@@ -204,9 +204,9 @@ class ScheduleViewScreen(BaseViewScreen):
 
     raw_length: Annotated[int | None, Field(validation_alias="length", exclude=True)] = None
 
-    show_start_time: bool = True
-    show_end_time: bool = False
-    skip_breaks: bool = False
+    schedule_show_start_time: Annotated[bool | None, Field(validation_alias="show_start_time")] = None
+    schedule_show_end_time: Annotated[bool | None, Field(validation_alias="show_end_time")] = None
+    schedule_skip_breaks: Annotated[bool | None, Field(validation_alias="skip_breaks")] = None
 
     @computed_field()
     @property
@@ -224,7 +224,7 @@ class ScheduleViewScreen(BaseViewScreen):
     @computed_field()
     @property
     def header(self) -> str:
-        if self._event.get_state() is None:
+        if self._event is None or self._event.get_state() is None:
             return None
 
         if self.header_template is None:
@@ -235,8 +235,12 @@ class ScheduleViewScreen(BaseViewScreen):
     @computed_field()
     @property
     def subheader(self) -> str:
-        if self.subheader_template is None:
+        if self._event is None or self._event.get_state() is None:
             return None
+
+        if self.subheader_template is None:
+            return self._event.get_state().schedule_subheader
+
         return self.render_template(self.subheader_template)
 
     @computed_field()
@@ -256,6 +260,33 @@ class ScheduleViewScreen(BaseViewScreen):
         if self._event.get_state() is None:
             return []
         return self._event.get_state().remaining_schedule
+
+    @computed_field()
+    @property
+    def show_end_time(self) -> bool:
+        if self.schedule_show_end_time is None:
+            if self._event is None:
+                return True
+            return self._event.template.schedule_show_end_time
+        return self.schedule_show_end_time
+
+    @computed_field()
+    @property
+    def show_start_time(self) -> bool:
+        if self.schedule_show_start_time is None:
+            if self._event is None:
+                return False
+            return self._event.template.schedule_show_start_time
+        return self.schedule_show_start_time
+
+    @computed_field()
+    @property
+    def skip_breaks(self) -> bool:
+        if self.schedule_skip_breaks is None:
+            if self._event is None:
+                return False
+            return self._event.template.schedule_skip_breaks
+        return self.schedule_skip_breaks
 
 
 class OtherScheduleViewScreen(ScheduleViewScreen):
@@ -406,6 +437,10 @@ class Template(BaseModel):
     ticker_source: Literal["manual", "schedule"] = "manual"
     schedule_ticker_leeway: int = 10
     schedule_header: str = "{next_word} in the schedule:"
+    schedule_subheader: str = ""
+    schedule_show_start_time: bool = True
+    schedule_show_end_time: bool = False
+    schedule_skip_breaks: bool = False
 
     demo_screens: list[str] = []
 
@@ -517,6 +552,9 @@ class Event(ContextualModel):
 
     def get_schedule_header(self, state, next_word) -> str:
         return self.template.schedule_header.format(event=self, state=state, next_word=next_word)
+
+    def get_schedule_subheader(self, state, next_word) -> str:
+        return self.template.schedule_subheader.format(event=self, state=state, next_word=next_word)
 
     @computed_field
     @property

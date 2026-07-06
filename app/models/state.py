@@ -205,6 +205,14 @@ class State(BaseModel):
 
     @computed_field
     @property
+    def schedule_subheader(self) -> str:
+        return self.event.get_schedule_subheader(
+            state=self,
+            next_word="Today" if self._ticker == 0 else "Next",
+        )
+
+    @computed_field
+    @property
     def schedule_extra_columns(self) -> list[str]:
         columns = set()
         for item in self.event.schedule:
