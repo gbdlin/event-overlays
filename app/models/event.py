@@ -364,6 +364,8 @@ class SponsorGroupsViewScreen(BaseViewScreen):
     type: Literal["sponsor-groups"]
     group_numbers: Annotated[list[int], Field(alias="groups")]
 
+    with_names: bool = False
+
     @computed_field()
     @property
     def groups(self) -> list[EventSponsorGroup]:
