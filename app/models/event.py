@@ -408,7 +408,7 @@ class View(BaseModel):
         return [
             screen
             for screen in self.screens
-            if jinja_env.from_string(screen.condition).render(state=state) == "True"
+            if jinja_env.from_string(screen.condition).render(state=state, screen=screen) == "True"
         ]
 
     @computed_field
