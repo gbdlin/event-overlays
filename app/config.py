@@ -1,6 +1,7 @@
 import tomllib
 
 from pydantic import BaseModel
+from pydantic_settings import BaseSettings
 
 from app.constants import CONFIG_ROOT
 
@@ -19,5 +20,9 @@ class Config(BaseModel):
         return cls.model_validate(toml_data["config"])
 
 
+class Settings(BaseSettings):
+    sentry_dsn: str | None = None
+
 
 config = Config.load_config()
+settings = Settings()
