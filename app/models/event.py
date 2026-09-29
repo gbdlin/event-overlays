@@ -1,6 +1,6 @@
 import tomllib
 from datetime import datetime, timedelta
-from enum import StrEnum
+from enum import Enum, StrEnum
 from functools import cached_property
 from itertools import chain
 from pathlib import Path, PurePath
@@ -196,6 +196,12 @@ class NextViewScreen(BaseViewScreen):
     type: Literal["next"]
 
 
+class ScheduleViewPhotosMode(str, Enum):
+    IF_PRESENT = "if-present"
+    ALWAYS = "always"
+    MULTIPLE = "multiple"
+
+
 class ScheduleViewScreen(BaseViewScreen):
     type: Literal["schedule"]
 
@@ -207,6 +213,10 @@ class ScheduleViewScreen(BaseViewScreen):
     schedule_show_start_time: Annotated[bool | None, Field(validation_alias="show_start_time")] = None
     schedule_show_end_time: Annotated[bool | None, Field(validation_alias="show_end_time")] = None
     schedule_skip_breaks: Annotated[bool | None, Field(validation_alias="skip_breaks")] = None
+    schedule_show_photos: Annotated[
+        ScheduleViewPhotosMode | None,
+        Field(validation_alias="show_photos"),
+    ] = None
 
     @computed_field()
     @property
@@ -287,6 +297,15 @@ class ScheduleViewScreen(BaseViewScreen):
                 return False
             return self._event.template.schedule_skip_breaks
         return self.schedule_skip_breaks
+
+    @computed_field()
+    @property
+    def show_photos(self) -> ScheduleViewPhotosMode:
+        if self.schedule_show_photos is None:
+            if self._event is None:
+                return ScheduleViewPhotosMode.IF_PRESENT
+            return self._event.template.schedule_show_photos
+        return self.schedule_show_photos
 
 
 class OtherScheduleViewScreen(ScheduleViewScreen):
@@ -371,7 +390,7 @@ class SponsorGroupsViewScreen(BaseViewScreen):
     def groups(self) -> list[EventSponsorGroup]:
         if self._event is None:
             return []
-        return [self._event.sponsor_groups[no] for no in self.group_numbers]
+        return [self._event.sponsor_groups[no] for no in self.group_numbers if len(self._event.sponsor_groups) > no]
 
 
 class SponsorsViewScreen(BaseViewScreen):
@@ -443,6 +462,7 @@ class Template(BaseModel):
     schedule_show_start_time: bool = True
     schedule_show_end_time: bool = False
     schedule_skip_breaks: bool = False
+    schedule_show_photos: ScheduleViewPhotosMode = ScheduleViewPhotosMode.IF_PRESENT
 
     demo_screens: list[str] = []
 
@@ -489,7 +509,7 @@ class Event(ContextualModel):
 
     path: PurePath  # this is injected by config loader
     name: str
-    logo_url: HttpUrl | Path
+    logo_url: HttpUrl | Path | None = None
     starts: datetime
     branding: str | None = None
     sponsors: list[EventSponsor] = []
