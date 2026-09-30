@@ -26,6 +26,7 @@ async def get_rig(
 
 async def control_view(request: Request, rig: str, control_password: str):
     return renderer.TemplateResponse(
+        request,
         "control.html",
         {
             "request": request,
@@ -40,6 +41,7 @@ async def checklists_list_view(
     rig: Annotated[RigConfig, Depends(get_rig)],
 ):
     return renderer.TemplateResponse(
+        request,
         "checklists_list.html",
         {
             "request": request,
@@ -54,6 +56,7 @@ async def checklist_view(
     checklist: Annotated[str, Path(validation_alias="checklist")],
 ):
     return renderer.TemplateResponse(
+        request,
         "checklist.html",
         {
             "request": request,

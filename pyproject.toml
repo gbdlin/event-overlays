@@ -2,40 +2,60 @@
 name = "event-overlays"
 version = "0.1.0"
 description = ""
-authors = [
-    {name="GwynBleidD", email="gbd.lin@gmail.com"},
-]
-readme = "README.md"
+authors = [{ name = "GwynBleidD", email = "gbd.lin@gmail.com" }]
 requires-python = ">=3.11,<4.0"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
 dependencies = [
-    "fastapi~=0.115.8",
-    "fastapi-utilities~=0.3.0",
-    "uvicorn[standard]~=0.32.0",
-    "jinja2>=3.1.4,==3.*.*",
-    "pydantic>=2.9.2,==2.*.*",
-    "html2image>=2.0.5,==2.*.*",
-    "pydantic-settings>=2.5.2,==2.*.*",
+    "fastapi~=0.141.1",
+    "fastapi-utilities~=0.3.1",
+    "html2image>=2.0.7,==2.*",
+    "jinja2>=3.1.6,==3.*",
+    "pydantic>=2.13.4,==2.*",
+    "pydantic-settings>=2.14.2,==2.*",
     "sentry-sdk>=2.69.1,<3.0.0",
+    "uvicorn[standard]~=0.53.0",
 ]
 
-[tool.poetry]
-package-mode = false
+[dependency-groups]
+media_upload = [
+    "pillow>=12.2.0,<13",
+    "pyatem>=0.10.0,<0.11",
+    "pyusb>=1.3.1,<2",
+    "tqdm>=4.68.3,<5",
+]
+programapi = [
+    "colorama>=0.4.6,<0.5",
+    "httpx2>=2.5.0,<3",
+    "tomlkit>=0.15.0,<0.16",
+]
+pizza = [
+    "colorama>=0.4.6,<0.5",
+    "httpx2>=2.5.0,<3",
+    "json5>=0.15.0,<0.16",
+    "tomlkit>=0.15.0,<0.16",
+]
+devopsdays = [
+    "colorama>=0.4.6,<0.5",
+    "httpx2>=2.5.0,<3",
+    "json5>=0.15.0,<0.16",
+    "pyyaml>=6.0.3,<7",
+    "tomlkit>=0.15.0,<0.16",
+]
+dev = [
+    "ipython>=9.15.0,<10",
+]
 
-[tool.poetry.group.media_upload.dependencies]
-pyatem = "^0.9.0"
-pyusb = "^1.2.1"
-pillow = "^10.1.0"
-tqdm = "^4.66.1"
-
-[tool.poetry.group.programapi.dependencies]
-httpx = "^0.27.0"
-tomlkit = "^0.12.5"
-
-
-
-[tool.poetry.group.dev.dependencies]
-ipython = "^9.13.0"
+[tool.uv]
+package = false
+exclude-newer = "7 days"
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.12.5,<0.13.0"]
+build-backend = "uv_build"

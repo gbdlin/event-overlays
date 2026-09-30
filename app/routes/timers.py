@@ -14,6 +14,7 @@ async def timer_redirect(timer_slug: str):
 
 async def speaker_timer_view(request: Request, rig: str, name: str | None = None, preview: bool = False):
     return renderer.TemplateResponse(
+        request,
         "speaker-timer.html",
         {
             "request": request,

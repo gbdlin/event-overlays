@@ -9,6 +9,7 @@ async def demo_view(request: Request, path: str):
     event.template.ticker_source = "manual"
 
     return renderer.TemplateResponse(
+        request,
         "demo.html",
         {
             "request": request,

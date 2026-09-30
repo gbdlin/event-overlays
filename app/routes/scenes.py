@@ -53,6 +53,7 @@ async def scene_view(
     else:
         scene_data = None
     return renderer.TemplateResponse(
+        request,
         "scene.html",
         {
             "request": request,
@@ -85,6 +86,7 @@ async def signage_view(
     else:
         view_data = None
     return renderer.TemplateResponse(
+        request,
         "signage.html",
         {
             "request": request,

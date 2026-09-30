@@ -8,35 +8,30 @@ COPY ./static /code/static
 RUN ["/opt/dart-sass/sass", "/code/static/"]
 
 # Python app
-FROM python:3.12-slim-bookworm
+FROM python:3.14-slim-trixie
 
-ENV POETRY_VERSION=2.0.1
 ENV PYTHONBUFFERED=1
-ENV POETRY_INSTALLER_MAX_WORKERS=1
-ENV POETRY_VIRTUALENVS_IN_PROJECT=false
-ENV POETRY_VIRTUALENVS_CREATE=false
+ENV UV_PROJECT_ENVIRONMENT="/usr/local"
+ENV UV_SYSTEM_PYTHON=true
 
-RUN apt update \
-    && apt install -y \
-      curl \
-      libffi-dev  \
-    && curl -sSL https://install.python-poetry.org | python - --version ${POETRY_VERSION} \
-    && apt remove -y --autoremove --purge curl libffi-dev \
-    && apt clean && rm -rf /var/lib/apt/lists/*
-
-ENV PATH="/root/.local/bin:$PATH"
+COPY --from=ghcr.io/astral-sh/uv:0.12.21 /uv /uvx /bin/
 
 WORKDIR /code
 
-COPY ./pyproject.toml ./poetry.lock /code/
-RUN poetry install --no-interaction --no-root --only=main
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+  uv sync --no-dev --no-install-project --locked
 
 ARG BUILD_COMMIT_SHA
 ENV BUILD_COMMIT_SHA ${BUILD_COMMIT_SHA:-}
 
-#RUN if [ "${BUILD_COMMIT_SHA}" = "localdev" ]; then \
+#RUN --mount=type=cache,target=/root/.cache/uv \
+#    --mount=type=bind,source=uv.lock,target=uv.lock \
+#    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+#  if [ "${BUILD_COMMIT_SHA}" = "localdev" ]; then \
 #    poetry install --no-interaction --no-root --only=dev; \
-#    fi
+#  fi
 
 # All directories are unpacked. Due to it, each file must be specified separately!
 COPY . /code
