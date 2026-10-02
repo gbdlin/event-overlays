@@ -78,6 +78,7 @@
            :class="['obs-intermission-content', `onScreenNo-${screen_no}`, {'onCurrentScreen': currentScreenNumber == screen_no}]"
       >
         {% include "partials/event-logo.html" %}
+        {% include "partials/current-time.html" %}
         {% include "partials/message.html" %}
         {% include "partials/next.html" %}
         {% include "partials/presentation-title.html" %}

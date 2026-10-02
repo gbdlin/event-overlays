@@ -279,7 +279,7 @@ const vue_app = createApp({
       }),
       clock: computed(function () {
         const [hours, f_minutes, f_seconds, f_msec] = clockPieces(m_now.value);
-        return `${hours}:${f_minutes}:${f_seconds}`
+        return `${hours}<span>:</span>${f_minutes}<span>:</span>${f_seconds}`
       }),
       timeFormat(value) {
         const [minutes, f_seconds] = timerPieces(value);

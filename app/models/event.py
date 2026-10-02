@@ -425,6 +425,7 @@ class View(BaseModel):
 
     screens: list[ViewScreen]
 
+    show_current_time: bool = False
     logo_url: HttpUrl | Path | None = None
 
     def refresh(self):

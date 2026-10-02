@@ -1,0 +1,9 @@
+{% raw %}
+  <template v-if="state.view.show_current_time">
+    <div class="obs-intermission-current-time">
+      <i class="fa-regular fa-clock"></i>
+      Now:
+      <span class="time" v-html="clock"></span>
+    </div>
+  </template>
+{% endraw %}
