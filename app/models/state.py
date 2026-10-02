@@ -205,8 +205,16 @@ class State(BaseModel):
 
     @computed_field
     @property
-    def schedule_subheader(self) -> str:
-        return self.event.get_schedule_subheader(
+    def schedule_header2(self) -> str:
+        return self.event.get_schedule_header2(
+            state=self,
+            next_word="Today" if self._ticker == 0 else "Next",
+        )
+
+    @computed_field
+    @property
+    def schedule_header3(self) -> str:
+        return self.event.get_schedule_header3(
             state=self,
             next_word="Today" if self._ticker == 0 else "Next",
         )

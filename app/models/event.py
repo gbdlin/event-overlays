@@ -206,7 +206,8 @@ class ScheduleViewScreen(BaseViewScreen):
     type: Literal["schedule"]
 
     header_template: Annotated[str | None, Field(validation_alias="header", exclude=True)] = None
-    subheader_template: Annotated[str | None, Field(validation_alias="subheader", exclude=True)] = None
+    header2_template: Annotated[str | None, Field(validation_alias="header2", exclude=True)] = None
+    header3_template: Annotated[str | None, Field(validation_alias="header3", exclude=True)] = None
 
     raw_length: Annotated[int | None, Field(validation_alias="length", exclude=True)] = None
 
@@ -244,14 +245,25 @@ class ScheduleViewScreen(BaseViewScreen):
 
     @computed_field()
     @property
-    def subheader(self) -> str:
+    def header2(self) -> str:
         if self._event is None or self._event.get_state() is None:
             return None
 
-        if self.subheader_template is None:
-            return self._event.get_state().schedule_subheader
+        if self.header2_template is None:
+            return self._event.get_state().schedule_header2
 
-        return self.render_template(self.subheader_template)
+        return self.render_template(self.header2_template)
+
+    @computed_field()
+    @property
+    def header3(self) -> str:
+        if self._event is None or self._event.get_state() is None:
+            return None
+
+        if self.header3_template is None:
+            return self._event.get_state().schedule_header3
+
+        return self.render_template(self.header3_template)
 
     @computed_field()
     @property
@@ -458,7 +470,8 @@ class Template(BaseModel):
     ticker_source: Literal["manual", "schedule"] = "manual"
     schedule_ticker_leeway: int = 10
     schedule_header: str = "{next_word} in the schedule:"
-    schedule_subheader: str = ""
+    schedule_header2: str = ""
+    schedule_header3: str = ""
     schedule_show_start_time: bool = True
     schedule_show_end_time: bool = False
     schedule_skip_breaks: bool = False
@@ -575,8 +588,11 @@ class Event(ContextualModel):
     def get_schedule_header(self, state, next_word) -> str:
         return self.template.schedule_header.format(event=self, state=state, next_word=next_word)
 
-    def get_schedule_subheader(self, state, next_word) -> str:
-        return self.template.schedule_subheader.format(event=self, state=state, next_word=next_word)
+    def get_schedule_header2(self, state, next_word) -> str:
+        return self.template.schedule_header2.format(event=self, state=state, next_word=next_word)
+
+    def get_schedule_header3(self, state, next_word) -> str:
+        return self.template.schedule_header3.format(event=self, state=state, next_word=next_word)
 
     @computed_field
     @property

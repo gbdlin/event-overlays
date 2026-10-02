@@ -5,7 +5,8 @@
       <div class="obs-intermission-schedule-title" v-if="display !== 'thumbnail' && screen.header">
         {{ screen.header }}
       </div>
-      <div class="obs-intermission-schedule-subheader" v-if="screen.subheader">{{ screen.subheader }}</div>
+      <div class="obs-intermission-schedule-header2" v-if="screen.header2">{{ screen.header2 }}</div>
+      <div class="obs-intermission-schedule-header3" v-if="screen.header3">{{ screen.header3 }}</div>
       <div class="obs-intermission-schedule-inner">
         <template v-for="entry in screen.schedule.filter(x => x.type != 'break' || !screen.skip_breaks).filter(x => x.show_in_schedule).slice(0, screen.length)"
         >
