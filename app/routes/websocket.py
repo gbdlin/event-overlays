@@ -21,7 +21,7 @@ async def notify_roles(
     rig_assigned_views: dict | None = None,
 ) -> None:
     for target_role in (
-        'scene"'
+        "scene",
         "scene-brb",
         "scene-title",
         "scene-schedule",

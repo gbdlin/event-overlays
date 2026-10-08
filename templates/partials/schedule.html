@@ -54,7 +54,8 @@
                   v-for="(author, index) in entry.authors"
                   :class="['obs-intermission-schedule-talk-picture', `picture-no-${index}`]"
               >
-                <img :src="author.picture_url" :alt="author.name">
+                <img :src="author.picture_url" :alt="author.name" v-if="author.picture_url">
+                <span v-else>{{ author.name.match(/\b\w/g).join('') }}</span>
               </div>
               <div class="obs-intermission-schedule-entry-content">
                 <span class="obs-intermission-schedule-entry-start-time" v-if="entry.start && screen.show_start_time">

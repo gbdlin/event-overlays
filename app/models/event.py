@@ -195,8 +195,22 @@ class MessageViewScreen(BaseViewScreen):
 class NextViewScreen(BaseViewScreen):
     type: Literal["next"]
 
+    next_show_photos: Annotated[
+        ViewPhotosMode | None,
+        Field(validation_alias="show_photos"),
+    ] = None
 
-class ScheduleViewPhotosMode(str, Enum):
+    @computed_field()
+    @property
+    def show_photos(self) -> ViewPhotosMode:
+        if self.next_show_photos is None:
+            if self._event is None:
+                return ViewPhotosMode.IF_PRESENT
+            return self._event.template.next_show_photos
+        return self.next_show_photos
+
+
+class ViewPhotosMode(str, Enum):
     IF_PRESENT = "if-present"
     ALWAYS = "always"
     MULTIPLE = "multiple"
@@ -215,7 +229,7 @@ class ScheduleViewScreen(BaseViewScreen):
     schedule_show_end_time: Annotated[bool | None, Field(validation_alias="show_end_time")] = None
     schedule_skip_breaks: Annotated[bool | None, Field(validation_alias="skip_breaks")] = None
     schedule_show_photos: Annotated[
-        ScheduleViewPhotosMode | None,
+        ViewPhotosMode | None,
         Field(validation_alias="show_photos"),
     ] = None
 
@@ -312,10 +326,10 @@ class ScheduleViewScreen(BaseViewScreen):
 
     @computed_field()
     @property
-    def show_photos(self) -> ScheduleViewPhotosMode:
+    def show_photos(self) -> ViewPhotosMode:
         if self.schedule_show_photos is None:
             if self._event is None:
-                return ScheduleViewPhotosMode.IF_PRESENT
+                return ViewPhotosMode.IF_PRESENT
             return self._event.template.schedule_show_photos
         return self.schedule_show_photos
 
@@ -476,7 +490,9 @@ class Template(BaseModel):
     schedule_show_start_time: bool = True
     schedule_show_end_time: bool = False
     schedule_skip_breaks: bool = False
-    schedule_show_photos: ScheduleViewPhotosMode = ScheduleViewPhotosMode.IF_PRESENT
+    schedule_show_photos: ViewPhotosMode = ViewPhotosMode.IF_PRESENT
+
+    next_show_photos: ViewPhotosMode = ViewPhotosMode.IF_PRESENT
 
     demo_screens: list[str] = []
 

@@ -472,3 +472,6 @@ static/timer.css
 static/timer.css.map
 static/branding/*.css
 static/branding/*.css.map
+
+epsnapshots/
+chrome-headless-shell/

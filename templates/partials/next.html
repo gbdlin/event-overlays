@@ -1,13 +1,46 @@
 {% raw %}
   <div class="obs-intermission-next" v-if="screen.type == 'next'">
-    <div :class="['obs-intermission-next-entry', `obs-intermission-schedule-${current.type}`, current.classes]"
+    <div
+        :class="[
+          'obs-intermission-next-entry',
+          `obs-intermission-schedule-${current.type}`,
+          (current.type === 'talk' && screen.show_photos == 'multiple')
+          ? `with-${current.authors.length}-pictures`
+          : (current.type === 'talk' && ((screen.show_photos == 'if-present' && current.author.picture_url) || screen.show_photos === 'always'))
+          ? `with-1-pictures`
+          : 'no-picture',
+          current.classes,
+        ]"
          :key="`schedule-el-${current.lp}`">
       <template v-if="current.type == 'talk'">
-        <div class="obs-intermission-next-entry-picture" v-if="current.author.picture_url">
+        <div
+            class="obs-intermission-next-entry-picture"
+            v-if="(current.author.picture_url && screen.show_photos == 'if-present') || screen.show_photos == 'always'"
+        >
           <img :src="current.author.picture_url" :alt="current.author.name">
         </div>
+        <div
+            v-if="screen.show_photos == 'multiple'"
+            v-for="(author, index) in current.authors"
+            :class="['obs-intermission-next-entry-picture', `picture-no-${index}`]"
+        >
+          <img :src="author.picture_url" :alt="author.name" v-if="author.picture_url">
+          <span v-else>{{ author.name.match(/\b\w/g).join('') }}</span>
+        </div>
         <div class="obs-intermission-next-entry-content">
-          <span class="obs-intermission-next-entry-author-name"><template v-for="author in current.authors">{{ author.name_title || author.name }}</template></span>
+          <span
+              v-if="screen.show_photos == 'multiple'"
+              v-for="(author, index) in current.authors"
+              :class="['obs-intermission-next-entry-author-name', `author-no-${index}`]"
+          >
+            {{ author.name_title || author.name }}
+          </span>
+          <span
+              v-else
+              class="obs-intermission-next-entry-author-name"
+          >
+            <template v-for="author in current.authors">{{ author.name_title || author.name }}</template>
+          </span>
           <span class="obs-intermission-next-entry-title">{{ current.title }}</span>
         </div>
       </template>
