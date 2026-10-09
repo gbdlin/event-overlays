@@ -604,6 +604,13 @@ dialog {
   }
 }
 
+div.clock {
+  font-size: 64px;
+  text-align: center;
+  margin: 12px 0;
+  font-family: "Roboto Mono", monospace;
+}
+
 .grid {
   display: grid;
   width: 2460px;
