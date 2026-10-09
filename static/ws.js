@@ -18,6 +18,7 @@ const m_ticker = ref(0);
 setInterval(() => m_ticker.value += 100, 100);
 const initSettings = JSON.parse(document.getElementById("initSettings").textContent)
 let dateFormatter = new Intl.DateTimeFormat('default', {hour12: false, timeZone: "UTC", timeStyle: "short"})
+let msecDateFormatter = new Intl.DateTimeFormat('default', {hour12: false, timeZone: "UTC", timeStyle: "short"})
 
 function sendMessage(data) {
   ws.send(JSON.stringify(data));
@@ -138,6 +139,7 @@ async function parseEventData(data) {
     m_rig.value = data.rig;
     m_screen_counter.value = 0;
     dateFormatter = new Intl.DateTimeFormat('default', {hour12: false, timeZone: m_event.value.timezone, timeStyle: "short"})
+    msecDateFormatter = new Intl.DateTimeFormat('default', {hour12: false, timeZone: m_event.value.timezone, timeStyle: "full"})
     delete data.rig;
     if (data.stream !== undefined) {
       m_timer_stream.value = data.stream
@@ -193,11 +195,12 @@ if (initSettings.ws !== undefined) {
 
 function clockPieces(value) {
   var date = new Date(value);
+  var parts = msecDateFormatter.formatToParts(date);
 
   return [
-    String(date.getHours()).padStart(2, "0"),
-    String(date.getMinutes()).padStart(2, "0"),
-    String(date.getSeconds()).padStart(2, "0"),
+    String(parts[0].value),
+    String(parts[2].value),
+    String(parts[4].value),
     String(date.getMilliseconds()).padStart(3, "0"),
   ];
 }
