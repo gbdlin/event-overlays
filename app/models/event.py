@@ -184,6 +184,46 @@ class BaseViewScreen(ReferencingEvent, BaseModel):
         return self.render_template(self.message_template)
 
 
+class BaseViewScreenWithHeaders(BaseViewScreen):
+    header_template: Annotated[str | None, Field(validation_alias="header", exclude=True)] = None
+    header2_template: Annotated[str | None, Field(validation_alias="header2", exclude=True)] = None
+    header3_template: Annotated[str | None, Field(validation_alias="header3", exclude=True)] = None
+
+    @computed_field()
+    @property
+    def header(self) -> str:
+        if self._event is None or self._event.get_state() is None:
+            return None
+
+        if self.header_template is None:
+            return getattr(self._event.get_state(), f"{self.type}_header", "")
+
+        return self.render_template(self.header_template)
+
+    @computed_field()
+    @property
+    def header2(self) -> str:
+        if self._event is None or self._event.get_state() is None:
+            return None
+
+        if self.header2_template is None:
+            return getattr(self._event.get_state(), f"{self.type}_header2", "")
+
+        return self.render_template(self.header2_template)
+
+    @computed_field()
+    @property
+    def header3(self) -> str:
+        if self._event is None or self._event.get_state() is None:
+            return None
+
+        if self.header3_template is None:
+            return getattr(self._event.get_state(), f"{self.type}_header3", "")
+
+        return self.render_template(self.header3_template)
+
+
+
 class PresentationTitleViewScreen(BaseViewScreen):
     type: Literal["presentation-title"]
 
@@ -216,12 +256,8 @@ class ViewPhotosMode(str, Enum):
     MULTIPLE = "multiple"
 
 
-class ScheduleViewScreen(BaseViewScreen):
+class ScheduleViewScreen(BaseViewScreenWithHeaders):
     type: Literal["schedule"]
-
-    header_template: Annotated[str | None, Field(validation_alias="header", exclude=True)] = None
-    header2_template: Annotated[str | None, Field(validation_alias="header2", exclude=True)] = None
-    header3_template: Annotated[str | None, Field(validation_alias="header3", exclude=True)] = None
 
     raw_length: Annotated[int | None, Field(validation_alias="length", exclude=True)] = None
 
@@ -245,39 +281,6 @@ class ScheduleViewScreen(BaseViewScreen):
             return "Starting soon..." if state.current_state == (0, False) else "Be right back..."
 
         return self.render_template(self.info_template)
-
-    @computed_field()
-    @property
-    def header(self) -> str:
-        if self._event is None or self._event.get_state() is None:
-            return None
-
-        if self.header_template is None:
-            return self._event.get_state().schedule_header
-
-        return self.render_template(self.header_template)
-
-    @computed_field()
-    @property
-    def header2(self) -> str:
-        if self._event is None or self._event.get_state() is None:
-            return None
-
-        if self.header2_template is None:
-            return self._event.get_state().schedule_header2
-
-        return self.render_template(self.header2_template)
-
-    @computed_field()
-    @property
-    def header3(self) -> str:
-        if self._event is None or self._event.get_state() is None:
-            return None
-
-        if self.header3_template is None:
-            return self._event.get_state().schedule_header3
-
-        return self.render_template(self.header3_template)
 
     @computed_field()
     @property
@@ -427,8 +430,14 @@ class VideoViewScreen(BaseViewScreen):
     type: Literal["video"]
 
 
+class QRViewScreen(BaseViewScreenWithHeaders):
+    type: Literal["qr"]
+
+    qr_url: AnyHttpUrl | str | None = None
+
+
 type ViewScreen = Annotated[
-    PresentationTitleViewScreen | MessageViewScreen | NextViewScreen | ScheduleViewScreen | OtherScheduleViewScreen | OtherSchedulesViewScreen | SponsorsViewScreen | SponsorGroupsViewScreen | VideoViewScreen,
+    PresentationTitleViewScreen | MessageViewScreen | NextViewScreen | ScheduleViewScreen | OtherScheduleViewScreen | OtherSchedulesViewScreen | SponsorsViewScreen | SponsorGroupsViewScreen | VideoViewScreen | QRViewScreen,
     Field(discriminator="type"),
 ]
 
@@ -487,6 +496,9 @@ class Template(BaseModel):
     schedule_header: str = "{next_word} in the schedule:"
     schedule_header2: str = ""
     schedule_header3: str = ""
+    qr_header: str = ""
+    qr_header2: str = ""
+    qr_header3: str = ""
     schedule_show_start_time: bool = True
     schedule_show_end_time: bool = False
     schedule_skip_breaks: bool = False
@@ -610,6 +622,15 @@ class Event(ContextualModel):
 
     def get_schedule_header3(self, state, next_word) -> str:
         return self.template.schedule_header3.format(event=self, state=state, next_word=next_word)
+
+    def get_qr_header(self, state) -> str:
+        return self.template.qr_header.format(event=self, state=state)
+
+    def get_qr_header2(self, state) -> str:
+        return self.template.qr_header2.format(event=self, state=state)
+
+    def get_qr_header3(self, state) -> str:
+        return self.template.qr_header3.format(event=self, state=state)
 
     @computed_field
     @property

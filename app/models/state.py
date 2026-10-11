@@ -221,6 +221,27 @@ class State(BaseModel):
 
     @computed_field
     @property
+    def qr_header(self) -> str:
+        return self.event.get_qr_header(
+            state=self,
+        )
+
+    @computed_field
+    @property
+    def qr_header2(self) -> str:
+        return self.event.get_qr_header2(
+            state=self,
+        )
+
+    @computed_field
+    @property
+    def qr_header3(self) -> str:
+        return self.event.get_qr_header3(
+            state=self,
+        )
+
+    @computed_field
+    @property
     def schedule_extra_columns(self) -> list[str]:
         columns = set()
         for item in self.event.schedule:
