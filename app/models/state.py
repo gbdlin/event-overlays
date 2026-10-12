@@ -138,6 +138,15 @@ class State(BaseModel):
     def current_schedule_item(self) -> EventScheduleItem:
         return self.event.schedule[self._schedule_position(self._ticker)]
 
+    @computed_field
+    @property
+    def next_schedule_item(self) -> EventScheduleItem:
+        return (
+            self.event.schedule[self._schedule_screen_ticker]
+            if self._schedule_screen_ticker < len(self.event.schedule)
+            else self.current_schedule_item
+        )
+
     @property
     def remaining_schedule(self) -> list[EventScheduleItem]:
         return self.event.schedule[self._schedule_screen_ticker:]
@@ -159,7 +168,10 @@ class State(BaseModel):
     @computed_field
     @property
     def title_screen_content(self) -> tuple[str, dict]:
-        return "next", {**self.global_context, "entry": self.current_schedule_item.model_dump()}
+        return (
+            "next",
+            {**self.global_context, "entry": self.current_schedule_item, "next": self.next_schedule_item}
+        )
 
     @computed_field
     @property
@@ -180,7 +192,10 @@ class State(BaseModel):
     @computed_field
     @property
     def presentation_screen_content(self) -> tuple[str, dict]:
-        return "presentation", {**self.global_context, "entry": self.current_schedule_item}
+        return (
+            "presentation",
+            {**self.global_context, "entry": self.current_schedule_item, "next": self.next_schedule_item},
+        )
 
     @computed_field
     @property

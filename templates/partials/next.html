@@ -3,28 +3,28 @@
     <div
         :class="[
           'obs-intermission-next-entry',
-          `obs-intermission-schedule-${current.type}`,
-          (current.type === 'talk' && screen.show_photos == 'multiple')
-          ? `with-${current.authors.length}-pictures`
-          : (current.type === 'talk' && ((screen.show_photos == 'if-present' && current.author.picture_url) || screen.show_photos === 'always'))
+          `obs-intermission-schedule-${next.type}`,
+          (next.type === 'talk' && screen.show_photos == 'multiple')
+          ? `with-${next.authors.length}-pictures`
+          : (next.type === 'talk' && ((screen.show_photos == 'if-present' && next.author.picture_url) || screen.show_photos === 'always'))
           ? `with-1-pictures`
           : 'no-picture',
-          current.classes,
+          next.classes,
           {
-             'no-author': (current.type !== 'talk' || current.authors.length === 0),
+             'no-author': (next.type !== 'talk' || next.authors.length === 0),
           },
         ]"
-         :key="`schedule-el-${current.lp}`">
-      <template v-if="current.type == 'talk'">
+         :key="`schedule-el-${next.lp}`">
+      <template v-if="next.type == 'talk'">
         <div
             class="obs-intermission-next-entry-picture"
-            v-if="(current.author.picture_url && screen.show_photos == 'if-present') || screen.show_photos == 'always'"
+            v-if="(next.author.picture_url && screen.show_photos == 'if-present') || screen.show_photos == 'always'"
         >
-          <img :src="current.author.picture_url" :alt="current.author.name">
+          <img :src="next.author.picture_url" :alt="next.author.name">
         </div>
         <div
             v-if="screen.show_photos == 'multiple'"
-            v-for="(author, index) in current.authors"
+            v-for="(author, index) in next.authors"
             :class="['obs-intermission-next-entry-picture', `picture-no-${index}`]"
         >
           <img :src="author.picture_url" :alt="author.name" v-if="author.picture_url">
@@ -33,7 +33,7 @@
         <div class="obs-intermission-next-entry-content">
           <span
               v-if="screen.show_photos == 'multiple'"
-              v-for="(author, index) in current.authors"
+              v-for="(author, index) in next.authors"
               :class="['obs-intermission-next-entry-author-name', `author-no-${index}`]"
           >
             {{ author.name_title || author.name }}
@@ -42,19 +42,19 @@
               v-else
               class="obs-intermission-next-entry-author-name"
           >
-            <template v-for="author in current.authors">{{ author.name_title || author.name }}</template>
+            <template v-for="author in next.authors">{{ author.name_title || author.name }}</template>
           </span>
-          <span class="obs-intermission-next-entry-title">{{ current.title }}</span>
+          <span class="obs-intermission-next-entry-title">{{ next.title }}</span>
         </div>
       </template>
-      <template v-else-if="current.type == 'lightning-talks'">
+      <template v-else-if="next.type == 'lightning-talks'">
         <div class="obs-intermission-next-entry-content">
           <span class="obs-intermission-next-entry-misc-title">Lightning talks</span>
         </div>
       </template>
-      <template v-else-if="current.type == 'break' || current.type == 'announcement'">
+      <template v-else-if="next.type == 'break' || next.type == 'announcement'">
         <div class="obs-intermission-next-entry-content">
-          <span class="obs-intermission-next-entry-misc-title">{{ current.title }}</span>
+          <span class="obs-intermission-next-entry-misc-title">{{ next.title }}</span>
         </div>
       </template>
     </div>
