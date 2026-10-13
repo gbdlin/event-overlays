@@ -99,6 +99,7 @@ async function parseEventData(data) {
   if (data.command && data.command.action === "config.force-reload" && m_role.value !== "control") {
     window.location.reload();
   }
+  console.log(data)
   let status = data.status;
   if (status === "unassigned") {
     m_viewName.value = data.name;
@@ -130,14 +131,24 @@ async function parseEventData(data) {
     m_state.value = {};
   }
   Object.assign(m_state.value, data);
-  if (status === "init") {
-    if (ws !== undefined)
+
+  if (status === "update" || status === "init") {
+    let new_event;
+    if (m_event.value !== undefined && m_event.value !== null) {
+      new_event = m_event.value.path !== data.event.path
+    } else {
+      new_event = true;
+    }
+    console.log(`new event? ${new_event}`)
+    if (ws !== undefined && new_event)
       sendMessage({"action": "ntc.sync", "client_time": Date.now()});
     m_event.value = {};
     Object.assign(m_event.value, data.event)
     m_role.value = data.role;
     m_rig.value = data.rig;
-    m_screen_counter.value = 0;
+    if (new_event) {
+      m_screen_counter.value = 0;
+    }
     dateFormatter = new Intl.DateTimeFormat('default', {hour12: false, timeZone: m_event.value.timezone, timeStyle: "short"})
     msecDateFormatter = new Intl.DateTimeFormat('default', {hour12: false, timeZone: m_event.value.timezone, timeStyle: "full"})
     delete data.rig;
@@ -146,8 +157,10 @@ async function parseEventData(data) {
       delete data.stream
     }
     parseBranding(data.event.template);
-    await delay(10);
-    await initScreen()
+    if (new_event) {
+      await delay(10);
+      await initScreen()
+    }
   }
 
   if (status === "update") {

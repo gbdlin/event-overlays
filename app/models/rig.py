@@ -1,3 +1,4 @@
+from datetime import datetime, UTC
 import tomllib
 from pathlib import Path
 
@@ -9,7 +10,24 @@ class RigConfig(ContextualModel):
     slug: str
 
     control_password: str
-    event_path: str | None
+    event_path: str | None = None
+
+    events_schedule: list[tuple[datetime, str]] | None = None
+
+    def get_current_event_path(self) -> str:
+        event_path = None
+        now = datetime.now(tz=UTC)
+        if self.events_schedule:
+            for start_date, path in self.events_schedule:
+                if start_date is not None and start_date > now:
+                    break
+                event_path = path
+        elif self.event_path is not None:
+            event_path = self.event_path
+        if event_path is None:
+            raise ValueError("No event path set")
+
+        return event_path
 
     @staticmethod
     def get_rig_dict(path: Path) -> dict | None:

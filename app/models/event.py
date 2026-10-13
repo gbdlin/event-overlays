@@ -72,6 +72,7 @@ class EventScheduleEntryBase(BaseModel):
     show_in_schedule: bool = True
     duration: int | None = None
     timer_duration: Annotated[timedelta | None, PlainSerializer(timedelta_to_str)] = None
+    end: datetime | None = None
 
 
 class EventTalkBase(EventScheduleEntryBase):

@@ -3,7 +3,7 @@
       v-if="display == 'full' || display == 'no-extra' || {{ show_all|default("false") }}"
   >
   <tr>
-    <th>Time</th>
+    <th colspan="2">Time</th>
     <th>Speaker</th>
     <th>Title</th>
     <th v-if="state.show_duration || state.show_timer_duration" :colspan="state.show_duration && state.show_timer_duration ? 2 : 1">Dur</th>
@@ -12,13 +12,14 @@
         v-if="display == 'full' || display == 'no-header' || {{ show_all|default("false") }}"
     >{% raw %}{{ column }}{% endraw %}</th>
     {% if show_jump_buttons %}
-      <th colspan="2">Jump</th>
+      <th colspan="2" v-if="event.template.ticker_source === 'manual'">Jump</th>
     {% endif %}
   </tr>
   </thead>
     <template v-for="(entry, lp) in state.schedule">
       <tr v-if="entry.state != 'past' || {{ show_past_items|default("false") }}" :class='[`schedule-entry-${entry.state}`]'>
           <td>{% raw %}{{ formatTime(entry.start) }}{% endraw %}</td>
+          <td>{% raw %}{{ formatTime(entry.end) }}{% endraw %}</td>
           <td>{% raw %}{{ entry.author?entry.author.name:'---' }}{% endraw %}</td>
           <td>{% raw %}{{ entry.title }}{% endraw %}</td>
           <td v-if="state.show_duration">{% raw %}{{ entry.duration }}{% endraw %}</td>
@@ -28,8 +29,8 @@
               v-if="display == 'full' || display == 'no-header' || {{ show_all|default("false") }}"
           >{% raw %}{{ entry[column] }}{% endraw %}</td>
           {% if show_jump_buttons %}
-            <td class="scheduleTable-jump"><a :class='{"current": state.current_state[0] === lp && state.current_state[1] === false}' @click="jump(`${lp}-pre`)">P</a></td>
-            <td class="scheduleTable-jump"><a :class='{"current": entry.state == "current"}' @click="jump(`${lp}-mid`)">M</a></td>
+            <td class="scheduleTable-jump" v-if="event.template.ticker_source === 'manual'"><a :class='{"current": state.current_state[0] === lp && state.current_state[1] === false}' @click="jump(`${lp}-pre`)">P</a></td>
+            <td class="scheduleTable-jump" v-if="event.template.ticker_source === 'manual'"><a :class='{"current": entry.state == "current"}' @click="jump(`${lp}-mid`)">M</a></td>
           {% endif %}
       </tr>
     </template>

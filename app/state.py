@@ -1,7 +1,7 @@
 import secrets
 from asyncio import Event
 
-from fastapi.websockets import WebSocket
+from fastapi.websockets import WebSocket, WebSocketDisconnect
 from pydantic_core import to_json
 
 from app.models import RigConfig, State
@@ -19,6 +19,16 @@ class ConnectionManager:
     def disconnect(self, websocket: WebSocket):
         self.active_connections.remove(websocket)
 
+    async def broadcast_json(self, data):
+        await self.broadcast(
+            to_json(
+                {
+                    "status": "update",
+                    **data
+                }
+            ).decode(),
+        )
+
     async def broadcast_targeted_json(self, data, target_roles):
         await self.broadcast(
             to_json(
@@ -31,15 +41,19 @@ class ConnectionManager:
             target_roles,
         )
 
-    async def broadcast(self, text: str, roles_to_notify: set[str]):
+    async def broadcast(self, text: str, roles_to_notify: set[str] = None):
         for connection in list(self.active_connections):
             role = self.connection_roles[connection]
-            if role not in roles_to_notify:
+            if roles_to_notify is not None and role not in roles_to_notify:
                 continue
             try:
                 await connection.send_text(text)
+            except WebSocketDisconnect:
+                self.active_connections.remove(connection)
             except RuntimeError:
                 self.active_connections.remove(connection)
+            except Exception as e:
+                print(f"error: {e!r}")
 
 
 managers: dict[str, ConnectionManager] = {}
@@ -148,6 +162,8 @@ async def get_ws_state(
         return None
     await websocket.accept()
 
-    manager = managers.setdefault(rig.event_path, ConnectionManager())
-    state = State.get_event_state(path=rig.event_path)
+    event_path = rig.get_current_event_path()
+
+    manager = managers.setdefault(rig_slug, ConnectionManager())
+    state = State.get_event_state(path=event_path)
     return state, manager, rig

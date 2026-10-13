@@ -1,15 +1,10 @@
 from datetime import datetime, timedelta, UTC
-from typing import Any, TYPE_CHECKING
 
-from pydantic import BaseModel, computed_field, ConfigDict, field_validator
+from pydantic import BaseModel, computed_field, ConfigDict
 
 from .event import Event, EventScheduleItem
 
-if TYPE_CHECKING:
-    from app.models import RigConfig
-
 states: dict[str, "State"] = {}
-rig_states: dict[str, "State"] = {}
 
 
 class StateException(Exception):
@@ -303,10 +298,3 @@ class State(BaseModel):
             states[path] = cls.create_event_state(path=path)
 
         return states[path]
-
-    @classmethod
-    def get_rig_state(cls, *, rig: "RigConfig") -> "State":
-        if rig.slug not in rig_states:
-            rig_states[rig.slug] = cls.create_event_state(path=rig.event_path)
-
-        return rig_states[rig.slug]

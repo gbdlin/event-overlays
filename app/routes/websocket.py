@@ -14,7 +14,6 @@ from app.config import config
 
 
 async def notify_roles(
-    notify: set[str],
     manager: ConnectionManager,
     state: State,
     command: str,
@@ -32,11 +31,10 @@ async def notify_roles(
         "control",
         "schedule",
     ):
-        if target_role in notify:
-            await manager.broadcast_targeted_json(
-                get_state_update_for(state, target_role, command, rig_assigned_views),
-                notify & {target_role, "debug"},
-            )
+        await manager.broadcast_targeted_json(
+            get_state_update_for(state, target_role, command, rig_assigned_views),
+            {target_role, "debug"},
+        )
 
 
 
@@ -67,7 +65,7 @@ async def ws_view(
             stream_pwd,
         )
 
-        await notify_roles({"control", "debug"}, manager, state, "views.assigned", assigned_views)
+        await notify_roles(manager, state, "views.assigned", assigned_views)
     else:
         stream_id = None
         stream_pwd = None
@@ -97,6 +95,8 @@ async def ws_view(
         async for command in websocket.iter_json():
             notify = {"control", "debug"}
             server_time = time_ns() // 1_000_000
+            event_path = rig.get_current_event_path()
+            state = State.get_event_state(path=event_path)
             try:
                 match command:
                     case {"action": "ntc.sync", "client_time": client_time}:
@@ -224,7 +224,7 @@ async def ws_view(
                                 )
                                 continue
                         await websocket.send_json({"status": "success"})
-                        await notify_roles(notify, manager, state, command, assigned_views)
+                        await notify_roles(manager, state, command, assigned_views)
                         await update_schedule_ticker()
             except StateException as ex:
                 await websocket.send_json(
@@ -236,12 +236,14 @@ async def ws_view(
         if view_name is not None:
             assigned_views.pop(view_name, None)
 
-        await notify_roles({"control", "debug"}, manager, state, "views.unassigned", assigned_views)
+        await notify_roles(manager, state, "views.unassigned", assigned_views)
 
 
 async def update_schedule_ticker():
-    notify = {"schedule", "scene-schedule", "scene-presentation", "scene-title"}
-
-    for event_path, manager in managers.items():
+    for rig_slug, manager in managers.items():
+        rig = RigConfig.get_rig_config(rig_slug)
+        if rig is None:
+            continue
+        event_path = rig.get_current_event_path()
         state = State.get_event_state(path=event_path)
-        await notify_roles(notify, manager, state, "event.tick")
+        await notify_roles(manager, state, "event.tick")
